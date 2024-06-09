@@ -1,0 +1,83 @@
+{{- $fullName := include "firefly-iii.importer.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "firefly-iii.importer.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.importer.autoscaling.enabled }}
+  replicas: {{ .Values.importer.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "firefly-iii.importer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.importer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "firefly-iii.importer.labels" . | nindent 8 }}
+        {{- with .Values.importer.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.importer.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.importer.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.importer.securityContext | nindent 12 }}
+          image: "{{ .Values.importer.image.repository }}:{{ .Values.importer.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.importer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.importer.service.port }}
+              protocol: TCP
+          env:
+          {{- range $key, $val := .Values.importer.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- range $key, $val := .Values.importer.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullName }}
+                  key: {{ $key }}
+          {{- end}}
+          livenessProbe:
+            {{- toYaml .Values.importer.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.importer.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.importer.resources | nindent 12 }}
+          {{- with .Values.importer.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.importer.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.importer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.importer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.importer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

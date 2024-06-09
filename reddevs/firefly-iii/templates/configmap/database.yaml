@@ -1,0 +1,12 @@
+{{- if not .Values.database.externalDatabase }}
+{{- if .Values.database.env.normal }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "firefly-iii.database.fullname" . }}
+data:
+  {{- range $key, $val := .Values.database.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+{{- end }}
+{{- end }}

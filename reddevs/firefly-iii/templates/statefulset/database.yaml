@@ -1,0 +1,59 @@
+{{- if not .Values.database.externalDatabase }}
+{{- $fullName := include "firefly-iii.database.fullname" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "firefly-iii.database.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "firefly-iii.database.fullname" . }}
+  replicas: {{ .Values.database.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "firefly-iii.database.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.database.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "firefly-iii.database.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.database.service.port }}
+              protocol: TCP
+          env:
+          {{- range $key, $val := .Values.database.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- range $key, $val := .Values.database.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullName }}
+                  key: {{ $key }}
+          {{- end}}
+          resources:
+          {{- toYaml .Values.database.resources | nindent 12 }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ if .Values.database.volumes.existingClaim }}{{ .Values.database.volumes.existingClaim }}{{- else }}{{ .Values.database.volumes.claimName }}{{- end }}
+      spec:
+        accessModes:
+      {{ toYaml .Values.database.volumes.accessModes | indent 4 }}
+        storageClassName: {{ .Values.database.volumes.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.database.volumes.size }}
+{{- end}}
