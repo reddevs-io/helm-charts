@@ -34,7 +34,11 @@ jobs:
           helm repo index --url https://charts.reddevs.io/ .
 
       - name: Commit and Push
+        env:
+          PAT: ${{ secrets.PAT_FOR_ACTIONS }}
         run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
           git add .
           git commit -m "Update Helm chart packages and index"
-          git push
+          git push https://${PAT}@github.com/${GITHUB_REPOSITORY}.git
