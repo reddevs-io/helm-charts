@@ -1,0 +1,162 @@
+{{- $configName := include "drupal.drupal.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "drupal.drupal.fullname" . }}
+  labels:
+    {{- include "drupal.drupal.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.drupal.autoscaling.enabled }}
+  replicas: {{ .Values.drupal.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "drupal.drupal.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.drupal.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "drupal.drupal.labels" . | nindent 8 }}
+        {{- with .Values.drupal.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.drupal.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "drupal.drupal.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.drupal.podSecurityContext | nindent 8 }}
+      {{- if .Values.drupal.initContainer.enable }}
+      initContainers:
+        - name: drupal-init
+          securityContext:
+            {{- toYaml .Values.drupal.securityContext | nindent 12 }}
+          image: "{{ .Values.drupal.image.repository }}:{{ .Values.drupal.image.tag }}"
+          imagePullPolicy: {{ .Values.drupal.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - '-c'
+          args:
+            {{- toYaml .Values.drupal.initContainer.args | nindent 12 }}
+          env:
+          {{- range $key, $val := .Values.drupal.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $configName }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- range $key, $val := .Values.drupal.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $configName }}
+                  key: {{ $key }}
+          {{- end}}
+          volumeMounts:
+            - name: drupal-ini
+              mountPath: /usr/local/etc/php/conf.d/drupal.ini
+              subPath: drupal.ini
+            {{- range $key, $volume := .Values.drupal.volumes }}
+            {{- if and $volume.enabled $volume.mountPath }}
+            - name: {{ $key }}
+              mountPath: {{ $volume.mountPath }}
+              {{- if $volume.subPath }}
+              subPath: {{ $volume.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+      {{- end }}
+      containers:
+        - name: drupal
+          securityContext:
+            {{- toYaml .Values.drupal.securityContext | nindent 12 }}
+          image: "{{ .Values.drupal.image.repository }}:{{ .Values.drupal.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.drupal.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.drupal.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.drupal.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.drupal.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.drupal.resources | nindent 12 }}
+          env:
+          {{- range $key, $val := .Values.drupal.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $configName }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- range $key, $val := .Values.drupal.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $configName }}
+                  key: {{ $key }}
+          {{- end}}
+          volumeMounts:
+            - name: drupal-json
+              mountPath: /docker-entrypoint.d/drupal.json
+              subPath: drupal.json
+            - name: drupal-ini
+              mountPath: /usr/local/etc/php/conf.d/drupal.ini
+              subPath: drupal.ini
+            {{- range $key, $volume := .Values.drupal.volumes }}
+            {{- if and $volume.enabled $volume.mountPath }}
+            - name: {{ $key }}
+              mountPath: {{ $volume.mountPath }}
+              {{- if $volume.subPath }}
+              subPath: {{ $volume.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+      volumes:
+        - name: drupal-json
+          configMap:
+            name: {{ include "drupal.drupal.fullname" . }}
+            items:
+              - key: drupal.json
+                path: drupal.json
+        - name: drupal-ini
+          configMap:
+            name: {{ include "drupal.drupal.fullname" . }}
+            items:
+              - key: drupal.ini
+                path: drupal.ini
+        {{- range $key, $volume := .Values.drupal.volumes }}
+        {{- if $volume.enabled }}
+        - name: {{ $key }}
+          {{- if eq $volume.type "persistentVolumeClaim" }}
+          persistentVolumeClaim:
+            claimName: {{ if $volume.existingClaim }}{{ $volume.existingClaim }}{{- else }}{{ $volume.claimName }}{{- end }}
+          {{- else if eq $volume.type "emptyDir" }}
+          emptyDir: { }
+          {{- else if eq $volume.type "hostPath" }}
+          hostPath:
+            path: {{ $volume.hostPath }}
+          {{- else }}
+          {{ $volume.type }}: {{- toYaml $volume.config | nindent 16 }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- with .Values.drupal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.drupal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.drupal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

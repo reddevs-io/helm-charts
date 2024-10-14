@@ -1,0 +1,102 @@
+{
+  "listeners": {
+    "*:80": {
+      "pass": "routes"
+    }
+  },
+  "routes": [
+    {
+      "match": {
+        "uri": [
+          "!*/.well-known/*",
+          "/vendor/*",
+          "*.engine",
+          "*.inc",
+          "*.install",
+          "*.make",
+          "*.module",
+          "*.po",
+          "*.profile",
+          "*.sh",
+          "*.theme",
+          "*.tpl",
+          "*.twig",
+          "*.xtmpl",
+          "*.yml",
+          "*/.*",
+          "*/Entries*",
+          "*/Repository",
+          "*/Root",
+          "*/Tag",
+          "*/Template",
+          "*/composer.json",
+          "*/composer.lock",
+          "*/web.config",
+          "*sql",
+          "*.bak",
+          "*.orig",
+          "*.save",
+          "*.swo",
+          "*.swp",
+          "*~"
+        ]
+      },
+      "action": {
+        "return": 404
+      }
+    },
+    {
+      "match": {
+        "uri": [
+          "/core/authorize.php",
+          "/core/core.api.php",
+          "/core/globals.api.php",
+          "/core/install.php",
+          "/core/modules/statistics/statistics.php",
+          "~^/core/modules/system/tests/https?\\.php",
+          "/core/rebuild.php",
+          "/update.php",
+          "/update.php/*"
+        ]
+      },
+      "action": {
+        "pass": "applications/drupal/direct"
+      }
+    },
+    {
+      "match": {
+        "uri": [
+          "!/index.php*",
+          "*.php"
+        ]
+      },
+      "action": {
+        "return": 404
+      }
+    },
+    {
+      "action": {
+        "share": "/app/drupal/web$uri",
+        "fallback": {
+          "pass": "applications/drupal/index"
+        }
+      }
+    }
+  ],
+  "applications": {
+    "drupal": {
+      "type": "php",
+      "user": "unit",
+      "group": "unit",
+      "targets": {
+        "direct": {
+          "root": "/app/drupal/web/"
+        },
+        "index": {
+          "root": "/app/drupal/web/",
+          "script": "index.php"
+        }
+      }
+    }
+  }
+}

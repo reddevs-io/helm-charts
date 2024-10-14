@@ -1,0 +1,17 @@
+{{- if .Values.storybook.enable -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nextjs.storybook.fullname" . }}
+  labels:
+    {{- include "nextjs.storybook.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.storybook.service.type }}
+  ports:
+    - port: {{ .Values.storybook.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "nextjs.storybook.matchLabels" . | nindent 4 }}
+{{- end }}

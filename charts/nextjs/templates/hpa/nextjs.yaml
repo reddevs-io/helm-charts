@@ -1,0 +1,32 @@
+{{- if .Values.nextjs.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "nextjs.nextjs.fullname" . }}
+  labels:
+    {{- include "nextjs.nextjs.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "nextjs.nextjs.fullname" . }}
+  minReplicas: {{ .Values.nextjs.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.nextjs.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.nextjs.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.nextjs.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.nextjs.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.nextjs.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

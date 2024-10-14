@@ -1,0 +1,84 @@
+{{- if .Values.drupal.cron.softDelete.enable -}}
+{{- $configName := include "drupal.drupal.fullname" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: drupal-soft-delete-cron
+spec:
+  schedule: {{ .Values.drupal.cron.drupal }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: drupal
+              image: "{{ .Values.drupal.image.repository }}:{{ .Values.drupal.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - drush soft-delete:remove
+              env:
+              {{- range $key, $val := .Values.drupal.env.secret }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $configName }}
+                      key: {{ $key }}
+              {{- end}}
+              {{- range $key, $val := .Values.drupal.env.normal }}
+                - name: {{ $key }}
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ $configName }}
+                      key: {{ $key }}
+              {{- end}}
+              volumeMounts:
+                - name: drupal-json
+                  mountPath: /docker-entrypoint.d/drupal.json
+                  subPath: drupal.json
+                - name: drupal-ini
+                  mountPath: /usr/local/etc/php/conf.d/drupal.ini
+                  subPath: drupal.ini
+                {{- range $key, $volume := .Values.drupal.volumes }}
+                {{- if and $volume.enabled $volume.mountPath }}
+                - name: {{ $key }}
+                  mountPath: {{ $volume.mountPath }}
+                  {{- if $volume.subPath }}
+                  subPath: {{ $volume.subPath }}
+                  {{- end }}
+                {{- end }}
+                {{- end }}
+          restartPolicy: OnFailure
+          volumes:
+            - name: drupal-json
+              configMap:
+                name: {{ include "drupal.drupal.fullname" . }}
+                items:
+                  - key: drupal.json
+                    path: drupal.json
+            - name: drupal-ini
+              configMap:
+                name: {{ include "drupal.drupal.fullname" . }}
+                items:
+                  - key: drupal.ini
+                    path: drupal.ini
+            {{- range $key, $volume := .Values.drupal.volumes }}
+            {{- if $volume.enabled }}
+            - name: {{ $key }}
+              {{- if eq $volume.type "persistentVolumeClaim" }}
+              persistentVolumeClaim:
+                claimName: {{ if $volume.existingClaim }}{{ $volume.existingClaim }}{{- else }}{{ $volume.claimName }}{{- end }}
+              {{- else if eq $volume.type "emptyDir" }}
+              emptyDir: {}
+              {{- else if eq $volume.type "hostPath" }}
+              hostPath:
+                path: {{ $volume.hostPath }}
+              {{- else }}
+              {{ $volume.type }}: {{- toYaml $volume.config | nindent 16 }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+{{- end }}

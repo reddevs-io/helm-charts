@@ -1,0 +1,17 @@
+{{- if .Values.redis.enable -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "drupal.redis.fullname" . }}
+  labels:
+    {{- include "drupal.redis.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.redis.service.type }}
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "drupal.redis.matchLabels" . | nindent 4 }}
+{{- end }}

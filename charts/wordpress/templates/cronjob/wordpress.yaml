@@ -1,0 +1,28 @@
+{{- if .Values.externalSecrets.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "wordpress.serviceAccountName" . }}
+spec:
+  concurrencyPolicy: Forbid
+  timeZone: "Etc/UTC"
+  schedule: {{ .Values.externalSecrets.restartDeployCronSchedule }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          serviceAccountName: {{ include "wordpress.serviceAccountName" . }}
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl
+              command:
+                - 'kubectl'
+                - 'rollout'
+                - 'restart'
+                - 'deployment/{{ include "wordpress.fullname" . }}'
+{{- end -}}

@@ -1,0 +1,43 @@
+{{- if .Values.nextjs.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "nextjs.nextjs.fullname" . }}
+  labels:
+    {{- include "nextjs.nextjs.labels" . | nindent 4 }}
+  {{- with .Values.nextjs.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.nextjs.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.nextjs.ingress.tls }}
+  tls:
+    {{- range .Values.nextjs.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.nextjs.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "nextjs.nextjs.fullname" $ }}
+                port:
+                  number: {{ $.Values.nextjs.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
