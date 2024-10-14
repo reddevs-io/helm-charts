@@ -1,0 +1,13 @@
+{{- if not .Values.core.persistence.existingClaim -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.core.persistence.claimName }}
+spec:
+  accessModes:
+{{ toYaml .Values.core.persistence.accessModes | indent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.core.persistence.size }}
+  storageClassName: {{ .Values.core.persistence.storageClassName }}
+{{- end -}}
