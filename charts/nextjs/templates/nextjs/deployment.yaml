@@ -34,7 +34,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: nextjs
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -45,6 +45,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          {{- if or .Values.env.normal .Values.env.secret }}
           env:
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
@@ -59,6 +60,7 @@ spec:
                 configMapKeyRef:
                   name: {{ $frontendFullname }}
                   key: {{ $key }}
+          {{- end}}
           {{- end}}
           {{- with .Values.livenessProbe }}
           livenessProbe:

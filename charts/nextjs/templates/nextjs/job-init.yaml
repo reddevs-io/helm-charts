@@ -43,6 +43,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - {{ .Values.initJob.command | quote }}
+          {{- if or .Values.env.normal .Values.env.secret }}
           env:
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
@@ -57,6 +58,7 @@ spec:
                 configMapKeyRef:
                   name: {{ $frontendFullname }}
                   key: {{ $key }}
+          {{- end}}
           {{- end}}
           {{- with .Values.resources }}
           resources:

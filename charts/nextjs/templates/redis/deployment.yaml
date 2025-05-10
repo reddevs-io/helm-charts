@@ -1,0 +1,94 @@
+{{- $redisFullname := include "nextjs.redis.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nextjs.redis.fullname" . }}
+  labels:
+    {{- include "nextjs.redis.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.redis.autoscaling.enabled }}
+  replicas: {{ .Values.redis.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nextjs.redis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.redis.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nextjs.redis.labels" . | nindent 8 }}
+        {{- with .Values.redis.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.redis.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nextjs.redis.serviceAccountName" . }}
+      {{- with .Values.redis.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: redis
+          {{- with .Values.redis.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.redis.service.port }}
+              protocol: TCP
+          {{- if or .Values.redis.env.normal .Values.redis.env.secret }}
+          env:
+          {{- range $key, $val := .Values.redis.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $redisFullname }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- range $key, $val := .Values.redis.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $redisFullname }}
+                  key: {{ $key }}
+          {{- end}}
+          {{- end}}
+          {{- with .Values.redis.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.redis.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.redis.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.redis.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.redis.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.redis.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.redis.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.redis.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

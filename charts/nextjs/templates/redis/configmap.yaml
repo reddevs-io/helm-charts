@@ -1,12 +1,12 @@
-{{- if .Values.env.normal }}
+{{- if .Values.redis.env.normal }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "nextjs.fullname" . }}
+  name: {{ include "nextjs.redis.fullname" . }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
 data:
-  {{- range $key, $val := .Values.env.normal }}
+  {{- range $key, $val := .Values.redis.env.normal }}
   {{ $key }}: {{ $val | quote }}
   {{- end}}
-{{- end}}
+{{- end }}
