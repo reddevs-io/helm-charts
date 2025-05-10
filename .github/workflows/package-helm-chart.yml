@@ -49,7 +49,7 @@ jobs:
       - name: Rebuild index
         run: |
           helm repo index .chart-packages \
-            --url https://<GITHUB_ORG>.github.io/<REPO_NAME>
+            --url https://charts.reddevs.io
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
