@@ -1,9 +1,0 @@
-{{- if .Values.redis.enable -}}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "drupal.redis.fullname" . }}
-data:
-  redis.conf: |
-    {{ .Values.redis.redisConfig | default (.Files.Get "config/redis/redis.conf") | nindent 4 }}
-{{- end }}

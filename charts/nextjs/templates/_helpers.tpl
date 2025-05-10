@@ -6,33 +6,15 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
-Create a default nextjs fully qualified app name.
+Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "nextjs.nextjs.fullname" -}}
-{{- if .Values.nextjs.fullnameOverride }}
-{{- .Values.nextjs.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "nextjs.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nextjs.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Create a default storybook fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
-*/}}
-{{- define "nextjs.storybook.fullname" -}}
-{{- if .Values.storybook.fullnameOverride }}
-{{- .Values.storybook.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.storybook.nameOverride }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -51,59 +33,46 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "nextjs.common.matchLabels" -}}
+{{- define "nextjs.common.selectorLabels" -}}
+app: {{ template "nextjs.name" . }}
+{{- end }}
+
+{{- define "nextjs.labels" -}}
+{{ include "nextjs.selectorLabels" . }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "nextjs.selectorLabels" -}}
 helm.sh/chart: {{ include "nextjs.chart" . }}
+app.kubernetes.io/name: {{ include "nextjs.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app: {{ template "nextjs.name" . }}
-{{- end -}}
+{{ include "nextjs.common.selectorLabels" . }}
+component: {{ .Values.component | quote }}
+tier: {{ .Values.tier | quote }}
+{{- end }}
 
 {{/*
-Create unified labels for nextjs components
+Create the name of the service account to use
 */}}
-{{- define "nextjs.nextjs.labels" -}}
-{{ include "nextjs.nextjs.matchLabels" . }}
-{{- end -}}
-
-{{- define "nextjs.nextjs.matchLabels" -}}
-component: {{ .Values.nextjs.name | quote }}
-tier: {{ .Values.nextjs.tier | quote }}
-{{ include "nextjs.common.matchLabels" . }}
-{{- end -}}
-
-{{/*
-Create unified labels for storybook components
-*/}}
-{{- define "nextjs.storybook.labels" -}}
-{{ include "nextjs.storybook.matchLabels" . }}
-{{- end -}}
-
-{{- define "nextjs.storybook.matchLabels" -}}
-component: {{ .Values.storybook.name | quote }}
-tier: {{ .Values.storybook.tier | quote }}
-{{ include "nextjs.common.matchLabels" . }}
-{{- end -}}
-
-{{/*
-Create the name of the nextjs service account to use
-*/}}
-{{- define "nextjs.nextjs.serviceAccountName" -}}
-{{- if .Values.nextjs.serviceAccount.create }}
-{{- default (include "nextjs.nextjs.fullname" .) .Values.nextjs.serviceAccount.name }}
+{{- define "nextjs.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "nextjs.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.nextjs.serviceAccount.name }}
+{{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-Create the name of the storybook service account to use
+Create a docker registry secret
 */}}
-{{- define "nextjs.storybook.serviceAccountName" -}}
-{{- if .Values.storybook.serviceAccount.create }}
-{{- default (include "nextjs.storybook.fullname" .) .Values.storybook.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.storybook.serviceAccount.name }}
+{{- define "imagePullSecret" }}
+{{- with .Values.imageCredentials }}
+{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
 {{- end }}
 {{- end }}
