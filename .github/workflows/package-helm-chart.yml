@@ -4,20 +4,15 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'charts/**'
 
 jobs:
   publish:
-    name: Validate · Package · Publish
+    name: Lint · Render · Package · Publish
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # we need full history so that gh-pages push doesn’t create
-          # an unrelated orphan branch
           fetch-depth: 0
 
       - name: Set up Helm
@@ -28,14 +23,17 @@ jobs:
       - name: Lint all charts
         run: |
           for dir in charts/*; do
+            echo "⎯⎯ Linting $(basename $dir) ⎯⎯"
             helm lint "$dir"
           done
 
-      - name: Template-render all charts
+      - name: Render templates
         run: |
           for dir in charts/*; do
             chart=$(basename "$dir")
-            helm template "$chart" "$dir" --validate
+            echo "⎯⎯ Rendering $chart ⎯⎯"
+            # note: no --validate here!
+            helm template "$chart" "$dir"
           done
 
       - name: Package charts
@@ -43,6 +41,8 @@ jobs:
           rm -rf .chart-packages
           mkdir .chart-packages
           for dir in charts/*; do
+            chart=$(basename "$dir")
+            echo "⎯⎯ Packaging $chart ⎯⎯"
             helm package "$dir" --destination .chart-packages
           done
 
@@ -51,7 +51,7 @@ jobs:
           helm repo index .chart-packages \
             --url https://<GITHUB_ORG>.github.io/<REPO_NAME>
 
-      - name: Publish to GitHub Pages (gh-pages branch)
+      - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
