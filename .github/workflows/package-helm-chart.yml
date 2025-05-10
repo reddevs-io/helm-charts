@@ -1,5 +1,10 @@
 name: Package & Publish Helm Charts
 
+# Grant write access so the bot can push to gh-pages
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:
