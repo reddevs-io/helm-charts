@@ -3,12 +3,12 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-10T11:06:50.824213566Z"
+    created: "2025-05-10T11:18:38.359298835Z"
     description: A Helm chart for Kubernetes
-    digest: 1d63d21699a54ce06ba8c3ba9865b8c561a3185a8658667fe1842313edf87eda
+    digest: c20de9cb8534c17a7ec59ffa0ce6983ac40030f738ddda28f80cd417ae15f099
     name: nextjs
     type: application
     urls:
     - https://charts.reddevs.io/nextjs-1.0.0.tgz
     version: 1.0.0
-generated: "2025-05-10T11:06:50.823377486Z"
+generated: "2025-05-10T11:18:38.358431552Z"
