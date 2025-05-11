@@ -1,3 +1,4 @@
+{{- if .Values.redis.enable }}
 {{- $redisFullname := include "nextjs.redis.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -102,3 +103,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

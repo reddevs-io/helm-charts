@@ -172,6 +172,8 @@ affinity:
                 - linux
 
 redis:
+  enable: false
+
   fullnameOverride: ""
   component: "redis"
   tier: "cache"
