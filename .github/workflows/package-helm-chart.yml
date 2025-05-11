@@ -9,6 +9,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'charts/**'
 
 jobs:
   publish:
@@ -23,13 +25,26 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
-          version: v3.12.0
+          version: v3.17.3
 
       - name: Lint all charts
         run: |
           for dir in charts/*; do
             echo "⎯⎯ Linting $(basename $dir) ⎯⎯"
             helm lint "$dir"
+          done
+
+      - name: Install kube-linter
+        run: |
+          curl -sSL https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux-amd64.tar.gz | tar -xz
+          sudo mv kube-linter /usr/local/bin/
+
+      - name: Run kube-linter on all charts
+        run: |
+          for dir in charts/*; do
+            chart=$(basename "$dir")
+            echo "⎯⎯ kube-linter for $chart ⎯⎯"
+            helm template "$dir" | kube-linter --config .kube-linter.yaml lint -
           done
 
       - name: Render templates

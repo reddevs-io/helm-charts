@@ -1,0 +1,10 @@
+checks:
+  addAllBuiltIn: true
+  exclude:
+    - "unset-cpu-requirements"
+    - "use-namespace"
+    - "minimum-three-replicas"
+    - "no-read-only-root-fs"
+    - "required-annotation-email"
+    - "required-label-owner"
+    - "dnsconfig-options"
