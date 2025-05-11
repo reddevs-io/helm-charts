@@ -1,0 +1,17 @@
+{{- if .Values.redis.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nextjs.redis.fullname" . }}
+  labels:
+    {{- include "nextjs.redis.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "nextjs.name" . }}
+      component: {{ .Values.redis.component }}
+  policyTypes:
+    {{- toYaml .Values.redis.networkPolicy.policyTypes | nindent 4 }}
+  ingress:
+    {{- toYaml .Values.redis.networkPolicy.ingress | nindent 4 }}
+{{- end }}

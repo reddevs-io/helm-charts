@@ -9,6 +9,11 @@ spec:
   {{- if not .Values.redis.autoscaling.enabled }}
   replicas: {{ .Values.redis.replicaCount }}
   {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "nextjs.redis.selectorLabels" . | nindent 6 }}
@@ -24,6 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      restartPolicy: Always
       {{- with .Values.redis.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

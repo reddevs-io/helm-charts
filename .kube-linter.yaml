@@ -4,7 +4,18 @@ checks:
     - "unset-cpu-requirements"
     - "use-namespace"
     - "minimum-three-replicas"
-    - "no-read-only-root-fs"
     - "required-annotation-email"
     - "required-label-owner"
-    - "dnsconfig-options"
+customChecks:
+  - name: required-label-app
+    template: required-label
+    params:
+      key: app
+  - name: required-label-component
+    template: required-label
+    params:
+      key: component
+  - name: required-label-tier
+    template: required-label
+    params:
+      key: tier

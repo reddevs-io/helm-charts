@@ -9,8 +9,8 @@ on:
   push:
     branches:
       - main
-    #paths:
-    #  - 'charts/**'
+    paths:
+      - 'charts/**'
 
 jobs:
   publish:

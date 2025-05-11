@@ -75,6 +75,14 @@ service:
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 3000
 
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - podSelector: {}
+  policyTypes:
+    - Ingress
+
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: false
@@ -92,7 +100,9 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  limits:
+    memory: "300Mi"
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -105,23 +115,19 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe: {}
-#  httpGet:
-#    path: /api/health
-#    port: 3000
-#  initialDelaySeconds: 2
-#  periodSeconds: 10
-#  timeoutSeconds: 5
-#  failureThreshold: 5
+livenessProbe:
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 10
 
-readinessProbe: {}
-#  httpGet:
-#    path: /api/health
-#    port: 3000
-#  initialDelaySeconds: 2
-#  periodSeconds: 10
-#  timeoutSeconds: 5
-#  failureThreshold: 3
+readinessProbe:
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -155,7 +161,15 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: In
+              values:
+                - linux
 
 redis:
   fullnameOverride: ""
@@ -217,7 +231,17 @@ redis:
     # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
     port: 6379
 
-  resources: { }
+  networkPolicy:
+    enabled: true
+    ingress:
+      - from:
+          - podSelector: { }
+    policyTypes:
+      - Ingress
+
+  resources:
+    limits:
+      memory: "300Mi"
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -230,23 +254,21 @@ redis:
   #   memory: 128Mi
 
   # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  livenessProbe: { }
-  #  httpGet:
-  #    path: /api/health
-  #    port: 3000
-  #  initialDelaySeconds: 2
-  #  periodSeconds: 10
-  #  timeoutSeconds: 5
-  #  failureThreshold: 5
+  livenessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 10
+    periodSeconds: 10
 
-  readinessProbe: { }
-  #  httpGet:
-  #    path: /api/health
-  #    port: 3000
-  #  initialDelaySeconds: 2
-  #  periodSeconds: 10
-  #  timeoutSeconds: 5
-  #  failureThreshold: 3
+  readinessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 5
+    periodSeconds: 5
 
   # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
   autoscaling:
@@ -269,4 +291,12 @@ redis:
 
   tolerations: [ ]
 
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
