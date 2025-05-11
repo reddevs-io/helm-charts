@@ -77,7 +77,6 @@ To uninstall the chart and delete all associated resources, run:
 helm uninstall release-name
 ````
 
-
 ## License
 
 This Helm chart is provided under the MIT License.
