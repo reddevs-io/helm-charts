@@ -84,16 +84,20 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.persistence.enabled }}
           volumeMounts:
+            - name: node-cache
+              mountPath: /home/node/.cache
+          {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
           {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if .Values.persistence.enabled }}
       volumes:
+        - name: node-cache
+          emptyDir: {}
+      {{- if .Values.persistence.enabled }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "nextjs.fullname" . }}-data
