@@ -4,6 +4,7 @@ checks:
     - "unset-cpu-requirements" # Ignored to avoid throttling https://spot.io/resources/kubernetes-architecture/kubernetes-cpu-limits-how-they-work-and-should-you-avoid-them/
     - "use-namespace"
     - "minimum-three-replicas"
+    - "hpa-minimum-three-replicas"
     - "required-annotation-email"
     - "required-label-owner"
 customChecks:

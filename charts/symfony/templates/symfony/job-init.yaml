@@ -9,6 +9,8 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    ignore-check.kube-linter.io/no-liveness-probe: "The init job would mainly be used to run deployment commands. Does not need to be live"
+    ignore-check.kube-linter.io/no-readiness-probe: "The init job would mainly be used to run deployment commands. Does not need to be ready"
 spec:
   template:
     metadata:
@@ -22,6 +24,10 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
