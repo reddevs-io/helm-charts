@@ -3,7 +3,7 @@ name: Package & Publish Helm Charts
 # Grant write access so the bot can push to gh-pages
 permissions:
   contents: write
-  pages: write
+  pages: write # Required for GitHub Pages deployments
 
 on:
   push:
@@ -85,3 +85,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .chart-packages
           publish_branch: gh-pages
+          cname: charts.reddevs.io
