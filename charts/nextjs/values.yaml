@@ -64,7 +64,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
 
@@ -220,7 +220,7 @@ redis:
     capabilities:
       drop:
         - ALL
-    readOnlyRootFilesystem: false
+    readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 999
 

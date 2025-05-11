@@ -5,6 +5,8 @@ metadata:
   name: {{ include "nextjs.redis.fullname" . }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "nextjs.redis.labels" . | nindent 4 }}
 data:
   {{- range $key, $val := .Values.redis.env.normal }}
   {{ $key }}: {{ $val | quote }}

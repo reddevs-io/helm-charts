@@ -30,6 +30,10 @@ spec:
         {{- end }}
     spec:
       restartPolicy: Always
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
       {{- with .Values.redis.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
