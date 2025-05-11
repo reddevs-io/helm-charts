@@ -9,8 +9,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'charts/**'
+    #paths:
+    #  - 'charts/**'
 
 jobs:
   publish:
@@ -36,7 +36,9 @@ jobs:
 
       - name: Install kube-linter
         run: |
-          curl -sSL https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux-amd64.tar.gz | tar -xz
+          curl -sSL -o kube-linter-linux-amd64.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux-amd64.tar.gz
+          file kube-linter-linux-amd64.tar.gz # This will tell you the actual file type
+          tar -xzf kube-linter-linux-amd64.tar.gz
           sudo mv kube-linter /usr/local/bin/
 
       - name: Run kube-linter on all charts
