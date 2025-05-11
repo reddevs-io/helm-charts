@@ -5,6 +5,8 @@ metadata:
   name: {{ include "symfony.fullname" . }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "symfony.labels" . | nindent 4 }}
 data:
   {{- if .Values.phpIni }}
   symfony.ini: |
