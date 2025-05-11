@@ -88,6 +88,12 @@ spec:
             - name: symfony-ini
               mountPath: /usr/local/etc/php/conf.d/symfony.ini
               subPath: symfony.ini
+          {{- if .Values.nginxUnit.enable }}
+            - name: symfony-json
+              mountPath: /docker-entrypoint.d/symfony.json
+              subPath: symfony.json
+              readOnly: true
+          {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -98,6 +104,14 @@ spec:
             items:
               - key: symfony.ini
                 path: symfony.ini
+      {{- if .Values.nginxUnit.enable }}
+        - name: symfony-json
+          configMap:
+            name: {{ include "symfony.fullname" . }}
+            items:
+              - key: symfony.json
+                path: symfony.json
+      {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

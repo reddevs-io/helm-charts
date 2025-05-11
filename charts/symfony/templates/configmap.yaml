@@ -1,4 +1,4 @@
-{{- if .Values.env.normal }}
+{{- if or .Values.env.normal .Values.phpIni .Values.nginxUnit.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,10 +6,16 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
 data:
+  {{- if .Values.phpIni }}
   symfony.ini: |
     {{- range $key, $val := .Values.phpIni }}
     {{ $key }} = {{ $val | quote }}
     {{- end }}
+  {{- end }}
+  {{- if .Values.nginxUnit.enable }}
+  custom-unit.json: |
+    {{- .Values.nginxUnit.content | nindent 4 }}
+  {{- end }}
   {{- range $key, $val := .Values.env.normal }}
   {{ $key }}: {{ $val | quote }}
   {{- end}}

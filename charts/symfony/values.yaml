@@ -38,6 +38,57 @@ env:
 phpIni:
   memory_limit: "200M"
 
+nginxUnit:
+    # Set to true to enable and use the custom Nginx Unit JSON configuration
+    enable: false
+    # The JSON configuration content for Nginx Unit
+    # This should be a valid JSON string.
+    content: |
+      {
+        "listeners": {
+          "*:80": {
+            "pass": "routes"
+          }
+        },
+        "routes": [
+          {
+            "match": {
+              "uri": [
+                "*.php",
+                "*.php/*"
+              ]
+            },
+            "action": {
+              "pass": "applications/symfony/direct"
+            }
+          },
+          {
+            "action": {
+              "share": "/app/symfony/public$uri",
+              "fallback": {
+                "pass": "applications/symfony/index"
+              }
+            }
+          }
+        ],
+        "applications": {
+          "symfony": {
+            "type": "php",
+            "user": "unit",
+            "group": "unit",
+            "targets": {
+              "direct": {
+                "root": "/app/symfony/public/"
+              },
+              "index": {
+                "root": "/app/symfony/public/",
+                "script": "index.php"
+              }
+            }
+          }
+        }
+      }
+
 initJob:
   enabled: false
   command: ""
@@ -77,7 +128,7 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  port: 8080
 
 networkPolicy:
   enabled: true
