@@ -3,23 +3,23 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-11T23:59:57.882001232Z"
+    created: "2025-05-12T12:45:20.975241401Z"
     description: A Helm chart for Kubernetes
-    digest: 5cf76e07dfbaf1508590e50aacbac596b570a1b453894b94e13231a58c7cc26b
+    digest: 50d225baa9c3da88ceaf94c2b0c4e5eebf95ee18ed1de9adb97b0b1280c78f90
     name: nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.0.1.tgz
-    version: 1.0.1
+    - https://charts.reddevs.io/nextjs-1.0.2.tgz
+    version: 1.0.2
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-11T23:59:57.882596289Z"
+    created: "2025-05-12T12:45:20.975857133Z"
     description: A Helm chart for Kubernetes
-    digest: a537d650fe15ed1b2a23427bdbebc0107ddebfd4d49c856dec0e457ca3f68e89
+    digest: dbb27fe750c356d87db57a73f40303157d3ab8392ea8ae63e10b33a2c7d81df5
     name: symfony
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.0.0.tgz
-    version: 1.0.0
-generated: "2025-05-11T23:59:57.881041506Z"
+    - https://charts.reddevs.io/symfony-1.0.1.tgz
+    version: 1.0.1
+generated: "2025-05-12T12:45:20.973745361Z"
