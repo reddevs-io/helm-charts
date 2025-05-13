@@ -1,0 +1,56 @@
+image:
+  repository: "nginx"
+  tag: "1.27-alpine"
+
+imagePullSecrets:
+  - name: container-registry-cred
+
+env:
+  normal:
+    TEST_VARIABLE_1: "test1"
+    TEST_VARIABLE_2: "test2"
+  secret:
+    TEST_SECRET_VARIABLE_1: "testsecret1"
+    TEST_SECRET_VARIABLE_2: "testsecret2"
+
+initJob:
+  enabled: true
+  command: "echo 'test'"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/force-ssl-redirect: 'true'
+    kubernetes.io/tls-acme: 'true'
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: example-com-tls
+      hosts:
+        - example.com
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+persistence:
+  enabled: true
+
+redis:
+  enable: true
+
+  env:
+    normal:
+      TEST_VARIABLE_1: "test1"
+      TEST_VARIABLE_2: "test2"
+    secret:
+      TEST_SECRET_VARIABLE_1: "testsecret1"
+      TEST_SECRET_VARIABLE_2: "testsecret2"

@@ -2,11 +2,12 @@ checks:
   addAllBuiltIn: true
   exclude:
     - "unset-cpu-requirements" # Ignored to avoid throttling https://spot.io/resources/kubernetes-architecture/kubernetes-cpu-limits-how-they-work-and-should-you-avoid-them/
-    - "use-namespace"
+    - "use-namespace" # Namespace will be defined when installing the helm chart
     - "minimum-three-replicas"
     - "hpa-minimum-three-replicas"
     - "required-annotation-email"
     - "required-label-owner"
+    - "read-secret-from-env-var" # Easiest implementation for most applications
 customChecks:
   - name: required-label-app
     template: required-label

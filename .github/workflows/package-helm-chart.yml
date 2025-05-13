@@ -34,10 +34,7 @@ jobs:
 
       - name: Lint all charts
         run: |
-          for dir in charts/*; do
-            echo "⎯⎯ Linting $(basename $dir) ⎯⎯"
-            helm lint "$dir"
-          done
+          helm lint charts/*
 
       - name: Install kube-linter
         run: |
@@ -49,10 +46,13 @@ jobs:
         run: |
           for dir in charts/*; do
             chart=$(basename "$dir")
+            values_file="$dir/linter-values.yaml"
             echo "⎯⎯ kube-linter for $chart ⎯⎯"
-            # Ensure your .kube-linter.yaml config file is in the root of your repository
-            # or adjust the path to --config accordingly.
-            helm template "$dir" | kube-linter --config .kube-linter.yaml lint -
+            if [ -f "$values_file" ]; then
+              helm template "$dir" -f "$values_file" | kube-linter --config .kube-linter.yaml lint -
+            else
+              helm template "$dir" | kube-linter --config .kube-linter.yaml lint -
+            fi
           done
 
       - name: Render templates
