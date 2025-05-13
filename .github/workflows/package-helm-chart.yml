@@ -9,8 +9,8 @@ on:
   push:
     branches:
       - main
-    #paths:
-    #  - 'charts/**'
+    paths:
+      - 'charts/**'
 
 jobs:
   publish:
@@ -53,15 +53,6 @@ jobs:
             else
               helm template "$dir" | kube-linter --config .kube-linter.yaml lint -
             fi
-          done
-
-      - name: Render templates
-        run: |
-          for dir in charts/*; do
-            chart=$(basename "$dir")
-            echo "⎯⎯ Rendering $chart ⎯⎯"
-            # note: no --validate here!
-            helm template "$chart" "$dir"
           done
 
       - name: Package charts
