@@ -1,11 +1,22 @@
 apiVersion: v1
 entries:
+  ghost:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-05-23T22:03:24.927886213Z"
+    description: A Helm chart for Kubernetes
+    digest: f4a35c682cab2df9a2f6e361956411a9d4834359d9fac5e6ca1e7045ad2e073f
+    name: ghost
+    type: application
+    urls:
+    - https://charts.reddevs.io/ghost-0.1.0.tgz
+    version: 0.1.0
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-13T09:28:27.716385927Z"
+    created: "2025-05-23T22:03:24.928845612Z"
     description: A Helm chart for Kubernetes
-    digest: e40ca78af223324520a29faf8c4f43671e855a3210c4d25116e9c6f0058310c8
+    digest: 26e488b9f6fddf0d1f88b46ddbd8a735a6d5fbe6927bd1c2f79a92f12c30671a
     name: nextjs
     type: application
     urls:
@@ -14,12 +25,12 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-13T09:28:27.717061769Z"
+    created: "2025-05-23T22:03:24.930267643Z"
     description: A Helm chart for Kubernetes
-    digest: de5be3bff4497589f347a59750ced1cac51d86de378ca2544592027ce8489eec
+    digest: f042cec9159e9c8cc6e12e3841a8765141111f9137be4f91844a25df1830dcc7
     name: symfony
     type: application
     urls:
     - https://charts.reddevs.io/symfony-1.0.1.tgz
     version: 1.0.1
-generated: "2025-05-13T09:28:27.715357977Z"
+generated: "2025-05-23T22:03:24.927171165Z"
