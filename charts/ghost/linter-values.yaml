@@ -13,10 +13,6 @@ env:
     TEST_SECRET_VARIABLE_1: "testsecret1"
     TEST_SECRET_VARIABLE_2: "testsecret2"
 
-initJob:
-  enabled: true
-  command: "echo 'test'"
-
 ingress:
   enabled: true
   className: "nginx"
@@ -43,14 +39,3 @@ autoscaling:
 
 persistence:
   enabled: true
-
-redis:
-  enable: true
-
-  env:
-    normal:
-      TEST_VARIABLE_1: "test1"
-      TEST_VARIABLE_2: "test2"
-    secret:
-      TEST_SECRET_VARIABLE_1: "testsecret1"
-      TEST_SECRET_VARIABLE_2: "testsecret2"
