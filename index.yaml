@@ -3,34 +3,67 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-23T22:03:24.927886213Z"
-    description: A Helm chart for Kubernetes
-    digest: f4a35c682cab2df9a2f6e361956411a9d4834359d9fac5e6ca1e7045ad2e073f
+    created: "2025-05-24T08:06:22.25438317Z"
+    description: A Helm chart for deploying the Ghost blogging platform
+    digest: 24bd7ab60d202f9ca4ea0aa17373022223c70e4148180d7c2befbdf90023a6a9
+    keywords:
+    - ghost
+    - blog
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
     name: ghost
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/ghost
     type: application
     urls:
-    - https://charts.reddevs.io/ghost-0.1.0.tgz
-    version: 0.1.0
+    - https://charts.reddevs.io/ghost-1.0.0.tgz
+    version: 1.0.0
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-23T22:03:24.928845612Z"
-    description: A Helm chart for Kubernetes
-    digest: 26e488b9f6fddf0d1f88b46ddbd8a735a6d5fbe6927bd1c2f79a92f12c30671a
+    created: "2025-05-24T08:06:22.255288138Z"
+    description: A helm chart for deploying a Next.js application
+    digest: a4c1153298a20e16c4e01c41247bdb82c01d619aa8a923f2789421ae5e79b309
+    keywords:
+    - nextjs
+    - frontend
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
     name: nextjs
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.0.2.tgz
-    version: 1.0.2
+    - https://charts.reddevs.io/nextjs-1.0.3.tgz
+    version: 1.0.3
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-23T22:03:24.930267643Z"
-    description: A Helm chart for Kubernetes
-    digest: f042cec9159e9c8cc6e12e3841a8765141111f9137be4f91844a25df1830dcc7
+    created: "2025-05-24T08:06:22.255883448Z"
+    description: A helm chart for deploying a Symfony application
+    digest: 26265e7d83760ef30cfb264eef360ca81bd7c3fc845457a95dc0e974c825a54f
+    keywords:
+    - symfony
+    - backend
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
     name: symfony
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.0.1.tgz
-    version: 1.0.1
-generated: "2025-05-23T22:03:24.927171165Z"
+    - https://charts.reddevs.io/symfony-1.0.2.tgz
+    version: 1.0.2
+generated: "2025-05-24T08:06:22.253593237Z"
