@@ -30,6 +30,32 @@ env:
   normal: []
   secret: []
 
+externalSecrets:
+  enabled: false
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: false
+    region: eu-central-1
+    iam:
+      accessKey: ""
+      secretAccessKey: ""
+  data: []
+  #  - secretKey: database__connection__password
+  #    envName: database__connection__password  # Optional: override env var name
+  #    remoteRef:
+  #      key: ghost-awssm-iam
+  #      property: password
+  #  - secretKey: api_key
+  #    envName: GHOST_API_KEY  # Optional: use different env var name
+  #    remoteRef:
+  #      key: ghost-api-secrets
+  #      property: api_key
+  #      version: "AWSCURRENT"  # Optional: specify version
+  #  - secretKey: mail_password
+  #    remoteRef:
+  #      key: ghost-mail-config
+  #      property: smtp_password
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

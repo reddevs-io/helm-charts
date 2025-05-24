@@ -6,6 +6,8 @@ metadata:
   name: {{ include "ghost.redis.fullname" . }}
   labels:
     {{- include "ghost.redis.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   {{- if not .Values.redis.autoscaling.enabled }}
   replicas: {{ .Values.redis.replicaCount }}

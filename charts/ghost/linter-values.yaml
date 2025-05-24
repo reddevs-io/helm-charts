@@ -13,6 +13,23 @@ env:
     TEST_SECRET_VARIABLE_1: "testsecret1"
     TEST_SECRET_VARIABLE_2: "testsecret2"
 
+externalSecrets:
+  enabled: true
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "my-access-key"
+      secretAccessKey: "my-secret-access-key"
+  data:
+    - secretKey: database__connection__password
+      envName: database__connection__password
+      remoteRef:
+        key: ghost-awssm-iam
+        property: password
+        version: "AWSCURRENT"
+
 ingress:
   enabled: true
   className: "nginx"
