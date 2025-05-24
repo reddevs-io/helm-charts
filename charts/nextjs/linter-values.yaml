@@ -1,6 +1,6 @@
 image:
-  repository: "nginx"
-  tag: "1.27-alpine"
+  repository: "my-nextjs-container"
+  tag: "my-tag"
 
 imagePullSecrets:
   - name: container-registry-cred
