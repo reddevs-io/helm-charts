@@ -46,6 +46,9 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+{{/*
+Create unified labels for nextjs components
+*/}}
 {{- define "nextjs.labels" -}}
 {{ include "nextjs.selectorLabels" . }}
 {{- end }}
@@ -95,6 +98,9 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+{{/*
+Create unified labels for redis components
+*/}}
 {{- define "nextjs.redis.labels" -}}
 {{ include "nextjs.redis.selectorLabels" . }}
 {{- end }}

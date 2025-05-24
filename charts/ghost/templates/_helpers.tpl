@@ -53,6 +53,9 @@ Create unified labels for ghost components
 {{ include "ghost.selectorLabels" . }}
 {{- end -}}
 
+{{/*
+Selector labels
+*/}}
 {{- define "ghost.selectorLabels" -}}
 helm.sh/chart: {{ include "ghost.chart" . }}
 app.kubernetes.io/name: {{ include "ghost.name" . }}
@@ -74,5 +77,57 @@ Create the name of the service account to use
 {{- default (include "ghost.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create a default fully qualified redis name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "ghost.redis.fullname" -}}
+{{- if .Values.redis.fullnameOverride }}
+{{- .Values.redis.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name "redis" }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create unified labels for redis components
+*/}}
+{{- define "ghost.redis.labels" -}}
+{{ include "ghost.redis.selectorLabels" . }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "ghost.redis.selectorLabels" -}}
+helm.sh/chart: {{ include "ghost.chart" . }}
+app.kubernetes.io/name: {{ include "ghost.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "ghost.common.selectorLabels" . }}
+component: {{ .Values.redis.component | quote }}
+tier: {{ .Values.redis.tier | quote }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "ghost.redis.serviceAccountName" -}}
+{{- if .Values.redis.serviceAccount.create }}
+{{- default (include "ghost.redis.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.redis.serviceAccount.name }}
 {{- end }}
 {{- end }}

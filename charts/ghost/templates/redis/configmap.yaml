@@ -1,0 +1,12 @@
+{{- if and .Values.redis.enable .Values.redis.env.normal }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ghost.redis.fullname" . }}
+  labels:
+    {{- include "ghost.redis.labels" . | nindent 4 }}
+data:
+  {{- range $key, $val := .Values.redis.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+{{- end }}
