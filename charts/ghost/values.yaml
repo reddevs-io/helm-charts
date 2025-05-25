@@ -81,7 +81,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: false # Needed for access to /tmp on uploads
   runAsNonRoot: true
   runAsUser: 1000
 
