@@ -7,6 +7,7 @@ metadata:
     {{- include "ghost.labels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/auto: "true"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Needed for ghost access to /tmp on uploads"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
