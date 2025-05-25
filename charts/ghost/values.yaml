@@ -156,6 +156,8 @@ autoscaling:
 
 # Additional volumes on the output Deployment definition.
 volumes:
+  - name: node-cache
+    emptyDir: {}
 # - name: foo
 #   secret:
 #     secretName: mysecret
@@ -163,6 +165,8 @@ volumes:
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
+  - name: node-cache
+    mountPath: /home/node/.cache
 # - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
@@ -170,7 +174,7 @@ volumeMounts:
 persistence:
   enabled: false
   accessMode: ReadWriteOnce
-  size: 1Gi
+  size: 2Gi
   storageClass: ""  # "" uses the default StorageClass
   mountPath: /var/lib/ghost/content
 
