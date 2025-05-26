@@ -34,6 +34,27 @@ env:
   normal: []
   secret: []
 
+externalSecrets:
+  enabled: false
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: false
+    region: eu-central-1
+    iam:
+      accessKey: ""
+      secretAccessKey: ""
+  data: []
+  #  - secretKey: DATABASE_PASSWORD
+  #  envName: DATABASE_PASSWORD  # Optional: override env var name
+  #  remoteRef:
+  #    key: "my-aws-secret-name"
+  #    property: password
+  #  - secretKey: DATABASE_USER
+  #    envName: DATABASE_USER  # Optional: override env var name
+  #    remoteRef:
+  #      key: "my-aws-secret-name"
+  #      property: username
+
 initJob:
   enabled: false
   command: ""
