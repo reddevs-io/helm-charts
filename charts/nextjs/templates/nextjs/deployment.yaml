@@ -57,8 +57,17 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          {{- if or .Values.env.normal .Values.env.secret }}
+          {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
+          {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
+          {{- range .Values.externalSecrets.data }}
+            - name: {{ .envName | default .secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $frontendFullname }}-eso
+                  key: {{ .secretKey }}
+          {{- end }}
+          {{- end }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
