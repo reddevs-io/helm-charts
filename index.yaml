@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T09:06:32.21227695Z"
+    created: "2025-05-26T20:11:01.593635805Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 0a5a9c4691ab46c90f84a22c1e4178679908f806cc39c0413cf1c8597d24891c
+    digest: bacc1c3508bd924c9cdbec9870f811666d7828f91da96e70669b65533cb98a18
     keywords:
     - ghost
     - blog
@@ -20,14 +20,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/ghost
     type: application
     urls:
-    - https://charts.reddevs.io/ghost-1.1.4.tgz
-    version: 1.1.4
+    - https://charts.reddevs.io/ghost-1.1.5.tgz
+    version: 1.1.5
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T09:06:32.213371929Z"
+    created: "2025-05-26T20:11:01.594662033Z"
     description: A helm chart for deploying a Next.js application
-    digest: 9ee8cf2f8768ff0fc1cd2d706f260d549f958fb6efb94ddae65ba89593ca1feb
+    digest: 2dbfe122d5a4242efe806f0867a901a6eee9ff091da53c0ee21d24a63dff9875
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.1.0.tgz
-    version: 1.1.0
+    - https://charts.reddevs.io/nextjs-1.1.1.tgz
+    version: 1.1.1
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T09:06:32.214048054Z"
+    created: "2025-05-26T20:11:01.59542915Z"
     description: A helm chart for deploying a Symfony application
-    digest: 170ac11f2e7e51f24a5594ff4be7e24d9322650343e4eae8a20ade22798391d7
+    digest: ff4c0edad2edd99f02fa5b648924251407ce432edb225793eff75ff91ed0dc89
     keywords:
     - symfony
     - backend
@@ -64,6 +64,6 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.1.0.tgz
-    version: 1.1.0
-generated: "2025-05-26T09:06:32.21024834Z"
+    - https://charts.reddevs.io/symfony-1.1.1.tgz
+    version: 1.1.1
+generated: "2025-05-26T20:11:01.592443037Z"
