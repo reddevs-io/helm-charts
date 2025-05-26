@@ -138,8 +138,10 @@ livenessProbe:
       - sh
       - -c
       - "wget --header='X-Forwarded-Proto: https' -qO- http://localhost:2368/ || exit 1"
-  initialDelaySeconds: 10
+  initialDelaySeconds: 60
+  timeoutSeconds: 5
   periodSeconds: 30
+  failureThreshold: 3
 
 readinessProbe:
   exec:
@@ -147,8 +149,10 @@ readinessProbe:
       - sh
       - -c
       - "wget --header='X-Forwarded-Proto: https' -qO- http://localhost:2368/ || exit 1"
-  initialDelaySeconds: 5
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
   periodSeconds: 10
+  failureThreshold: 3
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
