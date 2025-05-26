@@ -199,6 +199,17 @@ affinity:
               operator: In
               values:
                 - linux
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - ghost
+          topologyKey: kubernetes.io/hostname
 
 redis:
   enable: false
