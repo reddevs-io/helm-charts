@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T08:49:28.728467597Z"
+    created: "2025-05-26T09:06:32.21227695Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: b00c8629a99b5dc1a985a8222f4a9482effb575c3e913dc0d72bd6c9d63080b6
+    digest: 0a5a9c4691ab46c90f84a22c1e4178679908f806cc39c0413cf1c8597d24891c
     keywords:
     - ghost
     - blog
@@ -25,9 +25,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T08:49:28.729391513Z"
+    created: "2025-05-26T09:06:32.213371929Z"
     description: A helm chart for deploying a Next.js application
-    digest: 30683e530ae1ae9418ccc4063c41874e8c48f13b78af7f027512506574623a26
+    digest: 9ee8cf2f8768ff0fc1cd2d706f260d549f958fb6efb94ddae65ba89593ca1feb
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.0.3.tgz
-    version: 1.0.3
+    - https://charts.reddevs.io/nextjs-1.1.0.tgz
+    version: 1.1.0
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-26T08:49:28.730966088Z"
+    created: "2025-05-26T09:06:32.214048054Z"
     description: A helm chart for deploying a Symfony application
-    digest: 6a186f9b6250a9a03281304b8d7bde07ac609fb92571cdd5da004f97c1912026
+    digest: 170ac11f2e7e51f24a5594ff4be7e24d9322650343e4eae8a20ade22798391d7
     keywords:
     - symfony
     - backend
@@ -64,6 +64,6 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.0.2.tgz
-    version: 1.0.2
-generated: "2025-05-26T08:49:28.727094325Z"
+    - https://charts.reddevs.io/symfony-1.1.0.tgz
+    version: 1.1.0
+generated: "2025-05-26T09:06:32.21024834Z"
