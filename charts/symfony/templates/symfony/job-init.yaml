@@ -1,5 +1,5 @@
 {{- if .Values.initJob.enabled }}
-{{- $frontendFullname := include "symfony.fullname" . -}}
+{{- $symfonyFullname := include "symfony.fullname" . -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -49,20 +49,36 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - {{ .Values.initJob.command | quote }}
-          {{- if or .Values.env.normal .Values.env.secret }}
+          {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
+          {{- if .Values.externalSecretsDbUrl.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "symfony.fullname" . }}-db-eso
+                  key: DATABASE_URL
+          {{- end }}
+          {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
+          {{- range .Values.externalSecrets.data }}
+            - name: {{ .envName | default .secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $symfonyFullname }}-eso
+                  key: {{ .secretKey }}
+          {{- end }}
+          {{- end }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $frontendFullname }}
+                  name: {{ $symfonyFullname }}
                   key: {{ $key }}
           {{- end}}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ $frontendFullname }}
+                  name: {{ $symfonyFullname }}
                   key: {{ $key }}
           {{- end}}
           {{- end}}
