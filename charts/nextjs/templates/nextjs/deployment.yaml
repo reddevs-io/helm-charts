@@ -59,7 +59,7 @@ spec:
               protocol: TCP
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
-          {{- if .Values.externalSecrets.externalSecretsDbUrl.enabled }}
+          {{- if .Values.externalSecretsDbUrl.enabled }}
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
