@@ -58,6 +58,7 @@ externalSecrets:
 externalSecretsDbUrl:
   enabled: false
   refreshInterval: "1h"
+  rdsSecretKey: ""
   awsProvider:
     enabled: false
     region: eu-central-1
