@@ -55,6 +55,21 @@ externalSecrets:
   #      key: "my-aws-secret-name"
   #      property: username
 
+externalSecretsDbUrl:
+  enabled: false
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: false
+    region: eu-central-1
+    iam:
+      accessKey: ""
+      secretAccessKey: ""
+  data:
+    engine: ""
+    host: ""
+    port: ""
+    dbName: ""
+
 initJob:
   enabled: false
   command: ""

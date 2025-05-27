@@ -59,6 +59,13 @@ spec:
               protocol: TCP
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
+          {{- if .Values.externalSecrets.externalSecretsDbUrl.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextjs.fullname" . }}-db-eso
+                  key: DATABASE_URL
+          {{- end }}
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
           {{- range .Values.externalSecrets.data }}
             - name: {{ .envName | default .secretKey }}
