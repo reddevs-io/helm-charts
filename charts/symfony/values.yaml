@@ -225,14 +225,26 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
+volumes:
+  - name: tmp
+    emptyDir: { }
+  - name: app-var-log
+    emptyDir: { }
+  - name: app-var-cache
+    emptyDir: { }
 # - name: foo
 #   secret:
 #     secretName: mysecret
 #     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+  - name: app-var-log
+    mountPath: /app/symfony/var/log
+  - name: app-var-cache
+    mountPath: /app/symfony/var/cache
 # - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
