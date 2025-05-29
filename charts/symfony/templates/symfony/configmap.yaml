@@ -15,7 +15,7 @@ data:
     {{- end }}
   {{- end }}
   {{- if .Values.nginxUnit.enable }}
-  custom-unit.json: |
+  symfony.json: |
     {{- .Values.nginxUnit.content | nindent 4 }}
   {{- end }}
   {{- range $key, $val := .Values.env.normal }}
