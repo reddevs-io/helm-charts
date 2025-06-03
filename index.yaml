@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-29T11:18:21.301517168Z"
+    created: "2025-06-03T22:08:39.701377847Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: bd2a08760a5f817ea80c60638659236707d55bf30ef97ff94c7df222bab23cbb
+    digest: 52703dcaedbbfae5f95845b61b2520362cb251261e5f05cd49734b7cdc6a9414
     keywords:
     - ghost
     - blog
@@ -25,9 +25,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-29T11:18:21.302719661Z"
+    created: "2025-06-03T22:08:39.702896439Z"
     description: A helm chart for deploying a Next.js application
-    digest: 0f9dc4bfd55efb5a0926d3e7060fe629469f9d5bc0a911f145186f13ba52d49a
+    digest: de004395188bf141fdba3a1a9ffc126529e11f33a04338b84dd8cc8c15978b5b
     keywords:
     - nextjs
     - frontend
@@ -47,9 +47,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-05-29T11:18:21.303475044Z"
+    created: "2025-06-03T22:08:39.703738775Z"
     description: A helm chart for deploying a Symfony application
-    digest: b9665709822cc5b8761b5e29f80d5fa5b08cc23c9da5edbcbc4a6f8892746617
+    digest: 0b95e550e01a305b6ea917430a92d31c70c0edbc72ba54d939f46a4a21b14520
     keywords:
     - symfony
     - backend
@@ -61,9 +61,20 @@ entries:
       url: https://blog.reddevs.io
     name: symfony
     sources:
-    - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/symfony
     type: application
     urls:
     - https://charts.reddevs.io/symfony-1.2.3.tgz
     version: 1.2.3
-generated: "2025-05-29T11:18:21.30036587Z"
+  wordpress:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-06-03T22:08:39.704380886Z"
+    description: A helm chart for deploying a Wordpress application
+    digest: 8fd537434d31bd40e1f7b97c1e03169fbeb8308dc24ac1f658628f6ad75865fd
+    name: wordpress
+    type: application
+    urls:
+    - https://charts.reddevs.io/wordpress-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-06-03T22:08:39.699848176Z"
