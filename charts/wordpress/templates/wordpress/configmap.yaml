@@ -1,0 +1,20 @@
+{{- if or .Values.env.normal .Values.phpIni }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+data:
+  {{- if .Values.phpIni }}
+  wordpress.ini: |
+    {{- range $key, $val := .Values.phpIni }}
+    {{ $key }} = {{ $val | quote }}
+    {{- end }}
+  {{- end }}
+  {{- range $key, $val := .Values.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+{{- end}}

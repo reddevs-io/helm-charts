@@ -1,0 +1,55 @@
+image:
+  repository: "my-wordpress-container"
+  tag: "my-tag"
+
+imagePullSecrets:
+  - name: container-registry-cred
+
+env:
+  normal:
+    TEST_VARIABLE_1: "test1"
+    TEST_VARIABLE_2: "test2"
+  secret:
+    TEST_SECRET_VARIABLE_1: "testsecret1"
+    TEST_SECRET_VARIABLE_2: "testsecret2"
+
+externalSecrets:
+  enabled: true
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "my-access-key"
+      secretAccessKey: "my-secret-access-key"
+  data:
+    - secretKey: DATABASE_PASSWORD
+      envName: DATABASE_PASSWORD
+      remoteRef:
+        key: my-aws-secret-name
+        property: password
+        version: "AWSCURRENT"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/force-ssl-redirect: 'true'
+    kubernetes.io/tls-acme: 'true'
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: example-com-tls
+      hosts:
+        - example.com
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
