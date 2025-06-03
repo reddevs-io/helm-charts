@@ -7,6 +7,7 @@ metadata:
     {{- include "wordpress.labels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/auto: "true"
+    ignore-check.kube-linter.io/privileged-ports: "Official wordpress docker image uses port 80 by default, without an easy way to change it"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -59,13 +60,6 @@ spec:
               protocol: TCP
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
-          {{- if .Values.externalSecretsDbUrl.enabled }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $wordpressFullname }}-db-eso
-                  key: DATABASE_URL
-          {{- end }}
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
           {{- range .Values.externalSecrets.data }}
             - name: {{ .envName | default .secretKey }}
