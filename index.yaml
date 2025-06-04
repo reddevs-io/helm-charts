@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T11:52:44.474052231Z"
+    created: "2025-06-04T12:31:32.634572222Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 90dcfed4bc52786a5eb29e17387e66966af25f881ca5e050a53f4c0fa68f330c
+    digest: 032253d3381e48eef4a75b42d3d6440d6b6bd69c0412eacfc53957c558906f17
     keywords:
     - ghost
     - blog
@@ -25,9 +25,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T11:52:44.476033844Z"
+    created: "2025-06-04T12:31:32.635674373Z"
     description: A helm chart for deploying a Next.js application
-    digest: f0ed3f3081e697ad117024aefeee34bfcf9089a87d9a3abfc5964ba2618a5ae6
+    digest: 384993bac773e643dceeb559331d77c0bafd838fd9a19231515a3969dec6814a
     keywords:
     - nextjs
     - frontend
@@ -47,9 +47,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T11:52:44.477089949Z"
+    created: "2025-06-04T12:31:32.63647913Z"
     description: A helm chart for deploying a Symfony application
-    digest: e51977dbdad2ca82eb35bda084fb59bd062d41f8e2d22a74000df3ad604ec1c7
+    digest: 93f7541dea67727327c7e69c358e83ddaa38a33a95038950846feb07ff97df5c
     keywords:
     - symfony
     - backend
@@ -69,12 +69,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T11:52:44.47781991Z"
+    created: "2025-06-04T12:31:32.637199521Z"
     description: A helm chart for deploying a Wordpress application
-    digest: f2cb793cd9afd28ed15f6a56c3ced63ee6c353438ec921f7666cbbc5a517f56c
+    digest: 7fc0cff334b0f295eeaea6209ff07f274831d8c980483e67006f546ca03181b9
     name: wordpress
     type: application
     urls:
-    - https://charts.reddevs.io/wordpress-1.1.0.tgz
-    version: 1.1.0
-generated: "2025-06-04T11:52:44.472878455Z"
+    - https://charts.reddevs.io/wordpress-1.1.1.tgz
+    version: 1.1.1
+generated: "2025-06-04T12:31:32.632670628Z"
