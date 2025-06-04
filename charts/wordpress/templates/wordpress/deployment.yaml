@@ -8,7 +8,8 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
     ignore-check.kube-linter.io/privileged-ports: "Official wordpress docker image uses port 80 by default, without an easy way to change it"
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Because wordpress..."
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Because wordpress... 🙄"
+    ignore-check.kube-linter.io/run-as-non-root: "Because wordpress... 🙄"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}

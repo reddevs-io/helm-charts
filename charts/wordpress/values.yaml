@@ -89,8 +89,8 @@ securityContext:
       - CHOWN
       - FOWNER
   readOnlyRootFilesystem: false
-  runAsNonRoot: true
-  runAsUser: 33
+  runAsNonRoot: false
+  runAsUser: 0
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
