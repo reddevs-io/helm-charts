@@ -100,6 +100,20 @@ spec:
             - name: wordpress-ini
               mountPath: /usr/local/etc/php/conf.d/wordpress.ini
               subPath: wordpress.ini
+          {{- if .Values.persistence.enabled }}
+          {{- if .Values.persistence.themes.enabled }}
+            - name: wordpress-themes
+              mountPath: /var/www/html/wp-content/themes
+          {{- end }}
+          {{- if .Values.persistence.plugins.enabled }}
+            - name: wordpress-plugins
+              mountPath: /var/www/html/wp-content/plugins
+          {{- end }}
+          {{- if .Values.persistence.uploads.enabled }}
+            - name: wordpress-uploads
+              mountPath: /var/www/html/wp-content/uploads
+          {{- end }}
+          {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -110,6 +124,23 @@ spec:
             items:
               - key: wordpress.ini
                 path: wordpress.ini
+        {{- if .Values.persistence.enabled }}
+        {{- if .Values.persistence.themes.enabled }}
+        - name: wordpress-themes
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress.fullname" . }}-themes
+        {{- end }}
+        {{- if .Values.persistence.plugins.enabled }}
+        - name: wordpress-plugins
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress.fullname" . }}-plugins
+        {{- end }}
+        {{- if .Values.persistence.uploads.enabled }}
+        - name: wordpress-uploads
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress.fullname" . }}-uploads
+        {{- end }}
+        {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

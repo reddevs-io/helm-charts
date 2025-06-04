@@ -153,6 +153,24 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+persistence:
+  enabled: false
+  themes:
+    enabled: true
+    accessMode: ReadWriteMany
+    size: 1Gi
+    storageClass: ""
+  plugins:
+    enabled: true
+    accessMode: ReadWriteMany
+    size: 1Gi
+    storageClass: ""
+  uploads:
+    enabled: true
+    accessMode: ReadWriteMany
+    size: 2Gi
+    storageClass: ""
+
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo

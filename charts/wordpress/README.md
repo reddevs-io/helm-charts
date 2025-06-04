@@ -1,6 +1,6 @@
 # WordPress Helm Chart
 
-This Helm chart deploys [WordPress](https://wordpress.org/) — a widely used open-source content management system — onto a Kubernetes cluster. It includes secure defaults, optional ExternalSecrets integration, autoscaling, and Ingress support.
+This Helm chart deploys [WordPress](https://wordpress.org/) — a widely used open-source content management system — onto a Kubernetes cluster. It includes secure defaults, optional ExternalSecrets integration, persistence (themes, plugins, uploads), autoscaling, and Ingress support.
 
 ## Prerequisites
 
@@ -92,6 +92,19 @@ The following table lists commonly used configurable parameters of the WordPress
 | `nodeSelector`                                    | Node selector for pods                                           | `{}`                          |
 | `tolerations`                                     | Pod tolerations                                                  | `[]`                          |
 | `affinity`                                        | Pod affinity and anti-affinity rules                             | See `values.yaml`             |
+| `persistence.enabled`                             | Enable persistence for themes, plugins, and uploads               | `false`                       |
+| `persistence.themes.enabled`                      | Enable PVC for themes                                            | `true`                        |
+| `persistence.themes.accessMode`                   | Access mode for themes PVC                                       | `ReadWriteMany`               |
+| `persistence.themes.size`                         | Size of themes PVC                                               | `1Gi`                         |
+| `persistence.themes.storageClass`                 | StorageClass for themes PVC                                      | `""`                          |
+| `persistence.plugins.enabled`                     | Enable PVC for plugins                                           | `true`                        |
+| `persistence.plugins.accessMode`                  | Access mode for plugins PVC                                      | `ReadWriteMany`               |
+| `persistence.plugins.size`                        | Size of plugins PVC                                              | `1Gi`                         |
+| `persistence.plugins.storageClass`                | StorageClass for plugins PVC                                     | `""`                          |
+| `persistence.uploads.enabled`                     | Enable PVC for uploads                                           | `true`                        |
+| `persistence.uploads.accessMode`                  | Access mode for uploads PVC                                      | `ReadWriteMany`               |
+| `persistence.uploads.size`                        | Size of uploads PVC                                              | `2Gi`                         |
+| `persistence.uploads.storageClass`                | StorageClass for uploads PVC                                     | `""`                          |
 
 ## Linter Configuration
 
@@ -127,6 +140,16 @@ When `autoscaling.enabled=true`, an HPA scales the deployment based on CPU and m
 ### Ingress
 
 When `ingress.enabled=true`, an Ingress resource is created. Configure hosts, TLS, and annotations (e.g., Cert-Manager) via `ingress` values.
+
+### PersistentVolumeClaims
+
+When `persistence.enabled=true`, PersistentVolumeClaims are created for themes, plugins, and uploads. Configure each under the `persistence` section of `values.yaml`:
+
+- **Themes** (`persistence.themes.*`): stores theme files.
+- **Plugins** (`persistence.plugins.*`): stores plugin files.
+- **Uploads** (`persistence.uploads.*`): stores media uploads.
+
+Sub-options include `enabled`, `accessMode`, `size`, and `storageClass`.
 
 ### Volumes & VolumeMounts
 

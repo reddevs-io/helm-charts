@@ -1,0 +1,17 @@
+{{- if and .Values.persistence.enabled .Values.persistence.themes.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "wordpress.fullname" . }}-themes
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.themes.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.themes.size }}
+  {{- if .Values.persistence.themes.storageClass }}
+  storageClassName: {{ .Values.persistence.themes.storageClass }}
+  {{- end }}
+{{- end }}
