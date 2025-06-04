@@ -85,7 +85,10 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: true
+    add:
+      - CHOWN
+      - FOWNER
+  readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 33
 
