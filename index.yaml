@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T13:20:09.386469642Z"
+    created: "2025-09-13T09:25:26.759247308Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: dc2c99ec15c805653a1d1871723304c20db7d62b3d7a4741e2b5efa0f761e419
+    digest: f049a2a56d120c09396df5114e4d93a8cbfa2a2f998d1ed52ddb4aebc58754d0
     keywords:
     - ghost
     - blog
@@ -20,14 +20,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/ghost
     type: application
     urls:
-    - https://charts.reddevs.io/ghost-1.1.6.tgz
-    version: 1.1.6
+    - https://charts.reddevs.io/ghost-1.2.0.tgz
+    version: 1.2.0
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T13:20:09.387520586Z"
+    created: "2025-09-13T09:25:26.760289692Z"
     description: A helm chart for deploying a Next.js application
-    digest: ffa7778d102ed215f4973fe23db341f9b10ee46139d079efa94a3437faf1614d
+    digest: 40e448fbe877c326c38eaa14c8720e4717ee6c03568957b686dc22cd08f8d184
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.2.5.tgz
-    version: 1.2.5
+    - https://charts.reddevs.io/nextjs-1.3.0.tgz
+    version: 1.3.0
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T13:20:09.388345854Z"
+    created: "2025-09-13T09:25:26.761073433Z"
     description: A helm chart for deploying a Symfony application
-    digest: 7c8f11a480de40af5080082e898abe2dbadef3d64ef0aee73451d72269a9708b
+    digest: 858893586fdb974034fc2d99fa8eb56198a0a8bfb93f53178cc9a589bc6a0ddd
     keywords:
     - symfony
     - backend
@@ -69,12 +69,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-06-04T13:20:09.389972357Z"
+    created: "2025-09-13T09:25:26.761806861Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 798cce9df7dae490f173c10cbad27f9d0bca936a2551a5129f845bd59bbbdb4f
+    digest: b628cd2c70aea013881e01de1556d8adf4ff336dc63af3745468d310e108500f
     name: wordpress
     type: application
     urls:
-    - https://charts.reddevs.io/wordpress-1.1.3.tgz
-    version: 1.1.3
-generated: "2025-06-04T13:20:09.385237576Z"
+    - https://charts.reddevs.io/wordpress-1.2.0.tgz
+    version: 1.2.0
+generated: "2025-09-13T09:25:26.758087516Z"
