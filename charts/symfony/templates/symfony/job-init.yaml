@@ -12,6 +12,7 @@ metadata:
     ignore-check.kube-linter.io/no-liveness-probe: "The init job would mainly be used to run deployment commands. Does not need to be live"
     ignore-check.kube-linter.io/no-readiness-probe: "The init job would mainly be used to run deployment commands. Does not need to be ready"
 spec:
+  ttlSecondsAfterFinished: 100
   template:
     metadata:
       {{- with .Values.podAnnotations }}
