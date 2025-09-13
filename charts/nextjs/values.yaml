@@ -197,6 +197,7 @@ persistence:
   size: 1Gi
   storageClass: ""  # "" uses the default StorageClass
   mountPath: /data
+  existingClaim: ""
 
 nodeSelector: {}
 

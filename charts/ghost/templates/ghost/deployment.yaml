@@ -108,7 +108,11 @@ spec:
       {{- if .Values.persistence.enabled }}
         - name: ghost-content
           persistentVolumeClaim:
+            {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+            {{- else }}
             claimName: {{ include "ghost.fullname" . }}-content
+            {{- end }}
       {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}

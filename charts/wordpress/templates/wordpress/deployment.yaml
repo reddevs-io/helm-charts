@@ -130,17 +130,29 @@ spec:
         {{- if .Values.persistence.themes.enabled }}
         - name: wordpress-themes
           persistentVolumeClaim:
+            {{- if .Values.persistence.themes.existingClaim }}
+            claimName: {{ .Values.persistence.themes.existingClaim }}
+            {{- else }}
             claimName: {{ include "wordpress.fullname" . }}-themes
+            {{- end }}
         {{- end }}
         {{- if .Values.persistence.plugins.enabled }}
         - name: wordpress-plugins
           persistentVolumeClaim:
+            {{- if .Values.persistence.plugins.existingClaim }}
+            claimName: {{ .Values.persistence.plugins.existingClaim }}
+            {{- else }}
             claimName: {{ include "wordpress.fullname" . }}-plugins
+            {{- end }}
         {{- end }}
         {{- if .Values.persistence.uploads.enabled }}
         - name: wordpress-uploads
           persistentVolumeClaim:
+            {{- if .Values.persistence.uploads.existingClaim }}
+            claimName: {{ .Values.persistence.uploads.existingClaim }}
+            {{- else }}
             claimName: {{ include "wordpress.fullname" . }}-uploads
+            {{- end }}
         {{- end }}
         {{- end }}
       {{- with .Values.volumes }}

@@ -163,16 +163,19 @@ persistence:
     accessMode: ReadWriteMany
     size: 1Gi
     storageClass: ""
+    existingClaim: ""
   plugins:
     enabled: true
     accessMode: ReadWriteMany
     size: 1Gi
     storageClass: ""
+    existingClaim: ""
   uploads:
     enabled: true
     accessMode: ReadWriteMany
     size: 2Gi
     storageClass: ""
+    existingClaim: ""
 
 # Additional volumes on the output Deployment definition.
 volumes: []

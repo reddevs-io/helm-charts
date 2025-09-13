@@ -114,7 +114,11 @@ spec:
       {{- if .Values.persistence.enabled }}
         - name: data
           persistentVolumeClaim:
+            {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+            {{- else }}
             claimName: {{ include "nextjs.fullname" . }}-data
+            {{- end }}
       {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}

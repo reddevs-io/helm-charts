@@ -185,6 +185,7 @@ persistence:
   size: 2Gi
   storageClass: ""  # "" uses the default StorageClass
   mountPath: /var/lib/ghost/content
+  existingClaim: ""
 
 nodeSelector: {}
 
