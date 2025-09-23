@@ -27,4 +27,3 @@ Application details:
 - Chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 - Release: {{ .Release.Name }}
 - Namespace: {{ .Release.Namespace }}
-- Build directory: {{ .Values.vite.buildDir }}

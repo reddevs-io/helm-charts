@@ -65,7 +65,8 @@ The following table lists the configurable parameters of the Vite chart and thei
 |-----------|-------------|---------|
 | `vite.buildDir` | Build output directory | `dist` |
 | `vite.port` | Port for the web server | `80` |
-| `vite.nginxConfig` | Custom nginx configuration | See values.yaml |
+| `vite.nginxConfig.enabled` | Enable custom nginx configuration | `false` |
+| `vite.nginxConfig.config` | Custom nginx configuration content | See values.yaml |
 
 ### Autoscaling Configuration
 

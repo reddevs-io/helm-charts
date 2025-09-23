@@ -173,26 +173,26 @@ affinity:
 
 # Vite specific configuration
 vite:
-  # Build output directory (usually 'dist' for Vite)
-  buildDir: dist
   # Custom nginx configuration
-  nginxConfig: |
-    server {
-        listen 80;
-        server_name localhost;
-        root /usr/share/nginx/html;
-        index index.html;
-        
-        location / {
-            try_files $uri $uri/ /index.html;
-        }
-        
-        # Cache static assets
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-    }
+  nginxConfig:
+    enabled: false
+    config: |
+      server {
+          listen 80;
+          server_name localhost;
+          root /usr/share/nginx/html;
+          index index.html;
+          
+          location / {
+              try_files $uri $uri/ /index.html;
+          }
+          
+          # Cache static assets
+          location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+              expires 1y;
+              add_header Cache-Control "public, immutable";
+          }
+      }
 
 nodejs:
   enable: false
