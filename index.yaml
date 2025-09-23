@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-23T13:23:32.186955562Z"
+    created: "2025-09-23T18:44:27.651673423Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: b8e056daaa907f70ec220d009b6b4f3b2784b1619a676fdcba7b378db510459f
+    digest: 2530dcbe4e089c4ddf59adccaf9a70293f31cfb134c5a4c8227ee7bdf205b863
     keywords:
     - ghost
     - blog
@@ -25,9 +25,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-23T13:23:32.18803005Z"
+    created: "2025-09-23T18:44:27.653882307Z"
     description: A helm chart for deploying a Next.js application
-    digest: cdc18a27c433ed3043d3dc8989d7a1e4f59e0aa254d7c1f1d25989eede5434e1
+    digest: e90af99503b14395f74e2dc76a96cd65373cd201bc25fd2521cef09da7e35a6a
     keywords:
     - nextjs
     - frontend
@@ -47,9 +47,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-23T13:23:32.188885402Z"
+    created: "2025-09-23T18:44:27.654747755Z"
     description: A helm chart for deploying a Symfony application
-    digest: 6a6be4513dfe2dc1f67097f4485ca971591290a1189c3e94781e4a1db203d1cf
+    digest: 3ca445b98c737680027624bdf5119d51f6eba85fa86ef44e26367f4eb5af05ba
     keywords:
     - symfony
     - backend
@@ -69,9 +69,9 @@ entries:
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-23T13:23:32.189817065Z"
+    created: "2025-09-23T18:44:27.655703231Z"
     description: A Helm chart for Vite applications
-    digest: 22f182b77af503b9d72c512d38a41a94946ccbb0572a84de5b84f8c0fde3c7b5
+    digest: 9ae179b3f0d2813d093c7578de3f5b0765220f8ed634a2f93a6fc2bdb14e4f5f
     keywords:
     - vite
     - frontend
@@ -86,17 +86,17 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
     type: application
     urls:
-    - https://charts.reddevs.io/vite-1.0.0.tgz
-    version: 1.0.0
+    - https://charts.reddevs.io/vite-1.0.1.tgz
+    version: 1.0.1
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-23T13:23:32.190548376Z"
+    created: "2025-09-23T18:44:27.656432665Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 90a11cda6faba2cad9b52c0d70819207fe6c41b17c3721879f51332e2dfa4396
+    digest: cfffd32b5977d748dc12003ba738c6d803be6304bbd44afc8b408ce051bc82f7
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.2.0.tgz
     version: 1.2.0
-generated: "2025-09-23T13:23:32.185027057Z"
+generated: "2025-09-23T18:44:27.650535436Z"
