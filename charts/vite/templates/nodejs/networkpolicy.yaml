@@ -1,0 +1,19 @@
+{{- if and .Values.nodejs.enable .Values.nodejs.networkPolicy.enabled }}
+{{- $nodejsFullname := printf "%s-nodejs" (include "vite.fullname" .) -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $nodejsFullname }}
+  labels:
+    {{- include "vite.nodejs.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "vite.nodejs.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    {{- toYaml .Values.nodejs.networkPolicy.policyTypes | nindent 4 }}
+  {{- with .Values.nodejs.networkPolicy.ingress }}
+  ingress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

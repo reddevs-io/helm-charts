@@ -1,0 +1,18 @@
+{{- if .Values.nodejs.enable }}
+{{- $nodejsFullname := printf "%s-nodejs" (include "vite.fullname" .) -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $nodejsFullname }}
+  labels:
+    {{- include "vite.nodejs.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.nodejs.service.type }}
+  ports:
+    - port: {{ .Values.nodejs.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "vite.nodejs.selectorLabels" . | nindent 4 }}
+{{- end }}

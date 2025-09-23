@@ -1,0 +1,17 @@
+{{- $viteFullname := include "vite.fullname" . -}}
+{{- if or .Values.env.normal .Values.vite.nginxConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vite.fullname" . }}
+  labels:
+    {{- include "vite.labels" . | nindent 4 }}
+data:
+{{- range $key, $val := .Values.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+{{- end}}
+{{- if .Values.vite.nginxConfig }}
+  nginx.conf: |
+{{ .Values.vite.nginxConfig | indent 4 }}
+{{- end }}
+{{- end }}

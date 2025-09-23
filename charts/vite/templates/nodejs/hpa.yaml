@@ -1,0 +1,33 @@
+{{- if and .Values.nodejs.enable .Values.nodejs.autoscaling.enabled }}
+{{- $nodejsFullname := printf "%s-nodejs" (include "vite.fullname" .) -}}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $nodejsFullname }}
+  labels:
+    {{- include "vite.nodejs.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $nodejsFullname }}
+  minReplicas: {{ .Values.nodejs.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.nodejs.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.nodejs.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.nodejs.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.nodejs.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.nodejs.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

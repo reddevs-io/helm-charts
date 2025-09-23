@@ -1,0 +1,70 @@
+image:
+  repository: "my-vite-container"
+  tag: "my-tag"
+
+imagePullSecrets:
+  - name: container-registry-cred
+
+env:
+  normal:
+    TEST_VARIABLE_1: "test1"
+    TEST_VARIABLE_2: "test2"
+  secret:
+    TEST_SECRET_VARIABLE_1: "testsecret1"
+    TEST_SECRET_VARIABLE_2: "testsecret2"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/force-ssl-redirect: 'true'
+    kubernetes.io/tls-acme: 'true'
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: example-com-tls
+      hosts:
+        - example.com
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodejs:
+  enable: true
+
+  imagePullSecrets:
+    - name: container-registry-cred
+
+  env:
+    normal:
+      TEST_VARIABLE_1: "test1"
+      TEST_VARIABLE_2: "test2"
+    secret:
+      TEST_SECRET_VARIABLE_1: "testsecret1"
+      TEST_SECRET_VARIABLE_2: "testsecret2"
+
+  # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      ingress.kubernetes.io/force-ssl-redirect: 'true'
+      kubernetes.io/tls-acme: 'true'
+    hosts:
+      - host: example.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: example-com-tls
+        hosts:
+          - example.com

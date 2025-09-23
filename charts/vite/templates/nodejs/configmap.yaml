@@ -1,0 +1,13 @@
+{{- if and .Values.nodejs.enable .Values.nodejs.env.normal }}
+{{- $nodejsFullname := printf "%s-nodejs" (include "vite.fullname" .) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $nodejsFullname }}
+  labels:
+    {{- include "vite.labels" . | nindent 4 }}
+data:
+{{- range $key, $val := .Values.nodejs.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+{{- end}}
+{{- end }}

@@ -1,0 +1,42 @@
+{{- if and .Values.nodejs.enable .Values.nodejs.ingress.enabled -}}
+{{- $nodejsFullname := printf "%s-nodejs" (include "vite.fullname" .) -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $nodejsFullname }}
+  labels:
+    {{- include "vite.nodejs.labels" . | nindent 4 }}
+  {{- with .Values.nodejs.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.nodejs.ingress.className }}
+  ingressClassName: {{ .Values.nodejs.ingress.className }}
+  {{- end }}
+  {{- if .Values.nodejs.ingress.tls }}
+  tls:
+    {{- range .Values.nodejs.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.nodejs.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $nodejsFullname }}
+                port:
+                  number: {{ $.Values.nodejs.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
