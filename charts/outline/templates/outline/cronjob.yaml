@@ -1,0 +1,79 @@
+{{- if .Values.cronJob.enabled }}
+{{- $outlineFullname := include "outline.fullname" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "outline.fullname" . }}-cronjob
+  labels:
+    {{- include "outline.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/no-liveness-probe: "The cron job does not need liveness probe"
+    ignore-check.kube-linter.io/no-readiness-probe: "The cron job does not need readiness probe"
+spec:
+  schedule: {{ .Values.cronJob.schedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100 # Cleanup finished jobs
+      template:
+        metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          labels:
+            {{- include "outline.labels" . | nindent 12 }}
+            {{- with .Values.podLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        spec:
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "2"
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "outline.serviceAccountName" . }}
+          {{- with .Values.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: {{ .Chart.Name }}-cronjob
+              {{- with .Values.cronJob.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              image: "{{ .Values.cronJob.image.repository }}:{{ .Values.cronJob.image.tag }}"
+              imagePullPolicy: {{ .Values.cronJob.image.pullPolicy }}
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  curl -f -s "http://{{ include "outline.fullname" . }}:{{ .Values.service.port }}/api/cron.daily?token=${UTILS_SECRET}" || exit 1
+              env:
+                - name: UTILS_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $outlineFullname }}
+                      key: UTILS_SECRET
+              {{- with .Values.cronJob.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
