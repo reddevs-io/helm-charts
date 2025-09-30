@@ -15,7 +15,6 @@ spec:
   failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
   jobTemplate:
     spec:
-      ttlSecondsAfterFinished: 100 # Cleanup finished jobs
       template:
         metadata:
           {{- with .Values.podAnnotations }}
