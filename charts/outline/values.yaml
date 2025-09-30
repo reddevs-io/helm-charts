@@ -1,0 +1,519 @@
+# Default values for outline.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imageCredentials:
+  registry: ""
+  username: ""
+  password: ""
+  email: ""
+
+fullnameOverride: ""
+component: "outline"
+tier: "documentation"
+
+replicaCount: 1
+
+image:
+  repository: "outlinewiki/outline"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.87.4"
+
+imagePullSecrets: []
+#- name: container-registry-cred
+
+env:
+  normal: []
+#    NODE_ENV: "production"
+#    PORT: "3000"
+#    WEB_CONCURRENCY: "1"
+#    DEFAULT_LANGUAGE: "en_US"
+#    FILE_STORAGE: "local"
+#    FILE_STORAGE_LOCAL_ROOT_DIR: "/var/lib/outline/data"
+#    FILE_STORAGE_UPLOAD_MAX_SIZE: "262144000"
+#    FORCE_HTTPS: "false"
+#    RATE_LIMITER_ENABLED: "true"
+#    RATE_LIMITER_REQUESTS: "1000"
+#    RATE_LIMITER_DURATION_WINDOW: "60"
+#    ENABLE_UPDATES: "true"
+#    DEBUG: "http"
+#    LOG_LEVEL: "info"
+#    PGSSLMODE: "disable"
+  secret: []
+#    SECRET_KEY: ""
+#    UTILS_SECRET: ""
+#    DATABASE_URL: ""
+#    REDIS_URL: ""
+#    # Authentication providers
+#    GOOGLE_CLIENT_ID: ""
+#    GOOGLE_CLIENT_SECRET: ""
+#    AZURE_CLIENT_ID: ""
+#    AZURE_CLIENT_SECRET: ""
+#    AZURE_RESOURCE_APP_ID: ""
+#    DISCORD_CLIENT_ID: ""
+#    DISCORD_CLIENT_SECRET: ""
+#    DISCORD_SERVER_ID: ""
+#    DISCORD_SERVER_ROLES: ""
+#    # SMTP Configuration
+#    SMTP_SERVICE: ""
+#    SMTP_USERNAME: ""
+#    SMTP_PASSWORD: ""
+#    SMTP_FROM_EMAIL: ""
+
+externalSecrets:
+  enabled: false
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: false
+    region: eu-central-1
+    iam:
+      accessKey: ""
+      secretAccessKey: ""
+  data: []
+  #  - secretKey: SECRET_KEY
+  #    envName: SECRET_KEY
+  #    remoteRef:
+  #      key: outline-secrets
+  #      property: secret_key
+  #  - secretKey: DATABASE_URL
+  #    envName: DATABASE_URL
+  #    remoteRef:
+  #      key: outline-db-secrets
+  #      property: database_url
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false # Needed for access to /tmp and /var/lib/outline/data
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 3000
+
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - podSelector: {}
+  policyTypes:
+    - Ingress
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    memory: "512Mi"
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 60
+  timeoutSeconds: 5
+  periodSeconds: 30
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  #targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: outline-data
+    emptyDir: {}
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: outline-data
+    mountPath: /var/lib/outline/data
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+persistence:
+  enabled: false
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""  # "" uses the default StorageClass
+  mountPath: /var/lib/outline/data
+  existingClaim: ""
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: In
+              values:
+                - linux
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - outline
+          topologyKey: kubernetes.io/hostname
+
+redis:
+  enable: false
+
+  fullnameOverride: ""
+  component: "redis"
+  tier: "cache"
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  image:
+    repository: "redis"
+    # This sets the pull policy for images.
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "8.2-alpine"
+
+  imagePullSecrets: []
+  #- name: container-registry-cred
+
+  env:
+    normal: []
+    secret: []
+
+  # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Automatically mount a ServiceAccount's API credentials?
+    automount: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  # This is for setting Kubernetes Annotations to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  podAnnotations: {}
+  # This is for setting Kubernetes Labels to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 999
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 6379
+
+  networkPolicy:
+    enabled: true
+    ingress:
+      - from:
+          - podSelector: {}
+    policyTypes:
+      - Ingress
+
+  resources:
+    limits:
+      memory: "300Mi"
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+  readinessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+  # Additional volumes on the output Deployment definition.
+  volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+  # Additional volumeMounts on the output Deployment definition.
+  volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+
+postgres:
+  enable: false
+
+  fullnameOverride: ""
+  component: "postgres"
+  tier: "database"
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  image:
+    repository: "postgres"
+    # This sets the pull policy for images.
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "18-alpine"
+
+  imagePullSecrets: []
+  #- name: container-registry-cred
+
+  env:
+    normal: []
+    secret:
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "pass"
+      POSTGRES_DB: "outline"
+
+  # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Automatically mount a ServiceAccount's API credentials?
+    automount: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  # This is for setting Kubernetes Annotations to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  podAnnotations: {}
+  # This is for setting Kubernetes Labels to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+
+  podSecurityContext:
+    fsGroup: 999
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false # PostgreSQL needs write access to data directory
+    runAsNonRoot: true
+    runAsUser: 999
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 5432
+
+  networkPolicy:
+    enabled: true
+    ingress:
+      - from:
+          - podSelector: {}
+    policyTypes:
+      - Ingress
+
+  resources:
+    limits:
+      memory: "512Mi"
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    exec:
+      command:
+        - pg_isready
+        - -d
+        - outline
+        - -U
+        - user
+    initialDelaySeconds: 30
+    timeoutSeconds: 20
+    periodSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    exec:
+      command:
+        - pg_isready
+        - -d
+        - outline
+        - -U
+        - user
+    initialDelaySeconds: 10
+    timeoutSeconds: 20
+    periodSeconds: 10
+    failureThreshold: 3
+
+  # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+  autoscaling:
+    enabled: false
+
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 8Gi
+    storageClass: ""  # "" uses the default StorageClass
+    mountPath: /var/lib/postgresql/data
+    existingClaim: ""
+
+  # Additional volumes on the output StatefulSet definition.
+  volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+  # Additional volumeMounts on the output StatefulSet definition.
+  volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux

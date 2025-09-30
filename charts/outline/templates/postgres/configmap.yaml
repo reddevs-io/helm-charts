@@ -1,0 +1,12 @@
+{{- if and .Values.postgres.enable .Values.postgres.env.normal }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "outline.postgres.fullname" . }}
+  labels:
+    {{- include "outline.postgres.labels" . | nindent 4 }}
+data:
+{{- range $key, $val := .Values.postgres.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+{{- end }}
+{{- end }}

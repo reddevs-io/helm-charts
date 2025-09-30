@@ -1,0 +1,22 @@
+{{- if and .Values.postgres.enable .Values.postgres.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "outline.postgres.fullname" . }}
+  labels:
+    {{- include "outline.postgres.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "outline.postgres.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    {{- with .Values.postgres.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.postgres.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.postgres.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

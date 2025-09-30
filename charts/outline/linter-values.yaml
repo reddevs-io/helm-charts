@@ -1,0 +1,115 @@
+# Linter values for outline chart
+# This file contains values used for linting and testing the chart
+
+imageCredentials:
+  registry: "test"
+  username: "test"
+  password: "test"
+  email: "test"
+
+env:
+  normal:
+    TEST_VARIABLE_1: "test1"
+    TEST_VARIABLE_2: "test2"
+  secret:
+    TEST_SECRET_VARIABLE_1: "testsecret1"
+    TEST_SECRET_VARIABLE_2: "testsecret2"
+
+externalSecrets:
+  enabled: true
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "my-access-key"
+      secretAccessKey: "my-secret-access-key"
+  data:
+    - secretKey: DATABASE_PASSWORD
+      envName: DATABASE_PASSWORD
+      remoteRef:
+        key: my-aws-secret-name
+        property: password
+        version: "AWSCURRENT"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: outline.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: outline-tls
+      hosts:
+        - outline.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetMemoryUtilizationPercentage: 80
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: "standard"
+
+# Enable Redis for testing
+redis:
+  enable: true
+
+  env:
+    normal:
+      TEST_VARIABLE_1: "test1"
+      TEST_VARIABLE_2: "test2"
+    secret:
+      TEST_SECRET_VARIABLE_1: "testsecret1"
+      TEST_SECRET_VARIABLE_2: "testsecret2"
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Enable PostgreSQL for testing
+postgres:
+  enable: true
+
+  env:
+    normal:
+      TEST_VARIABLE_1: "test1"
+      TEST_VARIABLE_2: "test2"
+    secret:
+      TEST_SECRET_VARIABLE_1: "testsecret1"
+      TEST_SECRET_VARIABLE_2: "testsecret2"
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 8Gi
+    storageClass: "standard"
