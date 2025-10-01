@@ -19,4 +19,10 @@ spec:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- end }}
+  {{- if .Values.networkPolicy.egress }}
+  egress:
+    {{- with .Values.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 {{- end }}

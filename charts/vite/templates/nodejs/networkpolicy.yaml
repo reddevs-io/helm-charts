@@ -11,9 +11,19 @@ spec:
     matchLabels:
       {{- include "vite.nodejs.selectorLabels" . | nindent 6 }}
   policyTypes:
-    {{- toYaml .Values.nodejs.networkPolicy.policyTypes | nindent 4 }}
-  {{- with .Values.nodejs.networkPolicy.ingress }}
-  ingress:
+    {{- with .Values.nodejs.networkPolicy.policyTypes }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.nodejs.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.nodejs.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.nodejs.networkPolicy.egress }}
+  egress:
+    {{- with .Values.nodejs.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}

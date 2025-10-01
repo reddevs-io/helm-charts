@@ -11,7 +11,19 @@ spec:
       app: {{ include "nextjs.name" . }}
       component: {{ .Values.redis.component }}
   policyTypes:
-    {{- toYaml .Values.redis.networkPolicy.policyTypes | nindent 4 }}
+    {{- with .Values.redis.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.redis.networkPolicy.ingress }}
   ingress:
-    {{- toYaml .Values.redis.networkPolicy.ingress | nindent 4 }}
+    {{- with .Values.redis.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.redis.networkPolicy.egress }}
+  egress:
+    {{- with .Values.redis.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 {{- end }}

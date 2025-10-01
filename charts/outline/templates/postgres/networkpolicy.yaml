@@ -19,4 +19,10 @@ spec:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- end }}
+  {{- if .Values.postgres.networkPolicy.egress }}
+  egress:
+    {{- with .Values.postgres.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 {{- end }}
