@@ -45,12 +45,16 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Outline Image parameters
 
-| Name                | Description                                          | Value                                        |
-| ------------------- | ---------------------------------------------------- | -------------------------------------------- |
-| `image.repository`  | Outline image repository                             | `docker.getoutline.com/outlinewiki/outline` |
-| `image.tag`         | Outline image tag (immutable tags are recommended)  | `latest`                                     |
-| `image.pullPolicy`  | Outline image pull policy                            | `IfNotPresent`                               |
-| `imagePullSecrets`  | Outline image pull secrets                           | `[]`                                         |
+| Name                       | Description                                          | Value                    |
+| -------------------------- | ---------------------------------------------------- | ------------------------ |
+| `image.repository`         | Outline image repository                             | `outlinewiki/outline`    |
+| `image.tag`                | Outline image tag (immutable tags are recommended)  | `0.87.4`                 |
+| `image.pullPolicy`         | Outline image pull policy                            | `IfNotPresent`           |
+| `imagePullSecrets`         | Outline image pull secrets                           | `[]`                     |
+| `imageCredentials.registry`| Docker registry for private images                   | `""`                     |
+| `imageCredentials.username`| Username for private registry                        | `""`                     |
+| `imageCredentials.password`| Password for private registry                        | `""`                     |
+| `imageCredentials.email`   | Email for private registry                           | `""`                     |
 
 ### Outline Configuration parameters
 
@@ -59,8 +63,34 @@ The command removes all the Kubernetes components associated with the chart and 
 | `component`             | Outline component label                        | `outline`         |
 | `tier`                  | Outline tier label                             | `documentation`   |
 | `replicaCount`          | Number of Outline replicas to deploy          | `1`               |
-| `env.normal`            | Normal environment variables                   | `{}`              |
-| `env.secret`            | Secret environment variables                   | `{}`              |
+| `env.normal`            | Normal environment variables                   | `[]`              |
+| `env.secret`            | Secret environment variables                   | `[]`              |
+
+### Service Account parameters
+
+| Name                          | Description                                              | Value   |
+| ----------------------------- | -------------------------------------------------------- | ------- |
+| `serviceAccount.create`       | Specifies whether a service account should be created   | `true`  |
+| `serviceAccount.automount`    | Automatically mount ServiceAccount API credentials      | `false` |
+| `serviceAccount.annotations`  | Annotations to add to the service account               | `{}`    |
+| `serviceAccount.name`         | The name of the service account to use                  | `""`    |
+
+### Pod Configuration parameters
+
+| Name                    | Description                                    | Value   |
+| ----------------------- | ---------------------------------------------- | ------- |
+| `podAnnotations`        | Annotations to add to the pod                 | `{}`    |
+| `podLabels`             | Labels to add to the pod                      | `{}`    |
+| `podSecurityContext`    | Pod security context                          | `{}`    |
+
+### Security Context parameters
+
+| Name                                      | Description                                    | Value    |
+| ----------------------------------------- | ---------------------------------------------- | -------- |
+| `securityContext.capabilities.drop`       | Linux capabilities to drop                     | `["ALL"]`|
+| `securityContext.readOnlyRootFilesystem`  | Mount root filesystem as read-only            | `false`  |
+| `securityContext.runAsNonRoot`            | Run container as non-root user                | `true`   |
+| `securityContext.runAsUser`               | User ID to run the container                  | `1001`   |
 
 ### Outline Service parameters
 
@@ -68,6 +98,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | --------------------- | ---------------------------------------------------- | ----------- |
 | `service.type`        | Outline service type                                 | `ClusterIP` |
 | `service.port`        | Outline service HTTP port                            | `3000`      |
+
+### Network Policy parameters
+
+| Name                       | Description                                    | Value                           |
+| -------------------------- | ---------------------------------------------- | ------------------------------- |
+| `networkPolicy.enabled`    | Enable NetworkPolicy                          | `true`                          |
+| `networkPolicy.ingress`    | Ingress rules for NetworkPolicy               | `[{"from": [{"podSelector": {}}]}]` |
+| `networkPolicy.policyTypes`| Policy types for NetworkPolicy                | `["Ingress"]`                   |
 
 ### Outline Ingress parameters
 
@@ -79,6 +117,30 @@ The command removes all the Kubernetes components associated with the chart and 
 | `ingress.hosts`            | An array with hosts and paths                            | `[{"host": "chart-example.local", "paths": [{"path": "/", "pathType": "ImplementationSpecific"}]}]` |
 | `ingress.tls`              | TLS configuration for additional hostnames              | `[]`                     |
 
+### Resource Limits parameters
+
+| Name                  | Description                                    | Value      |
+| --------------------- | ---------------------------------------------- | ---------- |
+| `resources.limits`    | Resource limits for the Outline container     | `{"memory": "512Mi"}` |
+| `resources.requests`  | Resource requests for the Outline container   | `{}`       |
+
+### Health Probes parameters
+
+| Name                                    | Description                                    | Value   |
+| --------------------------------------- | ---------------------------------------------- | ------- |
+| `livenessProbe.httpGet.path`            | Path for liveness probe                       | `/`     |
+| `livenessProbe.httpGet.port`            | Port for liveness probe                       | `http`  |
+| `livenessProbe.initialDelaySeconds`     | Initial delay for liveness probe              | `60`    |
+| `livenessProbe.timeoutSeconds`          | Timeout for liveness probe                    | `5`     |
+| `livenessProbe.periodSeconds`           | Period for liveness probe                     | `30`    |
+| `livenessProbe.failureThreshold`        | Failure threshold for liveness probe          | `3`     |
+| `readinessProbe.httpGet.path`           | Path for readiness probe                      | `/`     |
+| `readinessProbe.httpGet.port`           | Port for readiness probe                      | `http`  |
+| `readinessProbe.initialDelaySeconds`    | Initial delay for readiness probe             | `30`    |
+| `readinessProbe.timeoutSeconds`         | Timeout for readiness probe                   | `5`     |
+| `readinessProbe.periodSeconds`          | Period for readiness probe                    | `10`    |
+| `readinessProbe.failureThreshold`       | Failure threshold for readiness probe         | `3`     |
+
 ### Outline Persistence parameters
 
 | Name                        | Description                                      | Value               |
@@ -87,7 +149,15 @@ The command removes all the Kubernetes components associated with the chart and 
 | `persistence.accessMode`    | Persistent Volume access mode                    | `ReadWriteOnce`     |
 | `persistence.size`          | Persistent Volume size                           | `5Gi`               |
 | `persistence.storageClass`  | Persistent Volume storage class                  | `""`                |
+| `persistence.mountPath`     | Mount path for persistent volume                 | `/var/lib/outline/data` |
 | `persistence.existingClaim` | The name of an existing PVC to use for persistence | `""`             |
+
+### Volume Configuration parameters
+
+| Name                  | Description                                    | Value                                      |
+| --------------------- | ---------------------------------------------- | ------------------------------------------ |
+| `volumes`             | Additional volumes for the pod                | `[{"name": "outline-data", "emptyDir": {}}]` |
+| `volumeMounts`        | Additional volume mounts for the container    | `[{"name": "outline-data", "mountPath": "/var/lib/outline/data"}]` |
 
 ### Outline Autoscaling parameters
 
@@ -98,14 +168,37 @@ The command removes all the Kubernetes components associated with the chart and 
 | `autoscaling.maxReplicas`                       | Maximum number of Outline replicas                                                                                  | `100`   |
 | `autoscaling.targetMemoryUtilizationPercentage` | Target Memory utilization percentage                                                                                | `80`    |
 
+### Pod Scheduling parameters
+
+| Name                  | Description                                    | Value   |
+| --------------------- | ---------------------------------------------- | ------- |
+| `nodeSelector`        | Node labels for pod assignment                | `{}`    |
+| `tolerations`         | Tolerations for pod assignment                | `[]`    |
+| `affinity`            | Affinity rules for pod assignment             | See values.yaml for default anti-affinity rules |
+
+### CronJob parameters
+
+| Name                                      | Description                                    | Value                |
+| ----------------------------------------- | ---------------------------------------------- | -------------------- |
+| `cronJob.enabled`                         | Enable scheduled maintenance CronJob          | `true`               |
+| `cronJob.schedule`                        | Cron schedule for maintenance tasks           | `0 2 * * *`          |
+| `cronJob.image.repository`                | Image repository for CronJob                  | `curlimages/curl`    |
+| `cronJob.image.tag`                       | Image tag for CronJob                         | `8.16.0`             |
+| `cronJob.image.pullPolicy`                | Image pull policy for CronJob                 | `IfNotPresent`       |
+| `cronJob.successfulJobsHistoryLimit`      | Number of successful jobs to keep             | `3`                  |
+| `cronJob.failedJobsHistoryLimit`          | Number of failed jobs to keep                 | `1`                  |
+| `cronJob.resources.limits`                | Resource limits for CronJob                   | `{"memory": "64Mi"}` |
+| `cronJob.resources.requests`              | Resource requests for CronJob                 | `{"memory": "64Mi"}` |
+
 ### Redis parameters
 
 | Name                    | Description                                    | Value       |
 | ----------------------- | ---------------------------------------------- | ----------- |
 | `redis.enable`          | Deploy Redis as part of the release           | `false`     |
 | `redis.image.repository`| Redis image repository                         | `redis`     |
-| `redis.image.tag`       | Redis image tag                                | `8-alpine`  |
+| `redis.image.tag`       | Redis image tag                                | `8.2-alpine`|
 | `redis.service.port`    | Redis service port                             | `6379`      |
+| `redis.resources.limits`| Redis resource limits                          | `{"memory": "300Mi"}` |
 
 ### PostgreSQL parameters
 
@@ -115,15 +208,21 @@ The command removes all the Kubernetes components associated with the chart and 
 | `postgres.image.repository` | PostgreSQL image repository                    | `postgres`      |
 | `postgres.image.tag`        | PostgreSQL image tag                           | `18-alpine`     |
 | `postgres.service.port`     | PostgreSQL service port                        | `5432`          |
+| `postgres.persistence.enabled` | Enable PostgreSQL persistence               | `true`          |
 | `postgres.persistence.size` | PostgreSQL persistent volume size              | `8Gi`           |
+| `postgres.resources.limits` | PostgreSQL resource limits                     | `{"memory": "512Mi"}` |
 
 ### External Secrets parameters
 
 | Name                                    | Description                                    | Value       |
 | --------------------------------------- | ---------------------------------------------- | ----------- |
 | `externalSecrets.enabled`               | Enable External Secrets integration           | `false`     |
+| `externalSecrets.refreshInterval`       | Refresh interval for secrets                  | `1h`        |
 | `externalSecrets.awsProvider.enabled`   | Enable AWS Secrets Manager provider           | `false`     |
 | `externalSecrets.awsProvider.region`    | AWS region                                     | `eu-central-1` |
+| `externalSecrets.awsProvider.iam.accessKey` | AWS IAM access key                        | `""`        |
+| `externalSecrets.awsProvider.iam.secretAccessKey` | AWS IAM secret access key            | `""`        |
+| `externalSecrets.data`                  | Array of secret mappings                      | `[]`        |
 
 ## Configuration and Installation Details
 
@@ -140,6 +239,27 @@ Authentication providers (at least one required):
 - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
 - `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`
 - `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET`
+
+### CronJob Maintenance
+
+By default, the chart deploys a CronJob that runs daily at 2 AM to perform maintenance tasks. This job calls the `/api/cron.daily` endpoint to:
+- Clean up expired data
+- Perform database maintenance
+- Update search indexes
+
+To disable the CronJob:
+
+```yaml
+cronJob:
+  enabled: false
+```
+
+To customize the schedule:
+
+```yaml
+cronJob:
+  schedule: "0 3 * * *"  # Run at 3 AM instead
+```
 
 ### Using with External Database
 
@@ -167,6 +287,18 @@ env:
     REDIS_URL: "redis://external-redis:6379"
 ```
 
+### Using Private Container Registry
+
+To pull images from a private registry, configure the imageCredentials:
+
+```yaml
+imageCredentials:
+  registry: "my-registry.example.com"
+  username: "myuser"
+  password: "mypassword"
+  email: "user@example.com"
+```
+
 ### Persistence
 
 By default, Outline uses an emptyDir volume for data storage. For production use, enable persistence:
@@ -181,10 +313,19 @@ persistence:
 ### Security
 
 The chart includes several security features:
-- NetworkPolicy for pod-to-pod communication control
-- SecurityContext with non-root user
-- ReadOnlyRootFilesystem where possible
-- Resource limits and requests
+- NetworkPolicy for pod-to-pod communication control (enabled by default)
+- SecurityContext with non-root user (UID 1001)
+- Capability dropping (ALL capabilities dropped)
+- Resource limits to prevent resource exhaustion
+- Pod anti-affinity rules for high availability
+
+### Pod Scheduling
+
+The chart includes default affinity rules to:
+- Ensure pods run on Linux nodes
+- Prefer spreading pods across different nodes (pod anti-affinity)
+
+You can customize these with `nodeSelector`, `tolerations`, and `affinity` parameters.
 
 ## Examples
 
@@ -221,6 +362,40 @@ helm install outline ./outline \
   --set ingress.hosts[0].paths[0].pathType="ImplementationSpecific"
 ```
 
+### Installation with External Secrets
+
+```bash
+helm install outline ./outline \
+  --set externalSecrets.enabled=true \
+  --set externalSecrets.awsProvider.enabled=true \
+  --set externalSecrets.awsProvider.region="us-east-1" \
+  --set externalSecrets.awsProvider.iam.accessKey="your-access-key" \
+  --set externalSecrets.awsProvider.iam.secretAccessKey="your-secret-key"
+```
+
+### Production Installation with All Features
+
+```bash
+helm install outline ./outline \
+  --set replicaCount=3 \
+  --set postgres.enable=true \
+  --set postgres.persistence.enabled=true \
+  --set postgres.persistence.size=20Gi \
+  --set redis.enable=true \
+  --set persistence.enabled=true \
+  --set persistence.size=10Gi \
+  --set autoscaling.enabled=true \
+  --set autoscaling.minReplicas=3 \
+  --set autoscaling.maxReplicas=10 \
+  --set ingress.enabled=true \
+  --set ingress.className="nginx" \
+  --set ingress.hosts[0].host="outline.example.com" \
+  --set resources.requests.cpu="500m" \
+  --set resources.requests.memory="512Mi" \
+  --set resources.limits.cpu="1000m" \
+  --set resources.limits.memory="1Gi"
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -231,17 +406,44 @@ helm install outline ./outline \
 
 3. **Authentication not working**: Ensure that your authentication provider (Google, Azure, etc.) is properly configured with the correct redirect URLs.
 
+4. **CronJob failures**: Check the CronJob logs to see if the maintenance endpoint is accessible. The job needs to reach the Outline service at `http://<service-name>:3000/api/cron.daily`.
+
+5. **Persistence issues**: If using persistence, ensure your StorageClass supports the requested access mode (ReadWriteOnce).
+
 ### Useful Commands
 
 ```bash
 # Check pod status
 kubectl get pods -l app.kubernetes.io/name=outline
 
-# View logs
+# View Outline logs
 kubectl logs -l app.kubernetes.io/name=outline
+
+# View CronJob logs
+kubectl logs -l app.kubernetes.io/name=outline,component=cronjob
 
 # Check configuration
 kubectl describe configmap <release-name>-outline
+
+# Check secrets
+kubectl get secrets -l app.kubernetes.io/name=outline
+
+# View CronJob status
+kubectl get cronjobs -l app.kubernetes.io/name=outline
+
+# Manually trigger CronJob
+kubectl create job --from=cronjob/<release-name>-outline-cronjob manual-run-1
+```
+
+### Debug Mode
+
+To enable debug logging, add the following environment variable:
+
+```yaml
+env:
+  normal:
+    DEBUG: "http,cache,emails"
+    LOG_LEVEL: "debug"
 ```
 
 ## Contributing
