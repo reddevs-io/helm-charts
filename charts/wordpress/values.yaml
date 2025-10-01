@@ -101,17 +101,15 @@ service:
 
 networkPolicy:
   enabled: true
-  ingress:
-    - from:
-        - podSelector: {}
   policyTypes:
     - Ingress
-  # egress:
-  #   - to:
-  #       - podSelector: {}
-  #     ports:
-  #       - protocol: TCP
-  #         port: 443
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {} # All namespaces
+      podSelector: {} # All pods in those namespaces
+  egress:
+    - {}
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:

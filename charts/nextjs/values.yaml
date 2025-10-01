@@ -100,7 +100,7 @@ podSecurityContext: {}
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
@@ -114,17 +114,15 @@ service:
 
 networkPolicy:
   enabled: true
-  ingress:
-    - from:
-      - podSelector: {}
   policyTypes:
     - Ingress
-  # egress:
-  #   - to:
-  #       - podSelector: {}
-  #     ports:
-  #       - protocol: TCP
-  #         port: 443
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {} # All namespaces
+      podSelector: {} # All pods in those namespaces
+  egress:
+    - {}
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -201,7 +199,7 @@ persistence:
   enabled: false
   accessMode: ReadWriteOnce
   size: 1Gi
-  storageClass: ""  # "" uses the default StorageClass
+  storageClass: "" # "" uses the default StorageClass
   mountPath: /data
   existingClaim: ""
 
@@ -248,12 +246,12 @@ redis:
     # Overrides the image tag whose default is the chart appVersion.
     tag: "8-alpine"
 
-  imagePullSecrets: [ ]
+  imagePullSecrets: []
   #- name: gitlab-registry-cred
 
   env:
-    normal: [ ]
-    secret: [ ]
+    normal: []
+    secret: []
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
@@ -262,19 +260,19 @@ redis:
     # Automatically mount a ServiceAccount's API credentials?
     automount: false
     # Annotations to add to the service account
-    annotations: { }
+    annotations: {}
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
   # This is for setting Kubernetes Annotations to a Pod.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  podAnnotations: { }
+  podAnnotations: {}
   # This is for setting Kubernetes Labels to a Pod.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-  podLabels: { }
+  podLabels: {}
 
-  podSecurityContext: { }
+  podSecurityContext: {}
   # fsGroup: 2000
 
   securityContext:
@@ -294,17 +292,15 @@ redis:
 
   networkPolicy:
     enabled: true
-    ingress:
-      - from:
-          - podSelector: { }
     policyTypes:
       - Ingress
-    # egress:
-    #   - to:
-    #       - podSelector: {}
-    #     ports:
-    #       - protocol: TCP
-    #         port: 443
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {} # All namespaces
+        podSelector: {} # All pods in those namespaces
+    egress:
+      - {}
 
   resources:
     limits:
@@ -342,21 +338,21 @@ redis:
     enabled: false
 
   # Additional volumes on the output Deployment definition.
-  volumes: [ ]
+  volumes: []
   # - name: foo
   #   secret:
   #     secretName: mysecret
   #     optional: false
 
   # Additional volumeMounts on the output Deployment definition.
-  volumeMounts: [ ]
+  volumeMounts: []
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
-  nodeSelector: { }
+  nodeSelector: {}
 
-  tolerations: [ ]
+  tolerations: []
 
   affinity:
     nodeAffinity:

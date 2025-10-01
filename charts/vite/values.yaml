@@ -59,7 +59,7 @@ podSecurityContext: {}
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
@@ -73,17 +73,15 @@ service:
 
 networkPolicy:
   enabled: true
-  ingress:
-    - from:
-      - podSelector: {}
   policyTypes:
     - Ingress
-  # egress:
-  #   - to:
-  #       - podSelector: {}
-  #     ports:
-  #       - protocol: TCP
-  #         port: 443
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {} # All namespaces
+      podSelector: {} # All pods in those namespaces
+  egress:
+    - {}
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -187,11 +185,11 @@ vite:
       worker_processes auto;
       error_log /var/log/nginx/error.log notice;
       pid /var/run/nginx.pid;
-      
+
       events {
           worker_connections 1024;
       }
-      
+
       http {
           include /etc/nginx/mime.types;
           default_type application/octet-stream;
@@ -243,12 +241,12 @@ nodejs:
     # Overrides the image tag whose default is the chart appVersion.
     tag: "24-alpine"
 
-  imagePullSecrets: [ ]
+  imagePullSecrets: []
   #- name: container-registry-cred
 
   env:
-    normal: [ ]
-    secret: [ ]
+    normal: []
+    secret: []
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
@@ -257,19 +255,19 @@ nodejs:
     # Automatically mount a ServiceAccount's API credentials?
     automount: false
     # Annotations to add to the service account
-    annotations: { }
+    annotations: {}
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
   # This is for setting Kubernetes Annotations to a Pod.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  podAnnotations: { }
+  podAnnotations: {}
   # This is for setting Kubernetes Labels to a Pod.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-  podLabels: { }
+  podLabels: {}
 
-  podSecurityContext: { }
+  podSecurityContext: {}
   # fsGroup: 2000
 
   securityContext:
@@ -289,17 +287,15 @@ nodejs:
 
   networkPolicy:
     enabled: true
-    ingress:
-      - from:
-          - podSelector: { }
     policyTypes:
       - Ingress
-    # egress:
-    #   - to:
-    #       - podSelector: {}
-    #     ports:
-    #       - protocol: TCP
-    #         port: 443
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {} # All namespaces
+        podSelector: {} # All pods in those namespaces
+    egress:
+      - {}
 
   # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
@@ -356,21 +352,21 @@ nodejs:
     # targetMemoryUtilizationPercentage: 80
 
   # Additional volumes on the output Deployment definition.
-  volumes: [ ]
+  volumes: []
   # - name: foo
   #   secret:
   #     secretName: mysecret
   #     optional: false
 
   # Additional volumeMounts on the output Deployment definition.
-  volumeMounts: [ ]
+  volumeMounts: []
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
-  nodeSelector: { }
+  nodeSelector: {}
 
-  tolerations: [ ]
+  tolerations: []
 
   affinity:
     nodeAffinity:

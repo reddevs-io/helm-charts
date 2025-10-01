@@ -28,21 +28,21 @@ imagePullSecrets: []
 
 env:
   normal: []
-#    NODE_ENV: "production"
-#    PORT: "3000"
-#    WEB_CONCURRENCY: "1"
-#    DEFAULT_LANGUAGE: "en_US"
-#    FILE_STORAGE: "local"
-#    FILE_STORAGE_LOCAL_ROOT_DIR: "/var/lib/outline/data"
-#    FILE_STORAGE_UPLOAD_MAX_SIZE: "262144000"
-#    FORCE_HTTPS: "false"
-#    RATE_LIMITER_ENABLED: "true"
-#    RATE_LIMITER_REQUESTS: "1000"
-#    RATE_LIMITER_DURATION_WINDOW: "60"
-#    ENABLE_UPDATES: "true"
-#    DEBUG: "http"
-#    LOG_LEVEL: "info"
-#    PGSSLMODE: "disable"
+  #    NODE_ENV: "production"
+  #    PORT: "3000"
+  #    WEB_CONCURRENCY: "1"
+  #    DEFAULT_LANGUAGE: "en_US"
+  #    FILE_STORAGE: "local"
+  #    FILE_STORAGE_LOCAL_ROOT_DIR: "/var/lib/outline/data"
+  #    FILE_STORAGE_UPLOAD_MAX_SIZE: "262144000"
+  #    FORCE_HTTPS: "false"
+  #    RATE_LIMITER_ENABLED: "true"
+  #    RATE_LIMITER_REQUESTS: "1000"
+  #    RATE_LIMITER_DURATION_WINDOW: "60"
+  #    ENABLE_UPDATES: "true"
+  #    DEBUG: "http"
+  #    LOG_LEVEL: "info"
+  #    PGSSLMODE: "disable"
   secret: []
 #    SECRET_KEY: ""
 #    UTILS_SECRET: ""
@@ -123,17 +123,15 @@ service:
 
 networkPolicy:
   enabled: true
-  ingress:
-    - from:
-        - podSelector: {}
   policyTypes:
     - Ingress
-  # egress:
-  #   - to:
-  #       - podSelector: {}
-  #     ports:
-  #       - protocol: TCP
-  #         port: 443
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {} # All namespaces
+      podSelector: {} # All pods in those namespaces
+  egress:
+    - {}
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -214,7 +212,7 @@ persistence:
   enabled: false
   accessMode: ReadWriteOnce
   size: 5Gi
-  storageClass: ""  # "" uses the default StorageClass
+  storageClass: "" # "" uses the default StorageClass
   mountPath: /var/lib/outline/data
   existingClaim: ""
 
@@ -245,7 +243,7 @@ affinity:
 
 cronJob:
   enabled: true
-  schedule: "0 2 * * *"  # Daily at 2 AM
+  schedule: "0 2 * * *" # Daily at 2 AM
   image:
     repository: "curlimages/curl"
     tag: "8.16.0"
@@ -329,11 +327,15 @@ redis:
 
   networkPolicy:
     enabled: true
-    ingress:
-      - from:
-          - podSelector: {}
     policyTypes:
       - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {} # All namespaces
+        podSelector: {} # All pods in those namespaces
+    egress:
+      - {}
 
   resources:
     limits:
@@ -515,7 +517,7 @@ postgres:
     enabled: true
     accessMode: ReadWriteOnce
     size: 8Gi
-    storageClass: ""  # "" uses the default StorageClass
+    storageClass: "" # "" uses the default StorageClass
     mountPath: /var/lib/postgresql/data
     existingClaim: ""
 
