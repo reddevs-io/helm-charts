@@ -212,5 +212,5 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                  - symfony
+                  - wordpress
           topologyKey: kubernetes.io/hostname

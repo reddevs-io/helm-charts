@@ -73,8 +73,11 @@ The following table lists commonly used configurable parameters of the WordPress
 | `phpIni.memory_limit`                             | PHP `memory_limit` setting                                       | `"200M"`                      |
 | `serviceAccount.create`                           | Create a Kubernetes ServiceAccount                               | `true`                        |
 | `serviceAccount.automount`                        | Automount ServiceAccount token                                   | `true`                        |
-| `securityContext.readOnlyRootFilesystem`          | Enforce read-only root filesystem                                | `true`                        |
-| `securityContext.runAsNonRoot`                    | Run container as non-root                                        | `true`                        |
+| `securityContext.capabilities.drop`               | Linux capabilities to drop                                       | `["ALL"]`                     |
+| `securityContext.capabilities.add`                | Linux capabilities to add (CHOWN, FOWNER for file permissions)   | `["CHOWN", "FOWNER"]`         |
+| `securityContext.readOnlyRootFilesystem`          | Enforce read-only root filesystem                                | `false`                       |
+| `securityContext.runAsNonRoot`                    | Run container as non-root                                        | `false`                       |
+| `securityContext.runAsUser`                       | User ID to run container as                                      | `0`                           |
 | `service.type`                                    | Kubernetes Service type                                          | `ClusterIP`                   |
 | `service.port`                                    | Service port                                                     | `80`                          |
 | `ingress.enabled`                                 | Enable Ingress                                                   | `false`                       |
@@ -97,14 +100,17 @@ The following table lists commonly used configurable parameters of the WordPress
 | `persistence.themes.accessMode`                   | Access mode for themes PVC                                       | `ReadWriteMany`               |
 | `persistence.themes.size`                         | Size of themes PVC                                               | `1Gi`                         |
 | `persistence.themes.storageClass`                 | StorageClass for themes PVC                                      | `""`                          |
+| `persistence.themes.existingClaim`                | Use an existing PVC for themes instead of creating a new one     | `""`                          |
 | `persistence.plugins.enabled`                     | Enable PVC for plugins                                           | `true`                        |
 | `persistence.plugins.accessMode`                  | Access mode for plugins PVC                                      | `ReadWriteMany`               |
 | `persistence.plugins.size`                        | Size of plugins PVC                                              | `1Gi`                         |
 | `persistence.plugins.storageClass`                | StorageClass for plugins PVC                                     | `""`                          |
+| `persistence.plugins.existingClaim`               | Use an existing PVC for plugins instead of creating a new one    | `""`                          |
 | `persistence.uploads.enabled`                     | Enable PVC for uploads                                           | `true`                        |
 | `persistence.uploads.accessMode`                  | Access mode for uploads PVC                                      | `ReadWriteMany`               |
 | `persistence.uploads.size`                        | Size of uploads PVC                                              | `2Gi`                         |
 | `persistence.uploads.storageClass`                | StorageClass for uploads PVC                                     | `""`                          |
+| `persistence.uploads.existingClaim`               | Use an existing PVC for uploads instead of creating a new one    | `""`                          |
 
 ## Linter Configuration
 
@@ -141,6 +147,16 @@ When `autoscaling.enabled=true`, an HPA scales the deployment based on CPU and m
 
 When `ingress.enabled=true`, an Ingress resource is created. Configure hosts, TLS, and annotations (e.g., Cert-Manager) via `ingress` values.
 
+### Security Context
+
+WordPress requires relaxed security settings to function properly:
+
+- **Root User**: WordPress runs as root (`runAsUser: 0`) because the official WordPress Docker image requires it for proper file permissions and Apache configuration.
+- **Writable Filesystem**: The root filesystem cannot be read-only (`readOnlyRootFilesystem: false`) as WordPress needs to write to various directories for themes, plugins, uploads, and cache.
+- **Capabilities**: The container requires `CHOWN` and `FOWNER` capabilities to manage file ownership and permissions for uploaded content and installed plugins/themes.
+
+These settings are necessary for WordPress to function correctly and are documented in the deployment annotations.
+
 ### PersistentVolumeClaims
 
 When `persistence.enabled=true`, PersistentVolumeClaims are created for themes, plugins, and uploads. Configure each under the `persistence` section of `values.yaml`:
@@ -149,7 +165,7 @@ When `persistence.enabled=true`, PersistentVolumeClaims are created for themes, 
 - **Plugins** (`persistence.plugins.*`): stores plugin files.
 - **Uploads** (`persistence.uploads.*`): stores media uploads.
 
-Sub-options include `enabled`, `accessMode`, `size`, and `storageClass`.
+Sub-options include `enabled`, `accessMode`, `size`, `storageClass`, and `existingClaim`. Use `existingClaim` to reference a pre-existing PVC instead of creating a new one.
 
 ### Volumes & VolumeMounts
 

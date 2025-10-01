@@ -45,21 +45,74 @@ helm uninstall my-symfony
 The following categories of parameters are available. See `values.yaml` for complete details and defaults:
 
 * **Name overrides**: `nameOverride`, `fullnameOverride`  
+* **Labels**: `component`, `tier`  
 * **Replica settings**: `replicaCount`  
 * **Container image**: `image.repository`, `image.tag`, `image.pullPolicy`  
 * **Credentials & pull secrets**: `imageCredentials`, `imagePullSecrets`  
 * **Environment variables**: `env.normal`, `env.secret`  
 * **External Secrets**: `externalSecrets.enabled`, `externalSecrets.refreshInterval`, provider and data mappings  
+* **External Secrets Database URL**: `externalSecretsDbUrl.enabled`, `externalSecretsDbUrl.rdsSecretKey`, database connection parameters  
 * **Ingress**: `ingress.enabled`, `ingress.className`, `ingress.annotations`, `ingress.hosts`, `ingress.tls`  
 * **Autoscaling**: `autoscaling.enabled`, `minReplicas`, `maxReplicas`, `targetCPUUtilizationPercentage`, `targetMemoryUtilizationPercentage`  
 * **Service account**: `serviceAccount.create`, `serviceAccount.name`, `serviceAccount.automount`  
 * **Pod metadata & security**: `podAnnotations`, `podLabels`, `podSecurityContext`, `securityContext`  
+* **Resources**: `resources.limits`, `resources.requests`  
 * **Service & networking**: `service.type`, `service.port`, `networkPolicy.enabled`, `networkPolicy.ingress`  
 * **Init job**: `initJob.enabled`, `initJob.command`  
 * **Volumes & mounts**: `volumes`, `volumeMounts`  
 * **Node scheduling**: `nodeSelector`, `tolerations`, `affinity`  
 * **Probes**: `livenessProbe`, `readinessProbe`  
 * **PHP & Nginx Unit**: `phpIni.memory_limit`, `nginxUnit.enable`, `nginxUnit.content`
+
+## External Secrets Database URL
+
+This chart provides a specialized feature for automatically constructing Symfony's `DATABASE_URL` environment variable from AWS RDS secrets stored in AWS Secrets Manager. This is particularly useful when using AWS RDS databases where credentials are managed by AWS.
+
+### How It Works
+
+When enabled, the chart:
+1. Fetches the database username and password from AWS Secrets Manager using the specified RDS secret key
+2. Automatically constructs a properly formatted `DATABASE_URL` with URL-encoded credentials
+3. Combines the fetched credentials with your configured database connection parameters (engine, host, port, database name)
+4. Creates a Kubernetes secret containing the complete `DATABASE_URL`
+
+### Configuration
+
+Enable and configure the feature in your `values.yaml`:
+
+```yaml
+externalSecretsDbUrl:
+  enabled: true
+  refreshInterval: "1h"
+  rdsSecretKey: "my-rds-secret-name"  # The AWS Secrets Manager secret name
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "AKIA..."
+      secretAccessKey: "secret..."
+  data:
+    engine: "mysql"           # Database engine (mysql, postgresql, etc.)
+    host: "mydb.abc123.eu-central-1.rds.amazonaws.com"
+    port: "3306"
+    dbName: "symfony_db"
+```
+
+### Result
+
+The chart will automatically create a `DATABASE_URL` in the format:
+```
+mysql://username:password@mydb.abc123.eu-central-1.rds.amazonaws.com:3306/symfony_db
+```
+
+Where `username` and `password` are fetched from the AWS secret and properly URL-encoded.
+
+### Notes
+
+- The AWS Secrets Manager secret must contain `username` and `password` properties
+- This feature requires the External Secrets Operator to be installed in your cluster
+- The IAM credentials must have permissions to read from AWS Secrets Manager
+- Credentials in the URL are automatically URL-encoded to handle special characters
 
 ## Resource Details
 

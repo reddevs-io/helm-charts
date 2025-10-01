@@ -106,6 +106,22 @@ The following table lists the configurable parameters of the chart and their def
 | `nodeSelector`, `tolerations`, `affinity`    | Node scheduling controls                                                   | `{}`                                                             |
 | `initJob.enabled`                            | Enable init Job                                                            | `false`                                                          |
 | `initJob.command`                            | Init Job command                                                           | `""`                                                             |
+| `externalSecrets.enabled`                    | Enable External Secrets Operator integration                               | `false`                                                          |
+| `externalSecrets.refreshInterval`            | How often to refresh secrets from external source                          | `1h`                                                             |
+| `externalSecrets.awsProvider.enabled`        | Enable AWS Secrets Manager provider                                        | `false`                                                          |
+| `externalSecrets.awsProvider.region`         | AWS region for Secrets Manager                                             | `eu-central-1`                                                   |
+| `externalSecrets.awsProvider.iam.accessKey`  | AWS IAM access key for authentication                                      | `""`                                                             |
+| `externalSecrets.awsProvider.iam.secretAccessKey` | AWS IAM secret access key for authentication                          | `""`                                                             |
+| `externalSecrets.data`                       | List of secrets to fetch from external source                              | `[]`                                                             |
+| `externalSecretsDbUrl.enabled`               | Enable External Secrets for database URL generation                        | `false`                                                          |
+| `externalSecretsDbUrl.refreshInterval`       | How often to refresh database secrets                                      | `1h`                                                             |
+| `externalSecretsDbUrl.rdsSecretKey`          | AWS RDS secret key name                                                    | `""`                                                             |
+| `externalSecretsDbUrl.awsProvider.enabled`   | Enable AWS provider for database secrets                                   | `false`                                                          |
+| `externalSecretsDbUrl.awsProvider.region`    | AWS region for RDS secrets                                                 | `eu-central-1`                                                   |
+| `externalSecretsDbUrl.data.engine`           | Database engine (e.g., postgres, mysql)                                    | `""`                                                             |
+| `externalSecretsDbUrl.data.host`             | Database host template                                                     | `""`                                                             |
+| `externalSecretsDbUrl.data.port`             | Database port template                                                     | `""`                                                             |
+| `externalSecretsDbUrl.data.dbName`           | Database name template                                                     | `""`                                                             |
 
 ### Redis Cache (Optional)
 
@@ -146,6 +162,12 @@ This chart creates the following Kubernetes resources:
 | Next.js ConfigMap         | v1 ConfigMap                           | Configuration data for Next.js          | `templates/nextjs/configmap.yaml`          |
 | Next.js Secret            | v1 Secret                              | Environment secrets for Next.js         | `templates/nextjs/secret.yaml`             |
 | Next.js Init Job          | batch/v1 Job                           | Initialization job for pre-deploy tasks | `templates/nextjs/job-init.yaml`           |
+| External Secret           | external-secrets.io/v1beta1 ExternalSecret | Syncs secrets from AWS Secrets Manager | `templates/nextjs/secret/external-secret.yaml` |
+| External Secret DB URL    | external-secrets.io/v1beta1 ExternalSecret | Generates database URL from RDS secret | `templates/nextjs/secret/external-secret-db-url.yaml` |
+| AWS Secret Store          | external-secrets.io/v1beta1 SecretStore | AWS Secrets Manager connection (IAM)   | `templates/nextjs/secret/aws-secret-store-iam.yaml` |
+| AWS Secret Store          | external-secrets.io/v1beta1 SecretStore | AWS Secrets Manager connection (static) | `templates/nextjs/secret/aws-secret-store.yaml` |
+| AWS Secret Store DB       | external-secrets.io/v1beta1 SecretStore | AWS Secrets Manager for RDS (IAM)      | `templates/nextjs/secret/aws-secret-store-db-iam.yaml` |
+| AWS Secret Store DB       | external-secrets.io/v1beta1 SecretStore | AWS Secrets Manager for RDS (static)   | `templates/nextjs/secret/aws-secret-store-db.yaml` |
 | Redis Deployment          | apps/v1 Deployment                     | Running Redis cache pods                | `templates/redis/deployment.yaml`          |
 | Redis Service             | v1 Service                             | Exposes Redis service internally        | `templates/redis/service.yaml`             |
 | Redis NetworkPolicy       | networking.k8s.io/v1 NetworkPolicy     | Control ingress to Redis pods           | `templates/redis/networkpolicy.yaml`       |
@@ -166,7 +188,7 @@ A dedicated ServiceAccount (`{{ .Release.Name }}-nextjs`) is created with `autom
 
 ### Secrets & ConfigMap
 
-* **Secret**: Holds sensitive variables (`env.secret`) for Ghost: `TEST_SECRET_VARIABLE_1`, `TEST_SECRET_VARIABLE_2`, etc.
+* **Secret**: Holds sensitive variables (`env.secret`) for Next.js: `TEST_SECRET_VARIABLE_1`, `TEST_SECRET_VARIABLE_2`, etc.
 * **ConfigMap**: Holds non-sensitive variables (`env.normal`) such as `TEST_VARIABLE_1`, `TEST_VARIABLE_2`.
 
 Define environment variables in values:
@@ -174,16 +196,20 @@ Define environment variables in values:
 ```yaml
 env:
   normal:
-    TEST_VARIABLE_1: "test1"
-    TEST_VARIABLE_2: "test2"
+    - name: TEST_VARIABLE_1
+      value: "test1"
+    - name: TEST_VARIABLE_2
+      value: "test2"
   secret:
-    TEST_SECRET_VARIABLE_1: "testsecret1"
-    TEST_SECRET_VARIABLE_2: "testsecret2"
+    - name: TEST_SECRET_VARIABLE_1
+      value: "testsecret1"
+    - name: TEST_SECRET_VARIABLE_2
+      value: "testsecret2"
 ```
 
 ### Persistent Volume Claim
 
-If `persistence.enabled=true`, a PVC is created to store Ghost content under `/data`. See the `persistence` section in [Values](#configuration).
+If `persistence.enabled=true`, a PVC is created to store Next.js content under `/data`. See the `persistence` section in [Values](#configuration).
 
 ### Deployment
 
@@ -193,7 +219,7 @@ If `persistence.enabled=true`, a PVC is created to store Ghost content under `/d
 
 ### Horizontal Pod Autoscaler
 
-When `autoscaling.enabled=true`, an HPA scales the Ghost deployment based on CPU and memory utilization (default 80%).
+When `autoscaling.enabled=true`, an HPA scales the Next.js deployment based on CPU and memory utilization (default 80%).
 
 ### Ingress
 
@@ -217,6 +243,81 @@ ingress:
         - example.com
       secretName: nextjs-example-tls
 ```
+
+### Init Job
+
+When `initJob.enabled=true`, a Kubernetes Job runs before the main deployment. This is useful for:
+- Database migrations
+- Cache warming
+- Asset compilation
+- Pre-deployment health checks
+
+Example configuration:
+
+```yaml
+initJob:
+  enabled: true
+  command: "npm run migrate"
+```
+
+The init job uses the same container image as the main Next.js deployment and has access to the same environment variables and secrets.
+
+### External Secrets Integration
+
+This chart supports the [External Secrets Operator](https://external-secrets.io/) for managing secrets from external sources like AWS Secrets Manager, HashiCorp Vault, or Azure Key Vault.
+
+#### AWS Secrets Manager Integration
+
+Enable External Secrets with AWS Secrets Manager:
+
+```yaml
+externalSecrets:
+  enabled: true
+  refreshInterval: "1h"
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "AKIA..."
+      secretAccessKey: "secret..."
+  data:
+    - secretKey: DATABASE_PASSWORD
+      envName: DATABASE_PASSWORD
+      remoteRef:
+        key: "my-app-secrets"
+        property: password
+    - secretKey: API_KEY
+      envName: API_KEY
+      remoteRef:
+        key: "my-app-secrets"
+        property: apiKey
+```
+
+#### Database URL Generation from RDS Secrets
+
+For AWS RDS databases, you can automatically generate a connection URL from RDS secret components:
+
+```yaml
+externalSecretsDbUrl:
+  enabled: true
+  refreshInterval: "1h"
+  rdsSecretKey: "my-rds-secret"
+  awsProvider:
+    enabled: true
+    region: eu-central-1
+    iam:
+      accessKey: "AKIA..."
+      secretAccessKey: "secret..."
+  data:
+    engine: "postgres"
+    host: "{{ .host }}"
+    port: "{{ .port }}"
+    dbName: "mydb"
+```
+
+This will create a `DATABASE_URL` environment variable in the format: `postgres://username:password@host:port/dbname`
+
+**Note**: External Secrets Operator must be installed in your cluster before enabling this feature.
 
 ### Container Registry Credentials
 
