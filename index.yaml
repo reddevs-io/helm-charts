@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-01T18:21:28.221202031Z"
+    created: "2025-10-01T19:43:36.643623177Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 5aa16eac7249cea63ceda0d83aecfe49590d7f8f719ddaabb3422d7e32afd5fb
+    digest: c4fe182da74aefc1485aeec349a79e21431f3993a49d5c0452e24d63889d6960
     keywords:
     - ghost
     - blog
@@ -20,14 +20,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/ghost
     type: application
     urls:
-    - https://charts.reddevs.io/ghost-1.3.0.tgz
-    version: 1.3.0
+    - https://charts.reddevs.io/ghost-1.3.1.tgz
+    version: 1.3.1
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-01T18:21:28.222402647Z"
+    created: "2025-10-01T19:43:36.64474693Z"
     description: A helm chart for deploying a Next.js application
-    digest: a4a443adb62ff6bae3ecfceb5003efb9602c478b95607b8c090ab441a3258616
+    digest: 4e462fc214254db0bd9e598ac4440563eff26f22df35eb87bdd92227e2a1a8dd
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.4.0.tgz
-    version: 1.4.0
+    - https://charts.reddevs.io/nextjs-1.4.1.tgz
+    version: 1.4.1
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2025-10-01T18:21:28.22380485Z"
+    created: "2025-10-01T19:43:36.646159755Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 53902c0e257683e8a49c3ed49f40fffa507e0821349cc6f0eba822736dc1b722
+    digest: 88c7f0aaee2acdbcf499a83592a9c1c177008a2c03e08be43ad8a460beb9a6ce
     keywords:
     - outline
     - wiki
@@ -65,14 +65,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/outline
     type: application
     urls:
-    - https://charts.reddevs.io/outline-1.2.0.tgz
-    version: 1.2.0
+    - https://charts.reddevs.io/outline-1.2.1.tgz
+    version: 1.2.1
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-01T18:21:28.224664659Z"
+    created: "2025-10-01T19:43:36.646981915Z"
     description: A helm chart for deploying a Symfony application
-    digest: f2fedc1105f386be28635b6ed4bc4650cc20e917711cfc76d0bd11b34246bd22
+    digest: 4d6f3d95a7c01308754dc9476ccc47fc79220552aaf9b56b65cb5c480e32b7ef
     keywords:
     - symfony
     - backend
@@ -87,14 +87,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/symfony
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.3.0.tgz
-    version: 1.3.0
+    - https://charts.reddevs.io/symfony-1.3.1.tgz
+    version: 1.3.1
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-01T18:21:28.22631599Z"
+    created: "2025-10-01T19:43:36.648767038Z"
     description: A Helm chart for Vite applications
-    digest: adf91a8c5609af216fa83969f8a806d97191a56684c211c4687c8335c5fbe8e0
+    digest: 6747a00d5c38645bc7c36c8331967359e3519ad29c477593c22003a89fd125eb
     keywords:
     - vite
     - frontend
@@ -109,17 +109,17 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
     type: application
     urls:
-    - https://charts.reddevs.io/vite-1.1.0.tgz
-    version: 1.1.0
+    - https://charts.reddevs.io/vite-1.1.1.tgz
+    version: 1.1.1
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-01T18:21:28.227404667Z"
+    created: "2025-10-01T19:43:36.649788451Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 53dd37aa6d51d8176a3dff2f0fc12633f7b06e6a08c32806a6b02541568424f6
+    digest: f795de74b0dfa0a6b5a8dcca8ebafe222a1eb0bf97cadaf13fbc4062babf0509
     name: wordpress
     type: application
     urls:
-    - https://charts.reddevs.io/wordpress-1.3.0.tgz
-    version: 1.3.0
-generated: "2025-10-01T18:21:28.219938908Z"
+    - https://charts.reddevs.io/wordpress-1.3.1.tgz
+    version: 1.3.1
+generated: "2025-10-01T19:43:36.642304608Z"
