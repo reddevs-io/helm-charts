@@ -241,6 +241,16 @@ affinity:
                   - outline
           topologyKey: kubernetes.io/hostname
 
+# Database SSL/TLS configuration
+# This is for configuring SSL/TLS connections to the database (internal or external)
+database:
+  ssl:
+    # Enable SSL/TLS CA certificate mounting
+    enabled: false
+    # Base64 encoded CA certificate content
+    # The certificate will be mounted to /etc/ssl/certs/database-ca.pem
+    caCert: ""
+
 cronJob:
   enabled: true
   schedule: "0 2 * * *" # Daily at 2 AM

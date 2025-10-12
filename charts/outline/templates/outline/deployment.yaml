@@ -109,6 +109,12 @@ spec:
             - name: outline-content
               mountPath: {{ .Values.persistence.mountPath }}
           {{- end }}
+          {{- if .Values.database.ssl.enabled }}
+            - name: database-ca-cert
+              mountPath: /etc/ssl/certs/database-ca.pem
+              subPath: database-ca.pem
+              readOnly: true
+          {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -121,6 +127,12 @@ spec:
             {{- else }}
             claimName: {{ include "outline.fullname" . }}-content
             {{- end }}
+      {{- end }}
+      {{- if .Values.database.ssl.enabled }}
+        - name: database-ca-cert
+          secret:
+            secretName: {{ include "outline.fullname" . }}-database-ca
+            defaultMode: 0444
       {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}

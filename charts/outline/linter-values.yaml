@@ -68,6 +68,14 @@ persistence:
   size: 5Gi
   storageClass: "standard"
 
+database:
+  ssl:
+    # Enable SSL/TLS CA certificate mounting
+    enabled: true
+    # Base64 encoded CA certificate content
+    # The certificate will be mounted to /etc/ssl/certs/database-ca.pem
+    caCert: "this_is_a_test"
+
 # Enable Redis for testing
 redis:
   enable: true

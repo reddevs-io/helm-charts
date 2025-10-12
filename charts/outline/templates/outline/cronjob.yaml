@@ -63,6 +63,20 @@ spec:
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
+              {{- if .Values.database.ssl.enabled }}
+              volumeMounts:
+                - name: database-ca-cert
+                  mountPath: /etc/ssl/certs/database-ca.pem
+                  subPath: database-ca.pem
+                  readOnly: true
+              {{- end }}
+          {{- if .Values.database.ssl.enabled }}
+          volumes:
+            - name: database-ca-cert
+              secret:
+                secretName: {{ include "outline.fullname" . }}-database-ca
+                defaultMode: 0444
+          {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}

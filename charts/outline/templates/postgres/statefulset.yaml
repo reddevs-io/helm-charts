@@ -90,11 +90,23 @@ spec:
             - name: postgres-data
               mountPath: {{ .Values.postgres.persistence.mountPath }}
           {{- end }}
+          {{- if .Values.database.ssl.enabled }}
+            - name: database-ca-cert
+              mountPath: /etc/ssl/certs/database-ca.pem
+              subPath: database-ca.pem
+              readOnly: true
+          {{- end }}
           {{- with .Values.postgres.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.postgres.volumes }}
+      {{- if .Values.database.ssl.enabled }}
       volumes:
+        - name: database-ca-cert
+          secret:
+            secretName: {{ include "outline.fullname" . }}-database-ca
+            defaultMode: 0444
+      {{- end }}
+      {{- with .Values.postgres.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.postgres.nodeSelector }}
