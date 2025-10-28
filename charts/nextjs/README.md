@@ -123,6 +123,25 @@ The following table lists the configurable parameters of the chart and their def
 | `externalSecretsDbUrl.data.port`             | Database port template                                                     | `""`                                                             |
 | `externalSecretsDbUrl.data.dbName`           | Database name template                                                     | `""`                                                             |
 
+### CronJob (Optional)
+
+| Parameter                      | Description                                                                 | Default                  |
+|--------------------------------|-----------------------------------------------------------------------------|--------------------------|
+| `cronjob.enabled`              | Enable CronJob for scheduled tasks (e.g., API calls)                        | `false`                  |
+| `cronjob.schedule`             | Cron schedule expression (required if enabled)                              | `""`                     |
+| `cronjob.concurrencyPolicy`    | Policy for concurrent jobs (Forbid, Allow, Replace)                         | `Forbid`                 |
+| `cronjob.successfulJobsHistoryLimit` | Number of successful jobs to retain                                  | `3`                      |
+| `cronjob.failedJobsHistoryLimit`      | Number of failed jobs to retain                                            | `1`                      |
+| `cronjob.image.repository`     | CronJob container image repository (e.g., curlimages/curl)                  | `""`                     |
+| `cronjob.image.tag`            | CronJob image tag                                                           | `""`                     |
+| `cronjob.image.pullPolicy`     | Kubernetes image pull policy for CronJob                                    | `IfNotPresent`           |
+| `cronjob.command`              | Container command for the job                                               | `["curl"]`               |
+| `cronjob.args`                 | Container arguments (e.g., headers, URL)                                    | `[]`                     |
+| `cronjob.resources.limits.cpu` | CronJob CPU limit                                                           | `100m`                   |
+| `cronjob.resources.limits.memory` | CronJob memory limit                                                   | `128Mi`                  |
+| `cronjob.resources.requests.cpu` | CronJob CPU request                                                       | `50m`                    |
+| `cronjob.resources.requests.memory` | CronJob memory request                                                | `64Mi`                   |
+
 ### Redis Cache (Optional)
 
 | Parameter                                       | Description                      | Default          |
@@ -162,6 +181,7 @@ This chart creates the following Kubernetes resources:
 | Next.js ConfigMap         | v1 ConfigMap                           | Configuration data for Next.js          | `templates/nextjs/configmap.yaml`          |
 | Next.js Secret            | v1 Secret                              | Environment secrets for Next.js         | `templates/nextjs/secret.yaml`             |
 | Next.js Init Job          | batch/v1 Job                           | Initialization job for pre-deploy tasks | `templates/nextjs/job-init.yaml`           |
+| CronJob                   | batch/v1 CronJob                       | Scheduled API calls to Next.js (e.g., trial reminders) | `templates/nextjs/cronjob.yaml`            |
 | External Secret           | external-secrets.io/v1beta1 ExternalSecret | Syncs secrets from AWS Secrets Manager | `templates/nextjs/secret/external-secret.yaml` |
 | External Secret DB URL    | external-secrets.io/v1beta1 ExternalSecret | Generates database URL from RDS secret | `templates/nextjs/secret/external-secret-db-url.yaml` |
 | AWS Secret Store          | external-secrets.io/v1beta1 SecretStore | AWS Secrets Manager connection (IAM)   | `templates/nextjs/secret/aws-secret-store-iam.yaml` |
@@ -261,6 +281,50 @@ initJob:
 ```
 
 The init job uses the same container image as the main Next.js deployment and has access to the same environment variables and secrets.
+
+### CronJob
+
+When `cronjob.enabled=true`, a Kubernetes CronJob is created for scheduled tasks, such as triggering API endpoints in the Next.js app (e.g., sending trial reminders via `/api/cron/trial-reminders`).
+
+The CronJob reuses the ServiceAccount, environment variables, secrets, volumes, and scheduling controls from the main deployment for consistency. It uses a separate, configurable image (e.g., `curlimages/curl` for lightweight HTTP requests) and resources tailored for short-lived jobs.
+
+**Note**: Provide a valid cron `schedule` when enabling. The job accesses the Next.js app internally via its Service (e.g., `http://{{ .Release.Name }}-nextjs:3000`).
+
+Example configuration for a GET request with Bearer token auth:
+
+```yaml
+env:
+  normal:
+    - name: SERVICE_URL
+      value: "http://{{ include \"nextjs.fullname\" . }}:3000"
+  secret:
+    - name: BEARER_TOKEN
+      value: "your-bearer-token"  # or use externalSecrets
+
+cronjob:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  image:
+    repository: curlimages/curl
+    tag: latest
+  command:
+    - curl
+  args:
+    - "--request"
+    - "GET"
+    - "--header"
+    - "Authorization: Bearer $BEARER_TOKEN"
+    - "$SERVICE_URL/api/cron/trial-reminders"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+```
+
+For complex args with env vars, wrap in a shell: `command: ["sh"], args: ["-c", "curl --request GET --header \"Authorization: Bearer $BEARER_TOKEN\" $SERVICE_URL/api/cron/trial-reminders"]`.
 
 ### External Secrets Integration
 

@@ -61,6 +61,32 @@ autoscaling:
 persistence:
   enabled: true
 
+cronjob:
+  enabled: true
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  image:
+    repository: "curlimages/curl"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  command:
+    - curl
+  args:
+    - "--request"
+    - "GET"
+    - "--header"
+    - "Authorization: Bearer $BEARER_TOKEN"
+    - "$SERVICE_URL/api/cron/trial-reminders"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
 redis:
   enable: true
 

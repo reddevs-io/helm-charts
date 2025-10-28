@@ -1,0 +1,97 @@
+{{- if .Values.cronjob.enabled }}
+{{- $frontendFullname := include "nextjs.fullname" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "nextjs.fullname" . }}-cronjob
+  labels:
+    {{- include "nextjs.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "nextjs.serviceAccountName" . }}
+          {{- with .Values.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: cronjob
+              {{- with .Values.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 14 }}
+              {{- end }}
+              image: "{{ .Values.cronjob.image.repository }}:{{ .Values.cronjob.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.cronjob.image.pullPolicy }}
+              command:
+                {{- toYaml .Values.cronjob.command | nindent 14 }}
+              {{- if .Values.cronjob.args }}
+              args:
+                {{- toYaml .Values.cronjob.args | nindent 14 }}
+              {{- end }}
+              env:
+                {{- if .Values.externalSecretsDbUrl.enabled }}
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $frontendFullname }}-db-eso
+                      key: DATABASE_URL
+                {{- end }}
+                {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
+                {{- range .Values.externalSecrets.data }}
+                - name: {{ .envName | default .secretKey }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $frontendFullname }}-eso
+                      key: {{ .secretKey }}
+                {{- end }}
+                {{- end }}
+                {{- range $key, $val := .Values.env.secret }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $frontendFullname }}
+                      key: {{ $key }}
+                {{- end}}
+                {{- range $key, $val := .Values.env.normal }}
+                - name: {{ $key }}
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ $frontendFullname }}
+                      key: {{ $key }}
+                {{- end}}
+              {{- with .Values.cronjob.resources }}
+              resources:
+                {{- toYaml . | nindent 14 }}
+              {{- end }}
+              volumeMounts:
+                {{- with .Values.volumeMounts }}
+                  {{- toYaml . | nindent 14 }}
+                {{- end }}
+          volumes:
+            {{- with .Values.volumes }}
+              {{- toYaml . | nindent 10 }}
+            {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+{{- end }}

@@ -228,6 +228,27 @@ affinity:
                   - nextjs
           topologyKey: kubernetes.io/hostname
 
+cronjob:
+  enabled: false
+  schedule: ""
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  command:
+    - curl
+  args: []
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
 redis:
   enable: false
 
