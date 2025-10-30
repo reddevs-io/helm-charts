@@ -1,11 +1,14 @@
 {{- if .Values.cronjob.enabled }}
-{{- $frontendFullname := include "nextjs.fullname" . -}}
+{{- $nextjsFullname := include "nextjs.fullname" . -}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ include "nextjs.fullname" . }}-cronjob
   labels:
     {{- include "nextjs.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/no-liveness-probe: "The cron job does not need liveness probe"
+    ignore-check.kube-linter.io/no-readiness-probe: "The cron job does not need readiness probe"
 spec:
   schedule: {{ .Values.cronjob.schedule | quote }}
   concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
@@ -14,7 +17,21 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          labels:
+            {{- include "nextjs.labels" . | nindent 12 }}
+            {{- with .Values.podLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         spec:
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "2"
           restartPolicy: OnFailure
           {{- with .Values.imagePullSecrets }}
           imagePullSecrets:
@@ -26,25 +43,25 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           containers:
-            - name: cronjob
-              {{- with .Values.securityContext }}
+            - name: {{ .Chart.Name }}-cronjob
+              {{- with .Values.cronjob.securityContext }}
               securityContext:
-                {{- toYaml . | nindent 14 }}
+                {{- toYaml . | nindent 16 }}
               {{- end }}
               image: "{{ .Values.cronjob.image.repository }}:{{ .Values.cronjob.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: {{ .Values.cronjob.image.pullPolicy }}
               command:
-                {{- toYaml .Values.cronjob.command | nindent 14 }}
+                {{- toYaml .Values.cronjob.command | nindent 16 }}
               {{- if .Values.cronjob.args }}
               args:
-                {{- toYaml .Values.cronjob.args | nindent 14 }}
+                {{- toYaml .Values.cronjob.args | nindent 16 }}
               {{- end }}
               env:
                 {{- if .Values.externalSecretsDbUrl.enabled }}
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $frontendFullname }}-db-eso
+                      name: {{ $nextjsFullname }}-db-eso
                       key: DATABASE_URL
                 {{- end }}
                 {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
@@ -52,7 +69,7 @@ spec:
                 - name: {{ .envName | default .secretKey }}
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $frontendFullname }}-eso
+                      name: {{ $nextjsFullname }}-eso
                       key: {{ .secretKey }}
                 {{- end }}
                 {{- end }}
@@ -60,38 +77,38 @@ spec:
                 - name: {{ $key }}
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $frontendFullname }}
+                      name: {{ $nextjsFullname }}
                       key: {{ $key }}
                 {{- end}}
                 {{- range $key, $val := .Values.env.normal }}
                 - name: {{ $key }}
                   valueFrom:
                     configMapKeyRef:
-                      name: {{ $frontendFullname }}
+                      name: {{ $nextjsFullname }}
                       key: {{ $key }}
                 {{- end}}
               {{- with .Values.cronjob.resources }}
               resources:
-                {{- toYaml . | nindent 14 }}
+                {{- toYaml . | nindent 16 }}
               {{- end }}
               volumeMounts:
                 {{- with .Values.volumeMounts }}
-                  {{- toYaml . | nindent 14 }}
+                  {{- toYaml . | nindent 16 }}
                 {{- end }}
           volumes:
             {{- with .Values.volumes }}
-              {{- toYaml . | nindent 10 }}
+              {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
-            {{- toYaml . | nindent 10 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.affinity }}
           affinity:
-            {{- toYaml . | nindent 10 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.tolerations }}
           tolerations:
-            {{- toYaml . | nindent 10 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
 {{- end }}

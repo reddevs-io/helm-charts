@@ -69,7 +69,7 @@ cronjob:
   failedJobsHistoryLimit: 1
   image:
     repository: "curlimages/curl"
-    tag: "latest"
+    tag: "8.11.0"
     pullPolicy: IfNotPresent
   command:
     - curl
@@ -79,6 +79,13 @@ cronjob:
     - "--header"
     - "Authorization: Bearer $BEARER_TOKEN"
     - "$SERVICE_URL/api/cron/trial-reminders"
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    capabilities:
+      drop:
+        - ALL
   resources:
     limits:
       cpu: 100m
