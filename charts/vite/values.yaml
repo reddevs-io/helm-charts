@@ -100,6 +100,61 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# Gateway API configuration for the Vite frontend
+# Requires Gateway API CRDs to be installed in the cluster
+gatewayApi:
+  enabled: false
+  # HTTPRoute configuration
+  httpRoute:
+    # Annotations to add to the HTTPRoute
+    annotations: {}
+    # Hostnames for the route
+    hostnames: []
+    # - "example.com"
+    # - "www.example.com"
+    # Parent Gateway references
+    parentRefs: []
+    # - name: my-gateway
+    #   namespace: ""  # Optional: defaults to release namespace
+    #   sectionName: "http"  # Optional: specific listener name
+    #   port: 80  # Optional: port number
+    # Backend service port (defaults to service.port if not specified)
+    backendPort: null
+    # Route rules with matches, filters, and backendRefs
+    # If rules is empty, a default rule is created matching all requests
+    rules: []
+    # - matches:
+    #     - path:
+    #         type: PathPrefix
+    #         value: /
+    #   filters: []
+    #   backendRefs: []  # Optional: overrides default backend
+    #   timeouts: {}
+
+  # Optional: Create a Gateway resource
+  gateway:
+    create: false
+    # Gateway class name (required if creating a Gateway)
+    className: ""
+    # Annotations to add to the Gateway
+    annotations: {}
+    # Infrastructure configuration
+    infrastructure: {}
+    # Listeners configuration
+    listeners: []
+    # - name: http
+    #   port: 80
+    #   protocol: HTTP
+    #   hostname: ""  # Optional: defaults to all hostnames
+    #   tls:  # Optional: TLS configuration
+    #     mode: Terminate
+    #     certificateRefs:
+    #       - name: my-cert
+    #         namespace: ""  # Optional
+    #   allowedRoutes:  # Optional
+    #     namespaces:
+    #       from: Same
+
 resources:
   limits:
     memory: "300Mi"
@@ -313,6 +368,36 @@ nodejs:
     #  - secretName: api-chart-example-tls
     #    hosts:
     #      - api-chart-example.local
+
+  # Gateway API configuration for the Node.js backend
+  # Requires Gateway API CRDs to be installed in the cluster
+  gatewayApi:
+    enabled: false
+    # HTTPRoute configuration
+    httpRoute:
+      # Annotations to add to the HTTPRoute
+      annotations: {}
+      # Hostnames for the route
+      hostnames: []
+      # - "api.example.com"
+      # Parent Gateway references
+      parentRefs: []
+      # - name: my-gateway
+      #   namespace: ""  # Optional: defaults to release namespace
+      #   sectionName: "http"  # Optional: specific listener name
+      #   port: 80  # Optional: port number
+      # Backend service port (defaults to nodejs.service.port if not specified)
+      backendPort: null
+      # Route rules with matches, filters, and backendRefs
+      # If rules is empty, a default rule is created matching all requests
+      rules: []
+      # - matches:
+      #     - path:
+      #         type: PathPrefix
+      #         value: /
+      #   filters: []
+      #   backendRefs: []  # Optional: overrides default backend
+      #   timeouts: {}
 
   resources:
     limits:

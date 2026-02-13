@@ -30,6 +30,25 @@ ingress:
       hosts:
         - example.com
 
+# Gateway API configuration for frontend
+gatewayApi:
+  enabled: true
+  httpRoute:
+    annotations: {}
+    hostnames:
+      - "example.com"
+    parentRefs:
+      - name: my-gateway
+        namespace: ""
+        sectionName: "http"
+    backendPort: 8080
+    rules: []
+  gateway:
+    create: false
+    className: ""
+    annotations: {}
+    listeners: []
+
 autoscaling:
   enabled: true
   minReplicas: 2
@@ -89,3 +108,17 @@ nodejs:
       - secretName: example-com-tls
         hosts:
           - example.com
+
+  # Gateway API configuration for nodejs backend
+  gatewayApi:
+    enabled: true
+    httpRoute:
+      annotations: {}
+      hostnames:
+        - "api.example.com"
+      parentRefs:
+        - name: my-gateway
+          namespace: ""
+          sectionName: "http"
+      backendPort: 3000
+      rules: []

@@ -1,0 +1,52 @@
+{{- if .Values.gatewayApi.gateway.create -}}
+{{- if not .Values.gatewayApi.gateway.className }}
+{{- fail "gatewayApi.gateway.className is required when gatewayApi.gateway.create is true" }}
+{{- end }}
+{{- if not .Values.gatewayApi.gateway.listeners }}
+{{- fail "gatewayApi.gateway.listeners must contain at least one listener when gatewayApi.gateway.create is true" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "vite.fullname" . }}-gateway
+  labels:
+    {{- include "vite.labels" . | nindent 4 }}
+  {{- with .Values.gatewayApi.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gatewayClassName: {{ .Values.gatewayApi.gateway.className | quote }}
+  {{- if .Values.gatewayApi.gateway.infrastructure }}
+  infrastructure:
+    {{- toYaml .Values.gatewayApi.gateway.infrastructure | nindent 4 }}
+  {{- end }}
+  listeners:
+    {{- range .Values.gatewayApi.gateway.listeners }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol }}
+      {{- if .hostname }}
+      hostname: {{ .hostname | quote }}
+      {{- end }}
+      {{- if .tls }}
+      tls:
+        {{- if .tls.mode }}
+        mode: {{ .tls.mode }}
+        {{- end }}
+        {{- if .tls.certificateRefs }}
+        certificateRefs:
+          {{- range .tls.certificateRefs }}
+          - name: {{ .name }}
+            {{- if .namespace }}
+            namespace: {{ .namespace }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if .allowedRoutes }}
+      allowedRoutes:
+        {{- toYaml .allowedRoutes | nindent 8 }}
+      {{- end }}
+    {{- end }}
+{{- end }}

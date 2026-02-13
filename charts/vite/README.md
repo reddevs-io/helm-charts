@@ -112,6 +112,24 @@ The following table lists the configurable parameters of the Vite chart and thei
 | `ingress.hosts` | Ingress hosts configuration | See values.yaml |
 | `ingress.tls` | Ingress TLS configuration | `[]` |
 
+### Gateway API Configuration
+
+The chart supports Kubernetes Gateway API as an alternative to Ingress. This requires Gateway API CRDs to be installed in the cluster.
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `gatewayApi.enabled` | Enable Gateway API HTTPRoute for frontend | `false` |
+| `gatewayApi.httpRoute.annotations` | HTTPRoute annotations | `{}` |
+| `gatewayApi.httpRoute.hostnames` | Hostnames for the route | `[]` |
+| `gatewayApi.httpRoute.parentRefs` | Parent Gateway references | `[]` |
+| `gatewayApi.httpRoute.backendPort` | Backend service port (defaults to service.port) | `null` |
+| `gatewayApi.httpRoute.rules` | Route rules with matches, filters, backendRefs | `[]` |
+| `gatewayApi.gateway.create` | Create a Gateway resource | `false` |
+| `gatewayApi.gateway.className` | Gateway class name | `""` |
+| `gatewayApi.gateway.annotations` | Gateway annotations | `{}` |
+| `gatewayApi.gateway.infrastructure` | Gateway infrastructure configuration | `{}` |
+| `gatewayApi.gateway.listeners` | Gateway listeners configuration | `[]` |
+
 ### Resources Configuration
 
 | Parameter | Description | Default |
@@ -184,6 +202,12 @@ The chart supports an optional Node.js backend component. All Node.js parameters
 | `nodejs.service.port` | Service port | `3000` |
 | `nodejs.ingress.enabled` | Enable ingress | `false` |
 | `nodejs.ingress.hosts` | Ingress hosts | See values.yaml |
+| `nodejs.gatewayApi.enabled` | Enable Gateway API HTTPRoute for backend | `false` |
+| `nodejs.gatewayApi.httpRoute.annotations` | HTTPRoute annotations | `{}` |
+| `nodejs.gatewayApi.httpRoute.hostnames` | Hostnames for the route | `[]` |
+| `nodejs.gatewayApi.httpRoute.parentRefs` | Parent Gateway references | `[]` |
+| `nodejs.gatewayApi.httpRoute.backendPort` | Backend service port (defaults to nodejs.service.port) | `null` |
+| `nodejs.gatewayApi.httpRoute.rules` | Route rules with matches, filters, backendRefs | `[]` |
 | `nodejs.resources.limits.memory` | Memory limit | `300Mi` |
 | `nodejs.livenessProbe.httpGet.path` | Liveness probe path | `/health` |
 | `nodejs.readinessProbe.httpGet.path` | Readiness probe path | `/health` |
@@ -271,6 +295,89 @@ helm install my-fullstack-app ./charts/vite \
 helm install my-vite-app ./charts/vite \
   --set vite.nginxConfig.enabled=true \
   --set-file vite.nginxConfig.config=./custom-nginx.conf
+```
+
+### With Gateway API
+
+Deploy using Kubernetes Gateway API instead of Ingress. This requires Gateway API CRDs to be installed.
+
+```bash
+helm install my-vite-app ./charts/vite \
+  --set gatewayApi.enabled=true \
+  --set gatewayApi.httpRoute.hostnames[0]="app.example.com" \
+  --set gatewayApi.httpRoute.parentRefs[0].name=my-gateway \
+  --set gatewayApi.httpRoute.parentRefs[0].sectionName=http
+```
+
+### With Gateway API and Custom Gateway
+
+Create a Gateway resource along with the HTTPRoute:
+
+```bash
+helm install my-vite-app ./charts/vite \
+  --set gatewayApi.enabled=true \
+  --set gatewayApi.gateway.create=true \
+  --set gatewayApi.gateway.className=nginx \
+  --set gatewayApi.gateway.listeners[0].name=http \
+  --set gatewayApi.gateway.listeners[0].port=80 \
+  --set gatewayApi.gateway.listeners[0].protocol=HTTP \
+  --set gatewayApi.httpRoute.hostnames[0]="app.example.com" \
+  --set gatewayApi.httpRoute.parentRefs[0].name=my-vite-app-gateway \
+  --set gatewayApi.httpRoute.parentRefs[0].sectionName=http
+```
+
+### With Gateway API for Full-Stack (Frontend + Backend)
+
+Deploy a full-stack application with Gateway API for both components:
+
+```bash
+helm install my-fullstack-app ./charts/vite \
+  --set image.repository=my-registry/my-vite-frontend \
+  --set image.tag=v1.0.0 \
+  --set gatewayApi.enabled=true \
+  --set gatewayApi.httpRoute.hostnames[0]="app.example.com" \
+  --set gatewayApi.httpRoute.parentRefs[0].name=my-gateway \
+  --set nodejs.enable=true \
+  --set nodejs.image.repository=my-registry/my-node-backend \
+  --set nodejs.image.tag=v1.0.0 \
+  --set nodejs.gatewayApi.enabled=true \
+  --set nodejs.gatewayApi.httpRoute.hostnames[0]="api.example.com" \
+  --set nodejs.gatewayApi.httpRoute.parentRefs[0].name=my-gateway
+```
+
+### With Gateway API and Advanced Route Rules
+
+Configure advanced routing with path-based matching:
+
+```yaml
+# values-gateway.yaml
+gatewayApi:
+  enabled: true
+  httpRoute:
+    hostnames:
+      - "example.com"
+    parentRefs:
+      - name: my-gateway
+        sectionName: http
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /api
+        backendRefs:
+          - name: my-release-nodejs
+            port: 3000
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - name: my-release
+            port: 8080
+```
+
+```bash
+helm install my-app ./charts/vite -f values-gateway.yaml
 ```
 
 ## Building Your Vite App for Kubernetes

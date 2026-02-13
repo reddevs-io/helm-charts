@@ -1,0 +1,96 @@
+{{- if .Values.gatewayApi.enabled -}}
+{{- if not .Values.gatewayApi.httpRoute.parentRefs }}
+{{- fail "gatewayApi.httpRoute.parentRefs must contain at least one reference" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "vite.fullname" . }}
+  labels:
+    {{- include "vite.labels" . | nindent 4 }}
+  {{- with .Values.gatewayApi.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.gatewayApi.httpRoute.hostnames }}
+  hostnames:
+    {{- range .Values.gatewayApi.httpRoute.hostnames }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  parentRefs:
+    {{- range .Values.gatewayApi.httpRoute.parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+      {{- if .port }}
+      port: {{ .port }}
+      {{- end }}
+    {{- end }}
+  rules:
+    {{- range .Values.gatewayApi.httpRoute.rules }}
+    - {{- if .matches }}
+      matches:
+        {{- range .matches }}
+        - {{- if .path }}
+          path:
+            type: {{ .path.type | default "PathPrefix" }}
+            value: {{ .path.value | default "/" }}
+          {{- end }}
+          {{- if .headers }}
+          headers:
+            {{- range .headers }}
+            - type: {{ .type }}
+              name: {{ .name }}
+              value: {{ .value }}
+            {{- end }}
+          {{- end }}
+          {{- if .queryParams }}
+          queryParams:
+            {{- range .queryParams }}
+            - type: {{ .type }}
+              name: {{ .name }}
+              value: {{ .value }}
+            {{- end }}
+          {{- end }}
+          {{- if .method }}
+          method: {{ .method }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if .filters }}
+      filters:
+        {{- toYaml .filters | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        {{- if .backendRefs }}
+        {{- range .backendRefs }}
+        - name: {{ .name }}
+          port: {{ .port }}
+          {{- if .weight }}
+          weight: {{ .weight }}
+          {{- end }}
+        {{- end }}
+        {{- else }}
+        - name: {{ include "vite.fullname" $ }}
+          port: {{ $.Values.gatewayApi.httpRoute.backendPort | default $.Values.service.port }}
+        {{- end }}
+      {{- if .timeouts }}
+      timeouts:
+        {{- toYaml .timeouts | nindent 8 }}
+      {{- end }}
+    {{- else }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "vite.fullname" $ }}
+          port: {{ $.Values.gatewayApi.httpRoute.backendPort | default $.Values.service.port }}
+    {{- end }}
+{{- end }}
