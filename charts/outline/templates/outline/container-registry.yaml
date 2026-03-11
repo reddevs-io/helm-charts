@@ -1,13 +1,13 @@
 {{- if .Values.imageCredentials.registry }}
 apiVersion: v1
+data:
+  .dockerconfigjson: {{ template "imagePullSecret" . }}
 kind: Secret
 metadata:
-  name: container-registry-cred
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
   labels:
     {{- include "outline.labels" . | nindent 4 }}
+  name: container-registry-cred
 type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: {{ template "imagePullSecret" . }}
 {{- end }}

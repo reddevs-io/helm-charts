@@ -1,14 +1,14 @@
 {{- if and .Values.redis.enable .Values.redis.env.normal }}
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "nextjs.redis.fullname" . }}
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-  labels:
-    {{- include "nextjs.redis.labels" . | nindent 4 }}
 data:
   {{- range $key, $val := .Values.redis.env.normal }}
   {{ $key }}: {{ $val | quote }}
   {{- end}}
+kind: ConfigMap
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "nextjs.redis.labels" . | nindent 4 }}
+  name: {{ include "nextjs.redis.fullname" . }}
 {{- end }}

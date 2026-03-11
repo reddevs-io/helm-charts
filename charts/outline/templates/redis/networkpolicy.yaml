@@ -2,10 +2,22 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "outline.redis.fullname" . }}
   labels:
     {{- include "outline.redis.labels" . | nindent 4 }}
+  name: {{ include "outline.redis.fullname" . }}
 spec:
+  {{- if .Values.redis.networkPolicy.egress }}
+  egress:
+    {{- with .Values.redis.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.redis.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.redis.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
   podSelector:
     matchLabels:
       {{- include "outline.redis.selectorLabels" . | nindent 6 }}
@@ -13,16 +25,4 @@ spec:
     {{- with .Values.redis.networkPolicy.policyTypes }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- if .Values.redis.networkPolicy.ingress }}
-  ingress:
-    {{- with .Values.redis.networkPolicy.ingress }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
-  {{- if .Values.redis.networkPolicy.egress }}
-  egress:
-    {{- with .Values.redis.networkPolicy.egress }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
 {{- end }}

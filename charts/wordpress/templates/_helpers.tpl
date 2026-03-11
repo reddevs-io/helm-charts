@@ -57,15 +57,15 @@ Common labels
 Selector labels
 */}}
 {{- define "wordpress.selectorLabels" -}}
-helm.sh/chart: {{ include "wordpress.chart" . }}
-app.kubernetes.io/name: {{ include "wordpress.name" . }}
+{{ include "wordpress.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "wordpress.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "wordpress.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "wordpress.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 

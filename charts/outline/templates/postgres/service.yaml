@@ -4,34 +4,34 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "outline.postgres.fullname" . }}-headless
   labels:
     {{- include "outline.postgres.labels" . | nindent 4 }}
+  name: {{ include "outline.postgres.fullname" . }}-headless
 spec:
-  type: ClusterIP
   clusterIP: None
   ports:
-    - port: {{ .Values.postgres.service.port }}
-      targetPort: postgres
+    - name: postgres
+      port: {{ .Values.postgres.service.port }}
       protocol: TCP
-      name: postgres
+      targetPort: postgres
   selector:
     {{- include "outline.postgres.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
 ---
 # Regular service for connectivity
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "outline.postgres.fullname" . }}
   labels:
     {{- include "outline.postgres.labels" . | nindent 4 }}
+  name: {{ include "outline.postgres.fullname" . }}
 spec:
-  type: {{ .Values.postgres.service.type }}
   ports:
-    - port: {{ .Values.postgres.service.port }}
-      targetPort: postgres
+    - name: postgres
+      port: {{ .Values.postgres.service.port }}
       protocol: TCP
-      name: postgres
+      targetPort: postgres
   selector:
     {{- include "outline.postgres.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.postgres.service.type }}
 {{- end }}

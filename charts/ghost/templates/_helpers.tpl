@@ -57,15 +57,15 @@ Create unified labels for ghost components
 Selector labels
 */}}
 {{- define "ghost.selectorLabels" -}}
-helm.sh/chart: {{ include "ghost.chart" . }}
-app.kubernetes.io/name: {{ include "ghost.name" . }}
+{{ include "ghost.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "ghost.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "ghost.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "ghost.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end -}}
 
@@ -109,15 +109,15 @@ Create unified labels for redis components
 Selector labels
 */}}
 {{- define "ghost.redis.selectorLabels" -}}
-helm.sh/chart: {{ include "ghost.chart" . }}
-app.kubernetes.io/name: {{ include "ghost.name" . }}
+{{ include "ghost.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "ghost.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "ghost.common.selectorLabels" . }}
 component: {{ .Values.redis.component | quote }}
+helm.sh/chart: {{ include "ghost.chart" . }}
 tier: {{ .Values.redis.tier | quote }}
 {{- end }}
 

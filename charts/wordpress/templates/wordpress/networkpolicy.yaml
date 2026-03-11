@@ -1,29 +1,55 @@
+{{- $root := . -}}
 {{- if .Values.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "wordpress.fullname" . }}
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
+  name: {{ include "wordpress.fullname" . }}
 spec:
-  podSelector:
-    matchLabels:
-      app: {{ include "wordpress.name" . }}
-      component: {{ .Values.component }}
-  policyTypes:
-    {{- with .Values.networkPolicy.policyTypes }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- if .Values.networkPolicy.ingress }}
-  ingress:
-    {{- with .Values.networkPolicy.ingress }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
   {{- if .Values.networkPolicy.egress }}
   egress:
     {{- with .Values.networkPolicy.egress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- end }}
+  {{- if .Values.networkPolicy.ingress }}
+  ingress:
+    {{- range .Values.networkPolicy.ingress }}
+    {{- $ingressRule := . }}
+    - {{- if or $ingressRule.from (hasKey $ingressRule "podSelector") }}
+      from:
+        {{- if $ingressRule.from }}
+        {{- range $ingressRule.from }}
+        - {{- with .namespaceSelector }}
+          namespaceSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if hasKey . "podSelector" }}
+          podSelector:
+            {{- toYaml .podSelector | nindent 12 }}
+          {{- else if hasKey $ingressRule "podSelector" }}
+          podSelector:
+            {{- toYaml $ingressRule.podSelector | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- else }}
+        - podSelector:
+            {{- toYaml $ingressRule.podSelector | nindent 12 }}
+        {{- end }}
+      {{- end }}
+      {{- with $ingressRule.ports }}
+      ports:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  podSelector:
+    matchLabels:
+      app: {{ include "wordpress.name" $root }}
+      component: {{ $root.Values.component }}
+  policyTypes:
+    {{- with .Values.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 {{- end }}

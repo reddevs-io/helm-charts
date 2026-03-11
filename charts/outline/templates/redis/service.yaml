@@ -2,16 +2,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "outline.redis.fullname" . }}
   labels:
     {{- include "outline.redis.labels" . | nindent 4 }}
+  name: {{ include "outline.redis.fullname" . }}
 spec:
-  type: {{ .Values.redis.service.type }}
   ports:
-    - port: {{ .Values.redis.service.port }}
-      targetPort: redis
+    - name: redis
+      port: {{ .Values.redis.service.port }}
       protocol: TCP
-      name: redis
+      targetPort: redis
   selector:
     {{- include "outline.redis.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.redis.service.type }}
 {{- end }}

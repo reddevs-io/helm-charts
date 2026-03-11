@@ -3,23 +3,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $nodejsFullname }}
-  labels:
-    {{- include "vite.nodejs.labels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "vite.nodejs.labels" . | nindent 4 }}
+  name: {{ $nodejsFullname }}
 spec:
   {{- if not .Values.nodejs.autoscaling.enabled }}
   replicas: {{ .Values.nodejs.replicaCount }}
   {{- end }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "vite.nodejs.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
       {{- with .Values.nodejs.podAnnotations }}
@@ -32,53 +32,39 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.nodejs.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "vite.nodejs.serviceAccountName" . }}
-      {{- with .Values.nodejs.podSecurityContext }}
-      securityContext:
+      {{- with .Values.nodejs.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: nodejs
-          {{- with .Values.nodejs.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.nodejs.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.nodejs.service.port }}
-              protocol: TCP
-          {{- if or .Values.nodejs.env.normal .Values.nodejs.env.secret }}
+        - {{- if or .Values.nodejs.env.normal .Values.nodejs.env.secret }}
           env:
           {{- range $key, $val := .Values.nodejs.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $nodejsFullname }}
                   key: {{ $key }}
+                  name: {{ $nodejsFullname }}
           {{- end}}
           {{- range $key, $val := .Values.nodejs.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ $nodejsFullname }}
                   key: {{ $key }}
+                  name: {{ $nodejsFullname }}
           {{- end}}
           {{- end}}
+          image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nodejs.image.pullPolicy }}
           {{- with .Values.nodejs.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: nodejs
+          ports:
+            - containerPort: {{ .Values.nodejs.service.port }}
+              name: http
+              protocol: TCP
           {{- with .Values.nodejs.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -87,24 +73,38 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.nodejs.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.nodejs.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.nodejs.volumes }}
-      volumes:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.nodejs.imagePullSecrets }}
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodejs.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodejs.affinity }}
-      affinity:
+      restartPolicy: Always
+      {{- with .Values.nodejs.podSecurityContext }}
+      securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "vite.nodejs.serviceAccountName" . }}
       {{- with .Values.nodejs.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodejs.volumes }}
+      volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}

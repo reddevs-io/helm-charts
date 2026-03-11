@@ -3,29 +3,87 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "symfony.fullname" . }}-init
-  labels:
-    {{- include "symfony.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "5"
+    ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
     ignore-check.kube-linter.io/no-liveness-probe: "The init job would mainly be used to run deployment commands. Does not need to be live"
     ignore-check.kube-linter.io/no-readiness-probe: "The init job would mainly be used to run deployment commands. Does not need to be ready"
+  labels:
+    {{- include "symfony.labels" . | nindent 4 }}
+  name: {{ include "symfony.fullname" . }}-init
 spec:
-  ttlSecondsAfterFinished: 100
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "symfony.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        -
+          args:
+            - {{ .Values.initJob.command | quote }}
+          command: ["/bin/sh", "-c"]
+          {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
+          env:
+          {{- if .Values.externalSecretsDbUrl.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: {{ $symfonyFullname }}-db-eso
+          {{- end }}
+          {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
+          {{- range .Values.externalSecrets.data }}
+            - name: {{ .envName | default .secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .secretKey }}
+                  name: {{ $symfonyFullname }}-eso
+          {{- end }}
+          {{- end }}
+          {{- range $key, $val := .Values.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $symfonyFullname }}
+          {{- end}}
+          {{- range $key, $val := .Values.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $symfonyFullname }}
+          {{- end}}
+          {{- end}}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: {{ .Chart.Name }}-init
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       dnsConfig:
         options:
           - name: ndots
@@ -34,78 +92,23 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "symfony.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      restartPolicy: OnFailure
-      containers:
-        - name: {{ .Chart.Name }}-init
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - {{ .Values.initJob.command | quote }}
-          {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
-          env:
-          {{- if .Values.externalSecretsDbUrl.enabled }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $symfonyFullname }}-db-eso
-                  key: DATABASE_URL
-          {{- end }}
-          {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
-          {{- range .Values.externalSecrets.data }}
-            - name: {{ .envName | default .secretKey }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $symfonyFullname }}-eso
-                  key: {{ .secretKey }}
-          {{- end }}
-          {{- end }}
-          {{- range $key, $val := .Values.env.secret }}
-            - name: {{ $key }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $symfonyFullname }}
-                  key: {{ $key }}
-          {{- end}}
-          {{- range $key, $val := .Values.env.normal }}
-            - name: {{ $key }}
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ $symfonyFullname }}
-                  key: {{ $key }}
-          {{- end}}
-          {{- end}}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
+      restartPolicy: OnFailure
+      {{- with .Values.podSecurityContext }}
+      securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "symfony.serviceAccountName" . }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  ttlSecondsAfterFinished: 100
 {{- end }}

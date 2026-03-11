@@ -57,15 +57,15 @@ Create unified labels for outline components
 Selector labels
 */}}
 {{- define "outline.selectorLabels" -}}
-helm.sh/chart: {{ include "outline.chart" . }}
-app.kubernetes.io/name: {{ include "outline.name" . }}
+{{ include "outline.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "outline.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "outline.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "outline.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
@@ -109,15 +109,15 @@ Create unified labels for redis components
 Selector labels
 */}}
 {{- define "outline.redis.selectorLabels" -}}
-helm.sh/chart: {{ include "outline.chart" . }}
-app.kubernetes.io/name: {{ include "outline.name" . }}
+{{ include "outline.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "outline.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "outline.common.selectorLabels" . }}
 component: {{ .Values.redis.component | quote }}
+helm.sh/chart: {{ include "outline.chart" . }}
 tier: {{ .Values.redis.tier | quote }}
 {{- end }}
 
@@ -161,15 +161,15 @@ Create unified labels for postgres components
 Selector labels for postgres
 */}}
 {{- define "outline.postgres.selectorLabels" -}}
-helm.sh/chart: {{ include "outline.chart" . }}
-app.kubernetes.io/name: {{ include "outline.name" . }}
+{{ include "outline.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "outline.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "outline.common.selectorLabels" . }}
 component: {{ .Values.postgres.component | quote }}
+helm.sh/chart: {{ include "outline.chart" . }}
 tier: {{ .Values.postgres.tier | quote }}
 {{- end }}
 

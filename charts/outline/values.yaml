@@ -27,7 +27,7 @@ imagePullSecrets: []
 #- name: container-registry-cred
 
 env:
-  normal: []
+  normal: {}
   #    NODE_ENV: "production"
   #    PORT: "3000"
   #    WEB_CONCURRENCY: "1"
@@ -43,7 +43,7 @@ env:
   #    DEBUG: "http"
   #    LOG_LEVEL: "info"
   #    PGSSLMODE: "disable"
-  secret: []
+  secret: {}
 #    SECRET_KEY: ""
 #    UTILS_SECRET: ""
 #    DATABASE_URL: ""
@@ -129,7 +129,7 @@ networkPolicy:
   ingress:
     - from:
         - namespaceSelector: {} # All namespaces
-      podSelector: {} # All pods in those namespaces
+          podSelector: {} # All pods in those namespaces
   egress:
     - {}
 
@@ -295,8 +295,8 @@ redis:
   #- name: container-registry-cred
 
   env:
-    normal: []
-    secret: []
+    normal: {}
+    secret: {}
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
@@ -343,7 +343,7 @@ redis:
     ingress:
       - from:
           - namespaceSelector: {} # All namespaces
-        podSelector: {} # All pods in those namespaces
+            podSelector: {} # All pods in those namespaces
     egress:
       - {}
 
@@ -427,7 +427,7 @@ postgres:
   #- name: container-registry-cred
 
   env:
-    normal: []
+    normal: {}
     secret:
       POSTGRES_USER: "user"
       POSTGRES_PASSWORD: "pass"

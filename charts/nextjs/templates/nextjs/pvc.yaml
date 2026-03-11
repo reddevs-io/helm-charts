@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "nextjs.fullname" . }}-data
   labels:
     {{- include "nextjs.labels" . | nindent 4 }}
+  name: {{ include "nextjs.fullname" . }}-data
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode }}

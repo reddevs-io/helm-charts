@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "outline.redis.fullname" . }}
-  labels:
-    {{- include "outline.redis.labels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "outline.redis.labels" . | nindent 4 }}
+  name: {{ include "outline.redis.fullname" . }}
 spec:
   replicas: {{ .Values.redis.replicaCount }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "outline.redis.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
       {{- with .Values.redis.podAnnotations }}
@@ -29,53 +29,40 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.redis.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "outline.redis.serviceAccountName" . }}
-      {{- with .Values.redis.podSecurityContext }}
-      securityContext:
+      {{- with .Values.redis.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: redis
-          {{- with .Values.redis.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
-          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
-          ports:
-            - name: redis
-              containerPort: {{ .Values.redis.service.port }}
-              protocol: TCP
+        -
           {{- if or .Values.redis.env.normal .Values.redis.env.secret }}
           env:
           {{- range $key, $val := .Values.redis.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "outline.redis.fullname" $ }}
                   key: {{ $key }}
+                  name: {{ include "outline.redis.fullname" $ }}
           {{- end}}
           {{- range $key, $val := .Values.redis.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "outline.redis.fullname" $ }}
                   key: {{ $key }}
+                  name: {{ include "outline.redis.fullname" $ }}
           {{- end}}
           {{- end}}
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
           {{- with .Values.redis.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: redis
+          ports:
+            - containerPort: {{ .Values.redis.service.port }}
+              name: redis
+              protocol: TCP
           {{- with .Values.redis.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -84,20 +71,34 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.redis.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.redis.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.redis.volumes }}
-      volumes:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.redis.imagePullSecrets }}
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.redis.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.redis.affinity }}
-      affinity:
+      restartPolicy: Always
+      {{- with .Values.redis.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "outline.redis.serviceAccountName" . }}
+      {{- with .Values.redis.volumes }}
+      volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.redis.tolerations }}

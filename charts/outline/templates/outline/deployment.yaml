@@ -2,62 +2,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "outline.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Needed for outline access to /tmp and /var/lib/outline/data"
+    reloader.stakater.com/auto: "true"
   labels:
     {{- include "outline.labels" . | nindent 4 }}
-  annotations:
-    reloader.stakater.com/auto: "true"
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Needed for outline access to /tmp and /var/lib/outline/data"
+  name: {{ include "outline.fullname" . }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "outline.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "outline.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "outline.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
+      {{- with .Values.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: outline
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
+        -
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
@@ -65,23 +47,23 @@ spec:
             - name: {{ .envName | default .secretKey }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $outlineFullname }}-eso
                   key: {{ .secretKey }}
+                  name: {{ $outlineFullname }}-eso
           {{- end }}
           {{- end }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $outlineFullname }}
                   key: {{ $key }}
+                  name: {{ $outlineFullname }}
           {{- end}}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ $outlineFullname }}
                   key: {{ $key }}
+                  name: {{ $outlineFullname }}
           {{- end}}
           {{- if .Values.redis.enable }}
             - name: REDIS_URL
@@ -92,10 +74,17 @@ spec:
               value: "postgres://{{ .Values.postgres.env.secret.POSTGRES_USER }}:{{ .Values.postgres.env.secret.POSTGRES_PASSWORD }}@{{ include "outline.postgres.fullname" . }}:{{ .Values.postgres.service.port }}/{{ .Values.postgres.env.secret.POSTGRES_DB }}"
           {{- end }}
           {{- end}}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: outline
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: http
+              protocol: TCP
           {{- with .Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -104,20 +93,42 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- if .Values.persistence.enabled }}
-            - name: outline-content
-              mountPath: {{ .Values.persistence.mountPath }}
+            - mountPath: {{ .Values.persistence.mountPath }}
+              name: outline-content
           {{- end }}
           {{- if .Values.database.ssl.enabled }}
-            - name: database-ca-cert
-              mountPath: /etc/ssl/certs/database-ca.pem
-              subPath: database-ca.pem
+            - mountPath: /etc/ssl/certs/database-ca.pem
+              name: database-ca-cert
               readOnly: true
+              subPath: database-ca.pem
           {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      serviceAccountName: {{ include "outline.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       {{- if .Values.persistence.enabled }}
         - name: outline-content
@@ -131,18 +142,10 @@ spec:
       {{- if .Values.database.ssl.enabled }}
         - name: database-ca-cert
           secret:
-            secretName: {{ include "outline.fullname" . }}-database-ca
             defaultMode: 0444
+            secretName: {{ include "outline.fullname" . }}-database-ca
       {{- end }}
       {{- with .Values.volumes }}
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}

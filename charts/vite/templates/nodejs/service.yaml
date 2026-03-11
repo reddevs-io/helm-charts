@@ -3,16 +3,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $nodejsFullname }}
   labels:
     {{- include "vite.nodejs.labels" . | nindent 4 }}
+  name: {{ $nodejsFullname }}
 spec:
-  type: {{ .Values.nodejs.service.type }}
   ports:
-    - port: {{ .Values.nodejs.service.port }}
-      targetPort: http
+    - name: http
+      port: {{ .Values.nodejs.service.port }}
       protocol: TCP
-      name: http
+      targetPort: http
   selector:
     {{- include "vite.nodejs.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.nodejs.service.type }}
 {{- end }}

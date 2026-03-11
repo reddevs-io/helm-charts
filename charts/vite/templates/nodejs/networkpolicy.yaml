@@ -3,10 +3,22 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ $nodejsFullname }}
   labels:
     {{- include "vite.nodejs.labels" . | nindent 4 }}
+  name: {{ $nodejsFullname }}
 spec:
+  {{- if .Values.nodejs.networkPolicy.egress }}
+  egress:
+    {{- with .Values.nodejs.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.nodejs.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.nodejs.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
   podSelector:
     matchLabels:
       {{- include "vite.nodejs.selectorLabels" . | nindent 6 }}
@@ -14,16 +26,4 @@ spec:
     {{- with .Values.nodejs.networkPolicy.policyTypes }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- if .Values.nodejs.networkPolicy.ingress }}
-  ingress:
-    {{- with .Values.nodejs.networkPolicy.ingress }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
-  {{- if .Values.nodejs.networkPolicy.egress }}
-  egress:
-    {{- with .Values.nodejs.networkPolicy.egress }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
 {{- end }}

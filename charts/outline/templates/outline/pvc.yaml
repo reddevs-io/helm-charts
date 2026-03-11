@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "outline.fullname" . }}-content
   labels:
     {{- include "outline.labels" . | nindent 4 }}
+  name: {{ include "outline.fullname" . }}-content
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}

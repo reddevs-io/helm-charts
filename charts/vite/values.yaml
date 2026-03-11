@@ -31,8 +31,8 @@ imagePullSecrets: []
   #- name: container-registry-cred
 
 env:
-  normal: []
-  secret: []
+  normal: {}
+  secret: {}
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
@@ -79,7 +79,7 @@ networkPolicy:
   ingress:
     - from:
         - namespaceSelector: {} # All namespaces
-      podSelector: {} # All pods in those namespaces
+          podSelector: {} # All pods in those namespaces
   egress:
     - {}
 
@@ -300,8 +300,8 @@ nodejs:
   #- name: container-registry-cred
 
   env:
-    normal: []
-    secret: []
+    normal: {}
+    secret: {}
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
@@ -348,7 +348,7 @@ nodejs:
     ingress:
       - from:
           - namespaceSelector: {} # All namespaces
-        podSelector: {} # All pods in those namespaces
+            podSelector: {} # All pods in those namespaces
     egress:
       - {}
 

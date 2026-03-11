@@ -57,15 +57,15 @@ Create unified labels for nextjs components
 Selector labels
 */}}
 {{- define "nextjs.selectorLabels" -}}
-helm.sh/chart: {{ include "nextjs.chart" . }}
-app.kubernetes.io/name: {{ include "nextjs.name" . }}
+app: {{ template "nextjs.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "nextjs.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "nextjs.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "nextjs.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
@@ -109,15 +109,15 @@ Create unified labels for redis components
 Selector labels
 */}}
 {{- define "nextjs.redis.selectorLabels" -}}
-helm.sh/chart: {{ include "nextjs.chart" . }}
-app.kubernetes.io/name: {{ include "nextjs.name" . }}
+app: {{ template "nextjs.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "nextjs.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "nextjs.common.selectorLabels" . }}
 component: {{ .Values.redis.component | quote }}
+helm.sh/chart: {{ include "nextjs.chart" . }}
 tier: {{ .Values.redis.tier | quote }}
 {{- end }}
 

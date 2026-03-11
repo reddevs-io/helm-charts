@@ -1,13 +1,9 @@
 {{- if or .Values.env.normal .Values.phpIni .Values.nginxUnit.enable }}
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "symfony.fullname" . }}
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-  labels:
-    {{- include "symfony.labels" . | nindent 4 }}
 data:
+  {{- range $key, $val := .Values.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
   {{- if .Values.phpIni }}
   symfony.ini: |
     {{- range $key, $val := .Values.phpIni }}
@@ -18,7 +14,11 @@ data:
   symfony.json: |
     {{- .Values.nginxUnit.content | nindent 4 }}
   {{- end }}
-  {{- range $key, $val := .Values.env.normal }}
-  {{ $key }}: {{ $val | quote }}
-  {{- end}}
+kind: ConfigMap
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "symfony.labels" . | nindent 4 }}
+  name: {{ include "symfony.fullname" . }}
 {{- end}}

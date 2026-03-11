@@ -2,22 +2,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "outline.postgres.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "PostgreSQL needs write access to data directory"
+    reloader.stakater.com/auto: "true"
   labels:
     {{- include "outline.postgres.labels" . | nindent 4 }}
-  annotations:
-    reloader.stakater.com/auto: "true"
-    ignore-check.kube-linter.io/no-read-only-root-fs: "PostgreSQL needs write access to data directory"
+  name: {{ include "outline.postgres.fullname" . }}
 spec:
-  serviceName: {{ include "outline.postgres.fullname" . }}-headless
   {{- if not .Values.postgres.autoscaling.enabled }}
   replicas: {{ .Values.postgres.replicaCount }}
   {{- end }}
-  updateStrategy:
-    type: RollingUpdate
   selector:
     matchLabels:
       {{- include "outline.postgres.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "outline.postgres.fullname" . }}-headless
   template:
     metadata:
       {{- with .Values.postgres.podAnnotations }}
@@ -30,53 +28,40 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.postgres.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "outline.postgres.serviceAccountName" . }}
-      {{- with .Values.postgres.podSecurityContext }}
-      securityContext:
+      {{- with .Values.postgres.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: postgres
-          {{- with .Values.postgres.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
-          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
-          ports:
-            - name: postgres
-              containerPort: {{ .Values.postgres.service.port }}
-              protocol: TCP
+        -
           {{- if or .Values.postgres.env.normal .Values.postgres.env.secret }}
           env:
           {{- range $key, $val := .Values.postgres.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "outline.postgres.fullname" $ }}
                   key: {{ $key }}
+                  name: {{ include "outline.postgres.fullname" $ }}
           {{- end}}
           {{- range $key, $val := .Values.postgres.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "outline.postgres.fullname" $ }}
                   key: {{ $key }}
+                  name: {{ include "outline.postgres.fullname" $ }}
           {{- end}}
           {{- end}}
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
           {{- with .Values.postgres.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: postgres
+          ports:
+            - containerPort: {{ .Values.postgres.service.port }}
+              name: postgres
+              protocol: TCP
           {{- with .Values.postgres.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -85,48 +70,64 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.postgres.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- if .Values.postgres.persistence.enabled }}
-            - name: postgres-data
-              mountPath: {{ .Values.postgres.persistence.mountPath }}
+            - mountPath: {{ .Values.postgres.persistence.mountPath }}
+              name: postgres-data
           {{- end }}
           {{- if .Values.database.ssl.enabled }}
-            - name: database-ca-cert
-              mountPath: /etc/ssl/certs/database-ca.pem
-              subPath: database-ca.pem
+            - mountPath: /etc/ssl/certs/database-ca.pem
+              name: database-ca-cert
               readOnly: true
+              subPath: database-ca.pem
           {{- end }}
           {{- with .Values.postgres.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if .Values.database.ssl.enabled }}
-      volumes:
-        - name: database-ca-cert
-          secret:
-            secretName: {{ include "outline.fullname" . }}-database-ca
-            defaultMode: 0444
-      {{- end }}
-      {{- with .Values.postgres.volumes }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.postgres.imagePullSecrets }}
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.postgres.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.postgres.affinity }}
-      affinity:
+      restartPolicy: Always
+      {{- with .Values.postgres.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "outline.postgres.serviceAccountName" . }}
+      {{- if .Values.database.ssl.enabled }}
+      volumes:
+        - name: database-ca-cert
+          secret:
+            defaultMode: 0444
+            secretName: {{ include "outline.fullname" . }}-database-ca
+      {{- end }}
+      {{- with .Values.postgres.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.postgres.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  updateStrategy:
+    type: RollingUpdate
   {{- if .Values.postgres.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: postgres-data
         labels:
           {{- include "outline.postgres.labels" . | nindent 10 }}
+        name: postgres-data
       spec:
         accessModes:
           - {{ .Values.postgres.persistence.accessMode | quote }}

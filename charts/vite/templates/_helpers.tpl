@@ -57,15 +57,15 @@ Common labels
 Selector labels
 */}}
 {{- define "vite.selectorLabels" -}}
-helm.sh/chart: {{ include "vite.chart" . }}
-app.kubernetes.io/name: {{ include "vite.name" . }}
+{{ include "vite.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "vite.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "vite.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "vite.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
@@ -109,15 +109,15 @@ Create unified labels for nodejs components
 Selector labels for nodejs
 */}}
 {{- define "vite.nodejs.selectorLabels" -}}
-helm.sh/chart: {{ include "vite.chart" . }}
-app.kubernetes.io/name: {{ include "vite.name" . }}
+{{ include "vite.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "vite.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "vite.common.selectorLabels" . }}
 component: {{ .Values.nodejs.component | quote }}
+helm.sh/chart: {{ include "vite.chart" . }}
 tier: {{ .Values.nodejs.tier | quote }}
 {{- end }}
 

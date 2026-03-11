@@ -3,112 +3,115 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "nextjs.fullname" . }}-cronjob
-  labels:
-    {{- include "nextjs.labels" . | nindent 4 }}
   annotations:
+    ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
     ignore-check.kube-linter.io/no-liveness-probe: "The cron job does not need liveness probe"
     ignore-check.kube-linter.io/no-readiness-probe: "The cron job does not need readiness probe"
+  labels:
+    {{- include "nextjs.labels" . | nindent 4 }}
+  name: {{ include "nextjs.fullname" . }}-cronjob
 spec:
-  schedule: {{ .Values.cronjob.schedule | quote }}
   concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
-  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
   jobTemplate:
     spec:
       template:
         metadata:
-          {{- with .Values.podAnnotations }}
           annotations:
+            ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+            {{- with .Values.podAnnotations }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
           labels:
             {{- include "nextjs.labels" . | nindent 12 }}
             {{- with .Values.podLabels }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:
-          dnsConfig:
-            options:
-              - name: ndots
-                value: "2"
-          restartPolicy: OnFailure
-          {{- with .Values.imagePullSecrets }}
-          imagePullSecrets:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          serviceAccountName: {{ include "nextjs.serviceAccountName" . }}
-          {{- with .Values.podSecurityContext }}
-          securityContext:
+          {{- with .Values.affinity }}
+          affinity:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           containers:
-            - name: {{ .Chart.Name }}-cronjob
-              {{- with .Values.cronjob.securityContext }}
-              securityContext:
-                {{- toYaml . | nindent 16 }}
-              {{- end }}
-              image: "{{ .Values.cronjob.image.repository }}:{{ .Values.cronjob.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: {{ .Values.cronjob.image.pullPolicy }}
-              command:
-                {{- toYaml .Values.cronjob.command | nindent 16 }}
+            -
               {{- if .Values.cronjob.args }}
               args:
                 {{- toYaml .Values.cronjob.args | nindent 16 }}
               {{- end }}
+              command:
+                {{- toYaml .Values.cronjob.command | nindent 16 }}
               env:
                 {{- if .Values.externalSecretsDbUrl.enabled }}
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $nextjsFullname }}-db-eso
                       key: DATABASE_URL
+                      name: {{ $nextjsFullname }}-db-eso
                 {{- end }}
                 {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
                 {{- range .Values.externalSecrets.data }}
                 - name: {{ .envName | default .secretKey }}
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $nextjsFullname }}-eso
                       key: {{ .secretKey }}
+                      name: {{ $nextjsFullname }}-eso
                 {{- end }}
                 {{- end }}
                 {{- range $key, $val := .Values.env.secret }}
                 - name: {{ $key }}
                   valueFrom:
                     secretKeyRef:
-                      name: {{ $nextjsFullname }}
                       key: {{ $key }}
+                      name: {{ $nextjsFullname }}
                 {{- end}}
                 {{- range $key, $val := .Values.env.normal }}
                 - name: {{ $key }}
                   valueFrom:
                     configMapKeyRef:
-                      name: {{ $nextjsFullname }}
                       key: {{ $key }}
+                      name: {{ $nextjsFullname }}
                 {{- end}}
+              image: "{{ .Values.cronjob.image.repository }}:{{ .Values.cronjob.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.cronjob.image.pullPolicy }}
+              name: {{ .Chart.Name }}-cronjob
               {{- with .Values.cronjob.resources }}
               resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .Values.cronjob.securityContext }}
+              securityContext:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
               volumeMounts:
                 {{- with .Values.volumeMounts }}
                   {{- toYaml . | nindent 16 }}
                 {{- end }}
-          volumes:
-            {{- with .Values.volumes }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "2"
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.affinity }}
-          affinity:
+          restartPolicy: OnFailure
+          {{- with .Values.podSecurityContext }}
+          securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          serviceAccountName: {{ include "nextjs.serviceAccountName" . }}
           {{- with .Values.tolerations }}
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          volumes:
+            {{- with .Values.volumes }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
 {{- end }}

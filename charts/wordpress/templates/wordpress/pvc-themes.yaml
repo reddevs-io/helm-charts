@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "wordpress.fullname" . }}-themes
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
+  name: {{ include "wordpress.fullname" . }}-themes
 spec:
   accessModes:
     - {{ .Values.persistence.themes.accessMode }}

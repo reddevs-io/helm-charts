@@ -2,16 +2,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ghost.redis.fullname" . }}
   labels:
     {{- include "ghost.redis.labels" . | nindent 4 }}
+  name: {{ include "ghost.redis.fullname" . }}
 spec:
-  type: {{ .Values.redis.service.type }}
   ports:
-    - port: {{ .Values.redis.service.port }}
-      targetPort: http
+    - name: http
+      port: {{ .Values.redis.service.port }}
       protocol: TCP
-      name: http
+      targetPort: http
   selector:
     {{- include "ghost.redis.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.redis.service.type }}
 {{- end }}

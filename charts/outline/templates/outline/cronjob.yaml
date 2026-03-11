@@ -3,30 +3,63 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "outline.fullname" . }}-cronjob
-  labels:
-    {{- include "outline.labels" . | nindent 4 }}
   annotations:
+    ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
     ignore-check.kube-linter.io/no-liveness-probe: "The cron job does not need liveness probe"
     ignore-check.kube-linter.io/no-readiness-probe: "The cron job does not need readiness probe"
+  labels:
+    {{- include "outline.labels" . | nindent 4 }}
+  name: {{ include "outline.fullname" . }}-cronjob
 spec:
-  schedule: {{ .Values.cronJob.schedule | quote }}
-  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
   jobTemplate:
     spec:
       template:
         metadata:
-          {{- with .Values.podAnnotations }}
           annotations:
+            ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+            {{- with .Values.podAnnotations }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
           labels:
             {{- include "outline.labels" . | nindent 12 }}
             {{- with .Values.podLabels }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - args:
+                - |
+                  curl -f -s "http://{{ include "outline.fullname" . }}:{{ .Values.service.port }}/api/cron.daily?token=${UTILS_SECRET}" || exit 1
+              command: ["/bin/sh", "-c"]
+              env:
+                - name: UTILS_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: UTILS_SECRET
+                      name: {{ $outlineFullname }}
+              image: "{{ .Values.cronJob.image.repository }}:{{ .Values.cronJob.image.tag }}"
+              imagePullPolicy: {{ .Values.cronJob.image.pullPolicy }}
+              name: {{ .Chart.Name }}-cronjob
+              {{- with .Values.cronJob.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .Values.cronJob.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- if .Values.database.ssl.enabled }}
+              volumeMounts:
+                - mountPath: /etc/ssl/certs/database-ca.pem
+                  name: database-ca-cert
+                  readOnly: true
+                  subPath: database-ca.pem
+              {{- end }}
           dnsConfig:
             options:
               - name: ndots
@@ -35,58 +68,27 @@ spec:
           imagePullSecrets:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          serviceAccountName: {{ include "outline.serviceAccountName" . }}
-          {{- with .Values.podSecurityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          restartPolicy: OnFailure
-          containers:
-            - name: {{ .Chart.Name }}-cronjob
-              {{- with .Values.cronJob.securityContext }}
-              securityContext:
-                {{- toYaml . | nindent 16 }}
-              {{- end }}
-              image: "{{ .Values.cronJob.image.repository }}:{{ .Values.cronJob.image.tag }}"
-              imagePullPolicy: {{ .Values.cronJob.image.pullPolicy }}
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  curl -f -s "http://{{ include "outline.fullname" . }}:{{ .Values.service.port }}/api/cron.daily?token=${UTILS_SECRET}" || exit 1
-              env:
-                - name: UTILS_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ $outlineFullname }}
-                      key: UTILS_SECRET
-              {{- with .Values.cronJob.resources }}
-              resources:
-                {{- toYaml . | nindent 16 }}
-              {{- end }}
-              {{- if .Values.database.ssl.enabled }}
-              volumeMounts:
-                - name: database-ca-cert
-                  mountPath: /etc/ssl/certs/database-ca.pem
-                  subPath: database-ca.pem
-                  readOnly: true
-              {{- end }}
-          {{- if .Values.database.ssl.enabled }}
-          volumes:
-            - name: database-ca-cert
-              secret:
-                secretName: {{ include "outline.fullname" . }}-database-ca
-                defaultMode: 0444
-          {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.affinity }}
-          affinity:
+          restartPolicy: OnFailure
+          {{- with .Values.podSecurityContext }}
+          securityContext:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "outline.serviceAccountName" . }}
+          {{- if .Values.database.ssl.enabled }}
+          volumes:
+            - name: database-ca-cert
+              secret:
+                defaultMode: 0444
+                secretName: {{ include "outline.fullname" . }}-database-ca
           {{- end }}
           {{- with .Values.tolerations }}
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+  schedule: {{ .Values.cronJob.schedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
 {{- end }}

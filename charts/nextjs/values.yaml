@@ -120,7 +120,7 @@ networkPolicy:
   ingress:
     - from:
         - namespaceSelector: {} # All namespaces
-      podSelector: {} # All pods in those namespaces
+          podSelector: {} # All pods in those namespaces
   egress:
     - {}
 
@@ -319,7 +319,7 @@ redis:
     ingress:
       - from:
           - namespaceSelector: {} # All namespaces
-        podSelector: {} # All pods in those namespaces
+            podSelector: {} # All pods in those namespaces
     egress:
       - {}
 

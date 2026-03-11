@@ -2,98 +2,88 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "symfony.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+    reloader.stakater.com/auto: "true"
   labels:
     {{- include "symfony.labels" . | nindent 4 }}
-  annotations:
-    reloader.stakater.com/auto: "true"
+  name: {{ include "symfony.fullname" . }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "symfony.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "symfony.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "symfony.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
+      {{- with .Values.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
+        -
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
           {{- if .Values.externalSecretsDbUrl.enabled }}
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ $symfonyFullname }}-db-eso
                   key: DATABASE_URL
+                  name: {{ $symfonyFullname }}-db-eso
           {{- end }}
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
           {{- range .Values.externalSecrets.data }}
             - name: {{ .envName | default .secretKey }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $symfonyFullname }}-eso
                   key: {{ .secretKey }}
+                  name: {{ $symfonyFullname }}-eso
           {{- end }}
           {{- end }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $symfonyFullname }}
                   key: {{ $key }}
+                  name: {{ $symfonyFullname }}
           {{- end}}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ $symfonyFullname }}
                   key: {{ $key }}
+                  name: {{ $symfonyFullname }}
           {{- end}}
           {{- end}}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: {{ .Chart.Name }}
+          ports:
+            -
+              containerPort: {{ .Values.service.port }}
+              name: http
+              protocol: TCP
           {{- with .Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -102,46 +92,66 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          volumeMounts:
-            - name: symfony-ini
-              mountPath: /usr/local/etc/php/conf.d/symfony.ini
-              subPath: symfony.ini
-          {{- if .Values.nginxUnit.enable }}
-            - name: symfony-json
-              mountPath: /docker-entrypoint.d/symfony.json
-              subPath: symfony.json
-              readOnly: true
-          {{- end }}
-          {{- with .Values.volumeMounts }}
+          {{- with .Values.securityContext }}
+          securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      volumes:
-        - name: symfony-ini
-          configMap:
-            name: {{ include "symfony.fullname" . }}
-            items:
-              - key: symfony.ini
-                path: symfony.ini
-      {{- if .Values.nginxUnit.enable }}
-        - name: symfony-json
-          configMap:
-            name: {{ include "symfony.fullname" . }}
-            items:
-              - key: symfony.json
-                path: symfony.json
-      {{- end }}
-      {{- with .Values.volumes }}
+          volumeMounts:
+            -
+              mountPath: /usr/local/etc/php/conf.d/symfony.ini
+              name: symfony-ini
+              subPath: symfony.ini
+            {{- if .Values.nginxUnit.enable }}
+            -
+              mountPath: /docker-entrypoint.d/symfony.json
+              name: symfony-json
+              readOnly: true
+              subPath: symfony.json
+            {{- end }}
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
+      restartPolicy: Always
+      {{- with .Values.podSecurityContext }}
+      securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "symfony.serviceAccountName" . }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        -
+          configMap:
+            items:
+              -
+                key: symfony.ini
+                path: symfony.ini
+            name: {{ include "symfony.fullname" . }}
+          name: symfony-ini
+        {{- if .Values.nginxUnit.enable }}
+        -
+          configMap:
+            items:
+              -
+                key: symfony.json
+                path: symfony.json
+            name: {{ include "symfony.fullname" . }}
+          name: symfony-json
+        {{- end }}
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

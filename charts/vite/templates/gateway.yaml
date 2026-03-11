@@ -8,13 +8,13 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ include "vite.fullname" . }}-gateway
-  labels:
-    {{- include "vite.labels" . | nindent 4 }}
   {{- with .Values.gatewayApi.gateway.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  labels:
+    {{- include "vite.labels" . | nindent 4 }}
+  name: {{ include "vite.fullname" . }}-gateway
 spec:
   gatewayClassName: {{ .Values.gatewayApi.gateway.className | quote }}
   {{- if .Values.gatewayApi.gateway.infrastructure }}
@@ -23,17 +23,18 @@ spec:
   {{- end }}
   listeners:
     {{- range .Values.gatewayApi.gateway.listeners }}
-    - name: {{ .name }}
-      port: {{ .port }}
-      protocol: {{ .protocol }}
+    - {{- if .allowedRoutes }}
+      allowedRoutes:
+        {{- toYaml .allowedRoutes | nindent 8 }}
+      {{- end }}
       {{- if .hostname }}
       hostname: {{ .hostname | quote }}
       {{- end }}
+      name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol }}
       {{- if .tls }}
       tls:
-        {{- if .tls.mode }}
-        mode: {{ .tls.mode }}
-        {{- end }}
         {{- if .tls.certificateRefs }}
         certificateRefs:
           {{- range .tls.certificateRefs }}
@@ -43,10 +44,9 @@ spec:
             {{- end }}
           {{- end }}
         {{- end }}
-      {{- end }}
-      {{- if .allowedRoutes }}
-      allowedRoutes:
-        {{- toYaml .allowedRoutes | nindent 8 }}
+        {{- if .tls.mode }}
+        mode: {{ .tls.mode }}
+        {{- end }}
       {{- end }}
     {{- end }}
 {{- end }}

@@ -2,24 +2,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "ghost.fullname" . }}
+  annotations:
+    ignore-check.kube-linter.io/env-value-from: "ESO generates this secret at runtime"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Needed for ghost access to /tmp on uploads"
+    reloader.stakater.com/auto: "true"
   labels:
     {{- include "ghost.labels" . | nindent 4 }}
-  annotations:
-    reloader.stakater.com/auto: "true"
-    ignore-check.kube-linter.io/no-read-only-root-fs: "Needed for ghost access to /tmp on uploads"
+  name: {{ include "ghost.fullname" . }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       {{- include "ghost.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -32,32 +33,12 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      restartPolicy: Always
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "2"
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "ghost.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
+      {{- with .Values.affinity }}
+      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: ghost
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
+        -
           {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
@@ -65,29 +46,36 @@ spec:
             - name: {{ .envName | default .secretKey }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $ghostFullname }}-eso
                   key: {{ .secretKey }}
+                  name: {{ $ghostFullname }}-eso
           {{- end }}
           {{- end }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $ghostFullname }}
                   key: {{ $key }}
+                  name: {{ $ghostFullname }}
           {{- end}}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ $ghostFullname }}
                   key: {{ $key }}
+                  name: {{ $ghostFullname }}
           {{- end}}
-          {{- end}}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          name: ghost
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: http
+              protocol: TCP
           {{- with .Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -96,14 +84,40 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- if .Values.persistence.enabled }}
-            - name: ghost-content
-              mountPath: {{ .Values.persistence.mountPath }}
+            - mountPath: {{ .Values.persistence.mountPath }}
+              name: ghost-content
           {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ghost.serviceAccountName" . }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       {{- if .Values.persistence.enabled }}
         - name: ghost-content
@@ -115,17 +129,5 @@ spec:
             {{- end }}
       {{- end }}
       {{- with .Values.volumes }}
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

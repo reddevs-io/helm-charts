@@ -57,15 +57,15 @@ Common labels
 Selector labels
 */}}
 {{- define "symfony.selectorLabels" -}}
-helm.sh/chart: {{ include "symfony.chart" . }}
-app.kubernetes.io/name: {{ include "symfony.name" . }}
+{{ include "symfony.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "symfony.name" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "symfony.common.selectorLabels" . }}
 component: {{ .Values.component | quote }}
+helm.sh/chart: {{ include "symfony.chart" . }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
