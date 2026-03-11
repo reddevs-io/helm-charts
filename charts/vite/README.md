@@ -185,6 +185,16 @@ The chart supports Kubernetes Gateway API as an alternative to Ingress. This req
 | `vite.nginxConfig.enabled` | Enable custom nginx configuration | `false` |
 | `vite.nginxConfig.config` | Custom nginx configuration content | See values.yaml |
 
+### Init Job Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `initJob.enabled` | Enable init job | `false` |
+| `initJob.command` | Command to run in the init container | `""` |
+| `initJob.image.repository` | Init job image repository (falls back to `image.repository`) | `""` |
+| `initJob.image.tag` | Init job image tag (falls back to `image.tag`) | `""` |
+| `initJob.image.pullPolicy` | Init job image pull policy (falls back to `image.pullPolicy`) | `""` |
+
 ### Node.js Backend Configuration
 
 The chart supports an optional Node.js backend component. All Node.js parameters are prefixed with `nodejs.*`.
@@ -295,6 +305,16 @@ helm install my-fullstack-app ./charts/vite \
 helm install my-vite-app ./charts/vite \
   --set vite.nginxConfig.enabled=true \
   --set-file vite.nginxConfig.config=./custom-nginx.conf
+```
+
+### With Init Job
+
+```bash
+helm install my-vite-app ./charts/vite \
+  --set initJob.enabled=true \
+  --set initJob.command="echo 'running init'" \
+  --set initJob.image.repository=my-registry/my-init-image \
+  --set initJob.image.tag=v1.0.0
 ```
 
 ### With Gateway API

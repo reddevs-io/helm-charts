@@ -462,3 +462,15 @@ nodejs:
                 operator: In
                 values:
                   - linux
+
+# Init job configuration - useful for running database migrations or other setup tasks before deployment
+initJob:
+  enabled: false
+  # Command to run in the init job container
+  command: ""
+  # Optional: override the image used for the init job container.
+  # If not set, falls back to the main chart image (.Values.image).
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: ""

@@ -122,3 +122,11 @@ nodejs:
           sectionName: "http"
       backendPort: 3000
       rules: []
+
+initJob:
+  enabled: true
+  command: "echo 'init'"
+  image:
+    repository: "my-init-container"
+    tag: "my-tag"
+    pullPolicy: IfNotPresent
