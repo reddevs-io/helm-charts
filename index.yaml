@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-30T12:18:15.367232978Z"
+    created: "2026-03-11T11:19:31.540918693Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: f70bf6528feab5a243721e2db05b85fd0374b8f0c8ce143885d0e0b8da43819f
+    digest: 5ca247cb5c02cf72af383b73de69575139607c37e07a95bfbbf1ddefd17a4e12
     keywords:
     - ghost
     - blog
@@ -20,14 +20,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/ghost
     type: application
     urls:
-    - https://charts.reddevs.io/ghost-1.3.1.tgz
-    version: 1.3.1
+    - https://charts.reddevs.io/ghost-1.3.2.tgz
+    version: 1.3.2
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-30T12:18:15.368406503Z"
+    created: "2026-03-11T11:19:31.542135033Z"
     description: A helm chart for deploying a Next.js application
-    digest: 511e567431229b346e5ddd99aa1ea54465632192a189b93cdd354a2733f4abd4
+    digest: 099d1719364ff516b36b6bc5ec145a0ae3d37b3952fb14a19d2b016c31d71467
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.5.0.tgz
-    version: 1.5.0
+    - https://charts.reddevs.io/nextjs-1.5.1.tgz
+    version: 1.5.1
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2025-10-30T12:18:15.370403841Z"
+    created: "2026-03-11T11:19:31.543557698Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: d018aa1893026d5770ef5a1ea009d56664a34ff701adc1a99d87c1bf7c348dae
+    digest: 7cac0f88d9c3648ab18ee86767917902ba259c666c7aab39ae1675855609efe7
     keywords:
     - outline
     - wiki
@@ -65,14 +65,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/outline
     type: application
     urls:
-    - https://charts.reddevs.io/outline-1.3.0.tgz
-    version: 1.3.0
+    - https://charts.reddevs.io/outline-1.3.1.tgz
+    version: 1.3.1
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-30T12:18:15.371499874Z"
+    created: "2026-03-11T11:19:31.544434104Z"
     description: A helm chart for deploying a Symfony application
-    digest: 9fa28a1265837e234bfa236fd4f457bbf1fa86fb5d862d997e340c6cf9987507
+    digest: 080bb78326d029c66f4b291cacce7fce405121f747df885841f504a79e740b95
     keywords:
     - symfony
     - backend
@@ -87,14 +87,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/symfony
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.3.2.tgz
-    version: 1.3.2
+    - https://charts.reddevs.io/symfony-1.3.3.tgz
+    version: 1.3.3
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-30T12:18:15.37249706Z"
+    created: "2026-03-11T11:19:31.545549916Z"
     description: A Helm chart for Vite applications
-    digest: 345e191ee180218730276b5957bb5babf36e634bc5191b409e2319bf779d5cd7
+    digest: 291dac25c64f8a57f67ceb9d898172dcb8e8692944cf5dfa3f78f968879f2679
     keywords:
     - vite
     - frontend
@@ -109,17 +109,17 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
     type: application
     urls:
-    - https://charts.reddevs.io/vite-1.1.1.tgz
-    version: 1.1.1
+    - https://charts.reddevs.io/vite-1.3.1.tgz
+    version: 1.3.1
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-30T12:18:15.373238788Z"
+    created: "2026-03-11T11:19:31.547073595Z"
     description: A helm chart for deploying a Wordpress application
-    digest: a3eac12b00dd48631771dd3edf680bcc0c0576b3d593f457b13f6f9268119e24
+    digest: 06b43aa7c2c389692be8f76b4573957f8669554aa3178e51f46e83299886ddc2
     name: wordpress
     type: application
     urls:
-    - https://charts.reddevs.io/wordpress-1.3.1.tgz
-    version: 1.3.1
-generated: "2025-10-30T12:18:15.366016722Z"
+    - https://charts.reddevs.io/wordpress-1.3.2.tgz
+    version: 1.3.2
+generated: "2026-03-11T11:19:31.539678298Z"
