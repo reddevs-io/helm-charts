@@ -3,9 +3,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-03-11T11:19:31.540918693Z"
+    created: "2026-04-01T21:05:50.386266958Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 5ca247cb5c02cf72af383b73de69575139607c37e07a95bfbbf1ddefd17a4e12
+    digest: 560957cc28bbcd01d41e35a390f7ae71858570b5adff31c69b1fbb2b61a675a5
     keywords:
     - ghost
     - blog
@@ -25,9 +25,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-03-11T11:19:31.542135033Z"
+    created: "2026-04-01T21:05:50.38768535Z"
     description: A helm chart for deploying a Next.js application
-    digest: 099d1719364ff516b36b6bc5ec145a0ae3d37b3952fb14a19d2b016c31d71467
+    digest: 6eb6643b14db818ca2d1c3af02817e62e80e95b17b3632a5d8117e82108b81a4
     keywords:
     - nextjs
     - frontend
@@ -42,14 +42,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
     type: application
     urls:
-    - https://charts.reddevs.io/nextjs-1.5.1.tgz
-    version: 1.5.1
+    - https://charts.reddevs.io/nextjs-1.5.2.tgz
+    version: 1.5.2
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-03-11T11:19:31.543557698Z"
+    created: "2026-04-01T21:05:50.389831737Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 7cac0f88d9c3648ab18ee86767917902ba259c666c7aab39ae1675855609efe7
+    digest: ed25adee91dad797383d7a4d6396d8a9f53f4eaa0feac68a5c7f5187459a44c1
     keywords:
     - outline
     - wiki
@@ -70,9 +70,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-03-11T11:19:31.544434104Z"
+    created: "2026-04-01T21:05:50.39071625Z"
     description: A helm chart for deploying a Symfony application
-    digest: 080bb78326d029c66f4b291cacce7fce405121f747df885841f504a79e740b95
+    digest: 578902370840f9cf3a3c98b910fceae51c4391ece93e71a82a2043f3d3734351
     keywords:
     - symfony
     - backend
@@ -87,14 +87,14 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/symfony
     type: application
     urls:
-    - https://charts.reddevs.io/symfony-1.3.3.tgz
-    version: 1.3.3
+    - https://charts.reddevs.io/symfony-1.3.4.tgz
+    version: 1.3.4
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-03-11T11:19:31.545549916Z"
+    created: "2026-04-01T21:05:50.391905734Z"
     description: A Helm chart for Vite applications
-    digest: 291dac25c64f8a57f67ceb9d898172dcb8e8692944cf5dfa3f78f968879f2679
+    digest: 51b2d91b00fcef8ead7e2e80b60263df757a66497db868ed70c0f55dd0657e00
     keywords:
     - vite
     - frontend
@@ -109,17 +109,17 @@ entries:
     - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
     type: application
     urls:
-    - https://charts.reddevs.io/vite-1.3.1.tgz
-    version: 1.3.1
+    - https://charts.reddevs.io/vite-1.3.2.tgz
+    version: 1.3.2
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-03-11T11:19:31.547073595Z"
+    created: "2026-04-01T21:05:50.39265234Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 06b43aa7c2c389692be8f76b4573957f8669554aa3178e51f46e83299886ddc2
+    digest: 2c0f417f151198fe54cb6dfcd3d6d9a5800589ac6947ad7e80c1215e09187ea1
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-03-11T11:19:31.539678298Z"
+generated: "2026-04-01T21:05:50.385030668Z"
