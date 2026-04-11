@@ -1,0 +1,152 @@
+{{- $viteFullname := include "vite.fullname" . -}}
+{{- $viteName := include "vite.name" . -}}
+{{- $viteChart := include "vite.chart" . -}}
+{{- $viteSAName := include "vite.serviceAccountName" . -}}
+{{- range .Values.workers }}
+{{- if .enabled }}
+{{- $workerFullname := printf "%s-%s" $viteFullname .name -}}
+{{- $img := .image | default dict -}}
+{{- $workerImageRepo := $img.repository | default $.Values.image.repository -}}
+{{- $workerImageTag := $img.tag | default $.Values.image.tag | default $.Chart.AppVersion -}}
+{{- $workerImagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: {{ $viteName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/name: {{ $viteName }}
+    {{- if $.Chart.AppVersion }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+    {{- end }}
+    component: "worker-{{ .name }}"
+    helm.sh/chart: {{ $viteChart }}
+    tier: worker
+  name: {{ $workerFullname }}
+spec:
+  {{- if not .autoscaling.enabled }}
+  replicas: {{ .replicaCount | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ $viteName }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/managed-by: {{ $.Release.Service }}
+      app.kubernetes.io/name: {{ $viteName }}
+      {{- if $.Chart.AppVersion }}
+      app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+      {{- end }}
+      component: "worker-{{ .name }}"
+      helm.sh/chart: {{ $viteChart }}
+      tier: worker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $viteName }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/managed-by: {{ $.Release.Service }}
+        app.kubernetes.io/name: {{ $viteName }}
+        {{- if $.Chart.AppVersion }}
+        app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+        {{- end }}
+        component: "worker-{{ .name }}"
+        helm.sh/chart: {{ $viteChart }}
+        tier: worker
+        {{- with .podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - {{- if .command }}
+          command:
+            {{- toYaml .command | nindent 12 }}
+          {{- end }}
+          {{- if .args }}
+          args:
+            {{- toYaml .args | nindent 12 }}
+          {{- end }}
+          {{- if or $.Values.env.normal $.Values.env.secret }}
+          env:
+          {{- range $key, $val := $.Values.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $viteFullname }}
+          {{- end}}
+          {{- range $key, $val := $.Values.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $viteFullname }}
+          {{- end}}
+          {{- end }}
+          image: "{{ $workerImageRepo }}:{{ $workerImageTag }}"
+          imagePullPolicy: {{ $workerImagePullPolicy }}
+          {{- with .livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          name: worker-{{ .name }}
+          {{- with .readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      {{- with .podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ $viteSAName }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+{{ end }}
+{{ end }}

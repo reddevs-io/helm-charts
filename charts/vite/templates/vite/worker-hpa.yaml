@@ -1,0 +1,48 @@
+{{- $viteFullname := include "vite.fullname" . -}}
+{{- $viteName := include "vite.name" . -}}
+{{- $viteChart := include "vite.chart" . -}}
+{{- range .Values.workers }}
+{{- if and .enabled .autoscaling.enabled }}
+{{- $workerFullname := printf "%s-%s" $viteFullname .name -}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: {{ $viteName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/name: {{ $viteName }}
+    {{- if $.Chart.AppVersion }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+    {{- end }}
+    component: "worker-{{ .name }}"
+    helm.sh/chart: {{ $viteChart }}
+    tier: worker
+  name: {{ $workerFullname }}
+spec:
+  maxReplicas: {{ .autoscaling.maxReplicas }}
+  metrics:
+    {{- if .autoscaling.targetCPUUtilizationPercentage }}
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: {{ .autoscaling.targetCPUUtilizationPercentage }}
+          type: Utilization
+      type: Resource
+    {{- end }}
+    {{- if .autoscaling.targetMemoryUtilizationPercentage }}
+    - resource:
+        name: memory
+        target:
+          averageUtilization: {{ .autoscaling.targetMemoryUtilizationPercentage }}
+          type: Utilization
+      type: Resource
+    {{- end }}
+  minReplicas: {{ .autoscaling.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $workerFullname }}
+{{- end }}
+{{- end }}

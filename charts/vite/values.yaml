@@ -463,6 +463,55 @@ nodejs:
                 values:
                   - linux
 
+# Worker deployments - additional Deployments that run the same app image
+# with different commands (e.g. queue consumers, schedulers, background jobs).
+# Workers share the same ConfigMap and Secret as the main vite deployment.
+workers: []
+# - name: queue               # Required. Becomes part of the k8s name: {fullname}-{name}
+#   enabled: true
+#   replicaCount: 1
+#
+#   # Override command/args. If omitted, uses the image default.
+#   command: []
+#   # example: ["node", "worker/queue.js"]
+#   args: []
+#
+#   # Override the image. If omitted, inherits .Values.image.
+#   image:
+#     repository: ""
+#     tag: ""
+#     pullPolicy: ""
+#
+#   resources: {}
+#   # limits:
+#   #   cpu: 100m
+#   #   memory: 256Mi
+#   # requests:
+#   #   cpu: 50m
+#   #   memory: 128Mi
+#
+#   autoscaling:
+#     enabled: false
+#     minReplicas: 1
+#     maxReplicas: 10
+#     targetCPUUtilizationPercentage: 80
+#     # targetMemoryUtilizationPercentage: 80
+#
+#   livenessProbe: {}
+#   readinessProbe: {}
+#
+#   podAnnotations: {}
+#   podLabels: {}
+#   podSecurityContext: {}
+#   securityContext: {}
+#
+#   nodeSelector: {}
+#   tolerations: []
+#   affinity: {}
+#
+#   volumes: []
+#   volumeMounts: []
+
 # Init job configuration - useful for running database migrations or other setup tasks before deployment
 initJob:
   enabled: false

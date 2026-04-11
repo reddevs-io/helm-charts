@@ -8,6 +8,7 @@ checks:
     - "required-annotation-email"
     - "required-label-owner"
     - "read-secret-from-env-var" # Easiest implementation for most applications
+    - "non-isolated-pod" # Workers don't serve HTTP traffic and don't need NetworkPolicy
 customChecks:
   - name: required-label-app
     template: required-label
