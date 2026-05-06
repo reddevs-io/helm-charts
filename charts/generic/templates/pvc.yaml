@@ -1,0 +1,22 @@
+{{- if .Values.persistence.enabled }}
+{{- range .Values.persistence.volumes }}
+{{- if not .existingClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    {{- include "generic.labels" $ | nindent 4 }}
+  name: {{ include "generic.fullname" $ }}-{{ .name }}
+spec:
+  accessModes:
+    - {{ .accessMode }}
+  resources:
+    requests:
+      storage: {{ .size }}
+  {{- if .storageClass }}
+  storageClassName: {{ .storageClass }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

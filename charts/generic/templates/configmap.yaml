@@ -1,0 +1,14 @@
+{{- if .Values.env.normal }}
+apiVersion: v1
+data:
+  {{- range $key, $val := .Values.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+kind: ConfigMap
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+  name: {{ include "generic.fullname" . }}
+{{- end}}
