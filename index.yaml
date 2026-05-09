@@ -3,9 +3,9 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-05-06T19:41:26.969540372Z"
+    created: "2026-05-09T06:50:03.18575965Z"
     description: A helm chart for deploying a generic application
-    digest: 2a94a8601efd5fc6f7eca21edee0828bb99300c4f3b7280cffe3805d5ee44857
+    digest: 170098f46e3840b090ff9e20a5ba8d38613c07e965ddef8e1f285093b968f4ac
     keywords:
     - generic
     - backend
@@ -25,9 +25,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-06T19:41:26.970842433Z"
+    created: "2026-05-09T06:50:03.186843384Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 7c21479222061b2ec9be6488422d1af55c96f33ac86d6965f6b970f620b63e1e
+    digest: d08feb774592f7b2bd684e676b332f24d76788e02fada7d56a3d80e1d91aadee
     keywords:
     - ghost
     - blog
@@ -44,12 +44,34 @@ entries:
     urls:
     - https://charts.reddevs.io/ghost-1.3.2.tgz
     version: 1.3.2
+  immich:
+  - apiVersion: v2
+    appVersion: release
+    created: "2026-05-09T06:50:03.189149773Z"
+    description: A Helm chart for deploying the Immich photo management platform
+    digest: 3120abcb2157db4f03b99b862ce80585feec7d5bd098191b59360a117faaf05f
+    keywords:
+    - immich
+    - photos
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://reddevs.io
+    name: immich
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/immich
+    type: application
+    urls:
+    - https://charts.reddevs.io/immich-0.1.0.tgz
+    version: 0.1.0
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-06T19:41:26.972500901Z"
+    created: "2026-05-09T06:50:03.190381491Z"
     description: A helm chart for deploying a Next.js application
-    digest: 9cb39532b690660ddff7ef63f5bf3eb9c053a2d36622865c64bbb34ca3596243
+    digest: c0b8cefb8a794966f2d7d946ee30f74a18c7f48edf48c0180180bd855f99f78f
     keywords:
     - nextjs
     - frontend
@@ -69,9 +91,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-05-06T19:41:26.974082353Z"
+    created: "2026-05-09T06:50:03.19184572Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 284b84af5a6c4e1f48fed2829e0f809de21722621d77a086de2fabaa9f5731b5
+    digest: 26a3e2db22aa53317fb9cd51effc8ac3931e8876e5406ff375fa32171d380c1b
     keywords:
     - outline
     - wiki
@@ -92,9 +114,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-06T19:41:26.974953018Z"
+    created: "2026-05-09T06:50:03.19278707Z"
     description: A helm chart for deploying a Symfony application
-    digest: 3eaaff699a670785d89342fb79c4b93dd06fd3e86f6306fdc8f367feab244978
+    digest: 04da6d5db3ea18954b6726ff07f7e6c78100f64ff810a2bfb6e507b3509691f3
     keywords:
     - symfony
     - backend
@@ -114,9 +136,9 @@ entries:
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-06T19:41:26.97617019Z"
+    created: "2026-05-09T06:50:03.194038818Z"
     description: A Helm chart for Vite applications
-    digest: 9ae55de5a3b5fd9a67b1783059c3496ec5b22952cecbc64156533340e7867e9d
+    digest: e8687fcaada47a997292ad9f6097e86caa7f2e346d1c0376cd13bbdb6e1d1a94
     keywords:
     - vite
     - frontend
@@ -136,12 +158,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-06T19:41:26.976966086Z"
+    created: "2026-05-09T06:50:03.194824994Z"
     description: A helm chart for deploying a Wordpress application
-    digest: d900cd0019cddefe2b74c080d3c095305dc850d3626cc5ccfe598875bd39df17
+    digest: 7f9d2c67a31aef8cc318ee374bbf554fca74cc7982a2f3aa051f4441e5f07728
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-05-06T19:41:26.968672633Z"
+generated: "2026-05-09T06:50:03.184803628Z"
