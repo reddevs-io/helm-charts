@@ -1,0 +1,192 @@
+{{- $serverFullname := include "immich.server.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/env-value-from: "ESO generates this secret at runtime"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Immich server needs write access to /data for uploads"
+    ignore-check.kube-linter.io/run-as-non-root: "Immich server requires root permissions"
+    reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "immich.server.labels" . | nindent 4 }}
+  name: {{ include "immich.server.fullname" . }}
+spec:
+  {{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "immich.server.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .Values.server.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "immich.server.labels" . | nindent 8 }}
+        {{- with .Values.server.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.server.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - env:
+          {{- if .Values.redis.enabled }}
+            - name: REDIS_HOSTNAME
+              value: {{ include "immich.redis.fullname" . }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.service.port | quote }}
+            - name: REDIS_DBINDEX
+              value: {{ .Values.redis.dbIndex | quote }}
+          {{- else }}
+            - name: REDIS_HOSTNAME
+              value: {{ .Values.redis.host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: REDIS_DBINDEX
+              value: {{ .Values.redis.dbIndex | quote }}
+          {{- end }}
+          {{- if .Values.redis.password }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PASSWORD
+                  name: {{ $serverFullname }}
+          {{- end }}
+          {{- if .Values.database.enabled }}
+            - name: DB_HOSTNAME
+              value: {{ include "immich.database.fullname" . }}
+            - name: DB_PORT
+              value: {{ .Values.database.service.port | quote }}
+            - name: DB_DATABASE_NAME
+              value: {{ .Values.database.name | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: {{ include "immich.database.fullname" . }}
+          {{- else }}
+            - name: DB_HOSTNAME
+              value: {{ .Values.database.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: DB_DATABASE_NAME
+              value: {{ .Values.database.name | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DB_PASSWORD
+                  name: {{ $serverFullname }}
+          {{- end }}
+          {{- if .Values.machineLearning.enabled }}
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: "http://{{ include "immich.machineLearning.fullname" . }}:{{ .Values.machineLearning.service.port }}"
+          {{- end }}
+          {{- if and .Values.server.externalSecrets.enabled .Values.server.externalSecrets.awsProvider.enabled .Values.server.externalSecrets.data }}
+          {{- range .Values.server.externalSecrets.data }}
+            - name: {{ .envName | default .secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .secretKey }}
+                  name: {{ $serverFullname }}-eso
+          {{- end }}
+          {{- end }}
+          {{- range $key, $val := .Values.server.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $serverFullname }}
+          {{- end }}
+          {{- range $key, $val := .Values.server.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $serverFullname }}
+          {{- end }}
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          {{- with .Values.server.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          name: immich-server
+          ports:
+            - containerPort: {{ .Values.server.service.port }}
+              name: http
+              protocol: TCP
+          {{- with .Values.server.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.server.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.server.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.server.persistence.enabled }}
+            - mountPath: {{ .Values.server.persistence.mountPath }}
+              name: immich-uploads
+            {{- end }}
+            - mountPath: /etc/localtime
+              name: localtime
+              readOnly: true
+            {{- with .Values.server.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.server.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.server.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "immich.server.serviceAccountName" . }}
+      {{- with .Values.server.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if .Values.server.persistence.enabled }}
+        - name: immich-uploads
+          persistentVolumeClaim:
+            {{- if .Values.server.persistence.existingClaim }}
+            claimName: {{ .Values.server.persistence.existingClaim }}
+            {{- else }}
+            claimName: {{ include "immich.server.fullname" . }}-uploads
+            {{- end }}
+        {{- end }}
+        - hostPath:
+            path: /etc/localtime
+          name: localtime
+        {{- with .Values.server.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

@@ -1,0 +1,125 @@
+{{- if .Values.machineLearning.enabled }}
+{{- $mlFullname := include "immich.machineLearning.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "ML service needs write access to /cache for model cache"
+    ignore-check.kube-linter.io/run-as-non-root: "ML service requires root permissions"
+    reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "immich.machineLearning.labels" . | nindent 4 }}
+  name: {{ include "immich.machineLearning.fullname" . }}
+spec:
+  {{- if not .Values.machineLearning.autoscaling.enabled }}
+  replicas: {{ .Values.machineLearning.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "immich.machineLearning.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .Values.machineLearning.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "immich.machineLearning.labels" . | nindent 8 }}
+        {{- with .Values.machineLearning.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.machineLearning.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - {{- if or .Values.machineLearning.env.normal .Values.machineLearning.env.secret }}
+          env:
+          {{- range $key, $val := .Values.machineLearning.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $mlFullname }}
+          {{- end }}
+          {{- range $key, $val := .Values.machineLearning.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $mlFullname }}
+          {{- end }}
+          {{- end }}
+          image: "{{ .Values.machineLearning.image.repository }}:{{ .Values.machineLearning.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.machineLearning.image.pullPolicy }}
+          {{- with .Values.machineLearning.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          name: immich-machine-learning
+          ports:
+            - containerPort: {{ .Values.machineLearning.service.port }}
+              name: http
+              protocol: TCP
+          {{- with .Values.machineLearning.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.machineLearning.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.machineLearning.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.machineLearning.persistence.enabled }}
+            - mountPath: {{ .Values.machineLearning.persistence.mountPath }}
+              name: model-cache
+          {{- end }}
+          {{- with .Values.machineLearning.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.machineLearning.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.machineLearning.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.machineLearning.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "immich.machineLearning.serviceAccountName" . }}
+      {{- with .Values.machineLearning.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.machineLearning.persistence.enabled }}
+        - name: model-cache
+          persistentVolumeClaim:
+            {{- if .Values.machineLearning.persistence.existingClaim }}
+            claimName: {{ .Values.machineLearning.persistence.existingClaim }}
+            {{- else }}
+            claimName: {{ include "immich.machineLearning.fullname" . }}-model-cache
+            {{- end }}
+      {{- end }}
+      {{- with .Values.machineLearning.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

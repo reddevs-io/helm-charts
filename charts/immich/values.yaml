@@ -1,0 +1,479 @@
+nameOverride: ""
+
+imageCredentials:
+  registry: ""
+  username: ""
+  password: ""
+  email: ""
+
+fullnameOverride: ""
+
+server:
+  component: "server"
+  tier: "application"
+
+  replicaCount: 1
+
+  image:
+    repository: "ghcr.io/immich-app/immich-server"
+    pullPolicy: IfNotPresent
+    tag: "release"
+
+  imagePullSecrets: []
+
+  env:
+    normal: {}
+    secret: {}
+
+  externalSecrets:
+    enabled: false
+    refreshInterval: "1h"
+    awsProvider:
+      enabled: false
+      region: eu-central-1
+      iam:
+        accessKey: ""
+        secretAccessKey: ""
+    data: []
+
+  serviceAccount:
+    create: true
+    automount: false
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext: {}
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
+
+  service:
+    type: ClusterIP
+    port: 2283
+
+  networkPolicy:
+    enabled: true
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {}
+          - podSelector: {}
+    egress:
+      - {}
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+
+  resources:
+    limits:
+      memory: "2Gi"
+
+  livenessProbe:
+    httpGet:
+      path: /api/server/ping
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/server/ping
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: ""
+    mountPath: /data
+    existingClaim: ""
+
+  volumes: []
+  volumeMounts: []
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - immich
+            topologyKey: kubernetes.io/hostname
+
+machineLearning:
+  enabled: true
+
+  component: "machine-learning"
+  tier: "application"
+
+  fullnameOverride: ""
+
+  replicaCount: 1
+
+  image:
+    repository: "ghcr.io/immich-app/immich-machine-learning"
+    pullPolicy: IfNotPresent
+    tag: "release"
+
+  imagePullSecrets: []
+
+  env:
+    normal: {}
+    secret: {}
+
+  serviceAccount:
+    create: true
+    automount: false
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext: {}
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
+
+  service:
+    type: ClusterIP
+    port: 3003
+
+  networkPolicy:
+    enabled: true
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {}
+          - podSelector: {}
+    egress:
+      - {}
+
+  resources:
+    limits:
+      memory: "4Gi"
+
+  livenessProbe:
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: ""
+    mountPath: /cache
+    existingClaim: ""
+
+  volumes: []
+  volumeMounts: []
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - immich
+            topologyKey: kubernetes.io/hostname
+
+redis:
+  enabled: false
+
+  host: ""
+  port: 6379
+  password: ""
+  dbIndex: 0
+
+  component: "redis"
+  tier: "cache"
+
+  fullnameOverride: ""
+
+  replicaCount: 1
+
+  image:
+    repository: "valkey/valkey"
+    pullPolicy: IfNotPresent
+    tag: "9-alpine"
+
+  imagePullSecrets: []
+
+  env:
+    normal: {}
+    secret: {}
+
+  serviceAccount:
+    create: true
+    automount: false
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext: {}
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 999
+
+  service:
+    type: ClusterIP
+    port: 6379
+
+  networkPolicy:
+    enabled: true
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {}
+          - podSelector: {}
+    egress:
+      - {}
+
+  resources:
+    limits:
+      memory: "300Mi"
+
+  livenessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+  readinessProbe:
+    exec:
+      command:
+        - redis-cli
+        - ping
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+  autoscaling:
+    enabled: false
+
+  volumes: []
+  volumeMounts: []
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux
+
+database:
+  enabled: false
+
+  host: ""
+  port: 5432
+  name: "immich"
+  username: "postgres"
+  password: ""
+
+  component: "database"
+  tier: "data"
+
+  fullnameOverride: ""
+
+  replicaCount: 1
+
+  image:
+    repository: "ghcr.io/immich-app/postgres"
+    pullPolicy: IfNotPresent
+    tag: "14-vectorchord0.4.3-pgvectors0.2.0"
+
+  imagePullSecrets: []
+
+  env:
+    normal:
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    secret: {}
+
+  serviceAccount:
+    create: true
+    automount: false
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext: {}
+
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
+
+  service:
+    type: ClusterIP
+    port: 5432
+
+  networkPolicy:
+    enabled: true
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector: {}
+          - podSelector: {}
+    egress:
+      - {}
+
+  resources:
+    limits:
+      memory: "512Mi"
+
+  livenessProbe:
+    exec:
+      command:
+        - pg_isready
+        - -U
+        - postgres
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+
+  readinessProbe:
+    exec:
+      command:
+        - pg_isready
+        - -U
+        - postgres
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+
+  persistence:
+    enabled: false
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: ""
+    mountPath: /var/lib/postgresql/data
+    existingClaim: ""
+
+  volumes: []
+  volumeMounts: []
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                  - linux

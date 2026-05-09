@@ -1,0 +1,12 @@
+{{- if and .Values.machineLearning.enabled .Values.machineLearning.env.normal }}
+apiVersion: v1
+data:
+  {{- range $key, $val := .Values.machineLearning.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "immich.machineLearning.labels" . | nindent 4 }}
+  name: {{ include "immich.machineLearning.fullname" . }}
+{{- end }}

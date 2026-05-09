@@ -1,0 +1,17 @@
+{{- if .Values.database.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "immich.database.labels" . | nindent 4 }}
+  name: {{ include "immich.database.fullname" . }}
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.database.service.port }}
+      protocol: TCP
+      targetPort: http
+  selector:
+    {{- include "immich.database.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.database.service.type }}
+{{- end }}

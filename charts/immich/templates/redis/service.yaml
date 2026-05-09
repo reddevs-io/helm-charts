@@ -1,0 +1,17 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "immich.redis.labels" . | nindent 4 }}
+  name: {{ include "immich.redis.fullname" . }}
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.redis.service.port }}
+      protocol: TCP
+      targetPort: http
+  selector:
+    {{- include "immich.redis.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.redis.service.type }}
+{{- end }}

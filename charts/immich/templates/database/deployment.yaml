@@ -1,0 +1,132 @@
+{{- if .Values.database.enabled }}
+{{- $dbFullname := include "immich.database.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Postgres needs write access to /var/lib/postgresql/data"
+    ignore-check.kube-linter.io/run-as-non-root: "Postgres container requires root permissions"
+    reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "immich.database.labels" . | nindent 4 }}
+  name: {{ include "immich.database.fullname" . }}
+spec:
+  {{- if not .Values.database.autoscaling.enabled }}
+  replicas: {{ .Values.database.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "immich.database.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .Values.database.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "immich.database.labels" . | nindent 8 }}
+        {{- with .Values.database.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.database.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: {{ $dbFullname }}
+            - name: POSTGRES_USER
+              value: {{ .Values.database.username | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.database.name | quote }}
+          {{- range $key, $val := .Values.database.env.normal }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $dbFullname }}
+          {{- end }}
+          {{- range $key, $val := .Values.database.env.secret }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $dbFullname }}
+          {{- end }}
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          {{- with .Values.database.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          name: immich-database
+          ports:
+            - containerPort: {{ .Values.database.service.port }}
+              name: http
+              protocol: TCP
+          {{- with .Values.database.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.database.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.database.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.database.persistence.enabled }}
+            - mountPath: {{ .Values.database.persistence.mountPath }}
+              name: database-data
+          {{- end }}
+          {{- with .Values.database.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      {{- with .Values.database.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.database.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.database.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "immich.database.serviceAccountName" . }}
+      {{- with .Values.database.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.database.persistence.enabled }}
+        - name: database-data
+          persistentVolumeClaim:
+            {{- if .Values.database.persistence.existingClaim }}
+            claimName: {{ .Values.database.persistence.existingClaim }}
+            {{- else }}
+            claimName: {{ include "immich.database.fullname" . }}-data
+            {{- end }}
+      {{- end }}
+      {{- with .Values.database.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

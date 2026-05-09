@@ -1,0 +1,23 @@
+apiVersion: v2
+name: immich
+description: "A Helm chart for deploying the Immich photo management platform"
+
+type: application
+
+version: 0.1.0
+
+appVersion: "release"
+
+keywords:
+  - immich
+  - photos
+  - kubernetes
+  - helm
+
+sources:
+  - https://github.com/reddevs-io/helm-charts/tree/main/charts/immich
+
+maintainers:
+  - name: Francis Makokha
+    email: francis@reddevs.io
+    url: https://reddevs.io

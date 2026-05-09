@@ -1,0 +1,17 @@
+{{- if .Values.machineLearning.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "immich.machineLearning.labels" . | nindent 4 }}
+  name: {{ include "immich.machineLearning.fullname" . }}
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.machineLearning.service.port }}
+      protocol: TCP
+      targetPort: http
+  selector:
+    {{- include "immich.machineLearning.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.machineLearning.service.type }}
+{{- end }}

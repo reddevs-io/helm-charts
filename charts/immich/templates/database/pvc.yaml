@@ -1,0 +1,17 @@
+{{- if and .Values.database.enabled .Values.database.persistence.enabled (not .Values.database.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    {{- include "immich.database.labels" . | nindent 4 }}
+  name: {{ include "immich.database.fullname" . }}-data
+spec:
+  accessModes:
+    - {{ .Values.database.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.database.persistence.size }}
+  {{- if .Values.database.persistence.storageClass }}
+  storageClassName: {{ .Values.database.persistence.storageClass }}
+  {{- end }}
+{{- end }}

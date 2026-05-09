@@ -1,0 +1,12 @@
+{{- if and .Values.database.enabled .Values.database.env.normal }}
+apiVersion: v1
+data:
+  {{- range $key, $val := .Values.database.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "immich.database.labels" . | nindent 4 }}
+  name: {{ include "immich.database.fullname" . }}
+{{- end }}

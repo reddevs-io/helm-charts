@@ -1,0 +1,29 @@
+{{- if and .Values.machineLearning.enabled .Values.machineLearning.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    {{- include "immich.machineLearning.labels" . | nindent 4 }}
+  name: {{ include "immich.machineLearning.fullname" . }}
+spec:
+  {{- if .Values.machineLearning.networkPolicy.egress }}
+  egress:
+    {{- with .Values.machineLearning.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.machineLearning.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.machineLearning.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  podSelector:
+    matchLabels:
+      app: {{ include "immich.name" . }}
+      component: {{ .Values.machineLearning.component }}
+  policyTypes:
+    {{- with .Values.machineLearning.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

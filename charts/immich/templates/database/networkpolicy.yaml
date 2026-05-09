@@ -1,0 +1,29 @@
+{{- if and .Values.database.enabled .Values.database.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    {{- include "immich.database.labels" . | nindent 4 }}
+  name: {{ include "immich.database.fullname" . }}
+spec:
+  {{- if .Values.database.networkPolicy.egress }}
+  egress:
+    {{- with .Values.database.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.database.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.database.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  podSelector:
+    matchLabels:
+      app: {{ include "immich.name" . }}
+      component: {{ .Values.database.component }}
+  policyTypes:
+    {{- with .Values.database.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

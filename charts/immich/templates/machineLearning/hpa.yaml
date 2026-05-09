@@ -1,0 +1,34 @@
+{{- if .Values.machineLearning.enabled }}
+{{- if .Values.machineLearning.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    {{- include "immich.machineLearning.labels" . | nindent 4 }}
+  name: {{ include "immich.machineLearning.fullname" . }}
+spec:
+  maxReplicas: {{ .Values.machineLearning.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.machineLearning.autoscaling.targetCPUUtilizationPercentage }}
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: {{ .Values.machineLearning.autoscaling.targetCPUUtilizationPercentage }}
+          type: Utilization
+      type: Resource
+    {{- end }}
+    {{- if .Values.machineLearning.autoscaling.targetMemoryUtilizationPercentage }}
+    - resource:
+        name: memory
+        target:
+          averageUtilization: {{ .Values.machineLearning.autoscaling.targetMemoryUtilizationPercentage }}
+          type: Utilization
+      type: Resource
+    {{- end }}
+  minReplicas: {{ .Values.machineLearning.autoscaling.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "immich.machineLearning.fullname" . }}
+{{- end }}
+{{- end }}

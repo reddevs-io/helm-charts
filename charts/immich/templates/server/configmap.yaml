@@ -1,0 +1,12 @@
+{{- if .Values.server.env.normal }}
+apiVersion: v1
+data:
+  {{- range $key, $val := .Values.server.env.normal }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "immich.server.labels" . | nindent 4 }}
+  name: {{ include "immich.server.fullname" . }}
+{{- end }}

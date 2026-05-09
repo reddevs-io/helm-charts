@@ -1,0 +1,29 @@
+{{- if and .Values.redis.enabled .Values.redis.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    {{- include "immich.redis.labels" . | nindent 4 }}
+  name: {{ include "immich.redis.fullname" . }}
+spec:
+  {{- if .Values.redis.networkPolicy.egress }}
+  egress:
+    {{- with .Values.redis.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.redis.networkPolicy.ingress }}
+  ingress:
+    {{- with .Values.redis.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  podSelector:
+    matchLabels:
+      app: {{ include "immich.name" . }}
+      component: {{ .Values.redis.component }}
+  policyTypes:
+    {{- with .Values.redis.networkPolicy.policyTypes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
