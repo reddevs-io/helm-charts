@@ -1,6 +1,7 @@
 nameOverride: ""
 
 imageCredentials:
+  enabled: false
   registry: ""
   username: ""
   password: ""
