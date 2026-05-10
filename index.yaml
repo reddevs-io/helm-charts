@@ -3,9 +3,9 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-05-09T06:50:03.18575965Z"
+    created: "2026-05-10T10:02:24.341977904Z"
     description: A helm chart for deploying a generic application
-    digest: 170098f46e3840b090ff9e20a5ba8d38613c07e965ddef8e1f285093b968f4ac
+    digest: 6e8772bd0ab58294fd9f96951eb5b2fc09a2af1e4deb6b4c901f4cd6b044b0b2
     keywords:
     - generic
     - backend
@@ -25,9 +25,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-09T06:50:03.186843384Z"
+    created: "2026-05-10T10:02:24.342825784Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: d08feb774592f7b2bd684e676b332f24d76788e02fada7d56a3d80e1d91aadee
+    digest: 443d582cf1693f81eb2fa0e720b0089952582c8b2909d2ca0ea2b703a4a1885d
     keywords:
     - ghost
     - blog
@@ -47,9 +47,9 @@ entries:
   immich:
   - apiVersion: v2
     appVersion: release
-    created: "2026-05-09T06:50:03.189149773Z"
+    created: "2026-05-10T10:02:24.343907518Z"
     description: A Helm chart for deploying the Immich photo management platform
-    digest: 3120abcb2157db4f03b99b862ce80585feec7d5bd098191b59360a117faaf05f
+    digest: b4496acdbba15c6ca8536ef1227ca936095aca20c8658caee28d0b284938a1b4
     keywords:
     - immich
     - photos
@@ -69,9 +69,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-09T06:50:03.190381491Z"
+    created: "2026-05-10T10:02:24.344826455Z"
     description: A helm chart for deploying a Next.js application
-    digest: c0b8cefb8a794966f2d7d946ee30f74a18c7f48edf48c0180180bd855f99f78f
+    digest: a6ebb74b831d18db5ffae225e1585e6ce5f0d7cea951a21d2ab1935080d06684
     keywords:
     - nextjs
     - frontend
@@ -91,9 +91,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-05-09T06:50:03.19184572Z"
+    created: "2026-05-10T10:02:24.34660422Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 26a3e2db22aa53317fb9cd51effc8ac3931e8876e5406ff375fa32171d380c1b
+    digest: b0f34486c51260ac14083af651f88485f3bfe693c8a9342597e5940527d8fb11
     keywords:
     - outline
     - wiki
@@ -114,9 +114,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-09T06:50:03.19278707Z"
+    created: "2026-05-10T10:02:24.347272649Z"
     description: A helm chart for deploying a Symfony application
-    digest: 04da6d5db3ea18954b6726ff07f7e6c78100f64ff810a2bfb6e507b3509691f3
+    digest: b3f36f9fe66a7404eddc47b3bb5a7a680279e83ce87f02e973a1d9da9a40a6e5
     keywords:
     - symfony
     - backend
@@ -136,9 +136,9 @@ entries:
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-09T06:50:03.194038818Z"
+    created: "2026-05-10T10:02:24.348224316Z"
     description: A Helm chart for Vite applications
-    digest: e8687fcaada47a997292ad9f6097e86caa7f2e346d1c0376cd13bbdb6e1d1a94
+    digest: b2f7e7f9ddd905507b5f8cbf0d3ce215aa6b3aae556f9f97efd0771ab71ef58f
     keywords:
     - vite
     - frontend
@@ -158,12 +158,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-05-09T06:50:03.194824994Z"
+    created: "2026-05-10T10:02:24.348807016Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 7f9d2c67a31aef8cc318ee374bbf554fca74cc7982a2f3aa051f4441e5f07728
+    digest: a4dd9e3d71c3a244b00191553e7509042371d60aa3cd0b87a7df3e8a49e1820f
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-05-09T06:50:03.184803628Z"
+generated: "2026-05-10T10:02:24.341257476Z"
