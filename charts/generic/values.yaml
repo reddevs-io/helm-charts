@@ -63,6 +63,19 @@ securityContext:
 service:
   type: ClusterIP
   port: 8080
+  additionalPorts: []
+  # - name: p2p
+  #   port: 50300
+  #   protocol: TCP
+
+extraServices: []
+# - name: p2p
+#   type: LoadBalancer
+#   annotations: {}
+#   ports:
+#     - name: p2p
+#       port: 50300
+#       protocol: TCP
 
 networkPolicy:
   enabled: true

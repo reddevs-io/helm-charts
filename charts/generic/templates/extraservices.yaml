@@ -1,0 +1,24 @@
+{{- range .Values.extraServices }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "generic.labels" $ | nindent 4 }}
+  name: {{ include "generic.fullname" $ }}-{{ .name }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    {{- range .ports }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol | default "TCP" }}
+      targetPort: {{ .name }}
+    {{- end }}
+  selector:
+    {{- include "generic.selectorLabels" $ | nindent 4 }}
+  type: {{ .type | default "ClusterIP" }}
+{{- end }}

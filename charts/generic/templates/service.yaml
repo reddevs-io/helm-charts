@@ -6,11 +6,16 @@ metadata:
   name: {{ include "generic.fullname" . }}
 spec:
   ports:
-    -
-      name: http
+    - name: http
       port: {{ .Values.service.port }}
       protocol: TCP
       targetPort: http
+    {{- range .Values.service.additionalPorts }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol | default "TCP" }}
+      targetPort: {{ .name }}
+    {{- end }}
   selector:
     {{- include "generic.selectorLabels" . | nindent 4 }}
   type: {{ .Values.service.type }}

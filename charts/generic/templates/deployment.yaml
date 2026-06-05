@@ -73,10 +73,14 @@ spec:
           {{- end }}
           name: {{ .Chart.Name }}
           ports:
-            -
-              containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.service.port }}
               name: http
               protocol: TCP
+            {{- range .Values.service.additionalPorts }}
+            - containerPort: {{ .port }}
+              name: {{ .name }}
+              protocol: {{ .protocol | default "TCP" }}
+            {{- end }}
           {{- with .Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
