@@ -512,6 +512,51 @@ workers: []
 #   volumes: []
 #   volumeMounts: []
 
+# CronJob resources - scheduled Kubernetes CronJobs that run the app image
+# with different commands (e.g. background maintenance, status checks).
+# CronJobs share the same ConfigMap and Secret as the main vite deployment.
+cronJobs: []
+# - name: check-listings       # Required. Becomes part of the k8s name: {fullname}-{name}
+#   enabled: true
+#   schedule: "0 */6 * * *"     # Required. Cron schedule expression
+#   concurrencyPolicy: Forbid   # Optional. Default: Forbid
+#   # timeZone: "Europe/Brussels" # Optional. K8s 1.25+ timezone support
+#   # startingDeadlineSeconds: 200 # Optional.
+#   successfulJobsHistoryLimit: 3 # Optional. Default: 3
+#   failedJobsHistoryLimit: 1     # Optional. Default: 1
+#   backoffLimit: 2            # Optional. Job-level backoff limit
+#   activeDeadlineSeconds: 3600 # Optional. Max duration per job run
+#
+#   # Override command/args. If omitted, uses the image default.
+#   command: ["node", "./dist-jobs/check-listings.mjs"]
+#   args: []
+#
+#   # Override the image. If omitted, inherits .Values.image.
+#   image:
+#     repository: ""
+#     tag: ""
+#     pullPolicy: ""
+#
+#   resources: {}
+#   # limits:
+#   #   cpu: 100m
+#   #   memory: 256Mi
+#   # requests:
+#   #   cpu: 50m
+#   #   memory: 128Mi
+#
+#   podAnnotations: {}
+#   podLabels: {}
+#   podSecurityContext: {}
+#   securityContext: {}
+#
+#   nodeSelector: {}
+#   tolerations: []
+#   affinity: {}
+#
+#   volumes: []
+#   volumeMounts: []
+
 # Init job configuration - useful for running database migrations or other setup tasks before deployment
 initJob:
   enabled: false

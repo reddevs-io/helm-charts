@@ -1,0 +1,144 @@
+{{- $viteFullname := include "vite.fullname" . -}}
+{{- $viteName := include "vite.name" . -}}
+{{- $viteChart := include "vite.chart" . -}}
+{{- $viteSAName := include "vite.serviceAccountName" . -}}
+{{- range .Values.cronJobs }}
+{{- if .enabled }}
+{{- $cronFullname := printf "%s-%s" $viteFullname .name -}}
+{{- $img := .image | default dict -}}
+{{- $imageRepo := $img.repository | default $.Values.image.repository -}}
+{{- $imageTag := $img.tag | default $.Values.image.tag | default $.Chart.AppVersion -}}
+{{- $imagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy -}}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    ignore-check.kube-linter.io/no-liveness-probe: "CronJob containers do not need liveness probes"
+    ignore-check.kube-linter.io/no-readiness-probe: "CronJob containers do not need readiness probes"
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: {{ $viteName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/name: {{ $viteName }}
+    {{- if $.Chart.AppVersion }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+    {{- end }}
+    component: "cronjob-{{ .name }}"
+    helm.sh/chart: {{ $viteChart }}
+    tier: cronjob
+  name: {{ $cronFullname }}
+spec:
+  concurrencyPolicy: {{ .concurrencyPolicy | default "Forbid" }}
+  {{- with .startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ . }}
+  {{- end }}
+  failedJobsHistoryLimit: {{ .failedJobsHistoryLimit | default 1 }}
+  jobTemplate:
+    spec:
+      {{- with .activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      {{- with .backoffLimit }}
+      backoffLimit: {{ . }}
+      {{- end }}
+      template:
+        metadata:
+          {{- with .podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          labels:
+            app: {{ $viteName }}
+            app.kubernetes.io/instance: {{ $.Release.Name }}
+            app.kubernetes.io/managed-by: {{ $.Release.Service }}
+            app.kubernetes.io/name: {{ $viteName }}
+            {{- if $.Chart.AppVersion }}
+            app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+            {{- end }}
+            component: "cronjob-{{ .name }}"
+            helm.sh/chart: {{ $viteChart }}
+            tier: cronjob
+            {{- with .podLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        spec:
+          {{- with .affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - {{- if .command }}
+              command:
+                {{- toYaml .command | nindent 16 }}
+              {{- end }}
+              {{- if .args }}
+              args:
+                {{- toYaml .args | nindent 16 }}
+              {{- end }}
+              {{- if or $.Values.env.normal $.Values.env.secret }}
+              env:
+              {{- range $key, $val := $.Values.env.secret }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      key: {{ $key }}
+                      name: {{ $viteFullname }}
+              {{- end}}
+              {{- range $key, $val := $.Values.env.normal }}
+                - name: {{ $key }}
+                  valueFrom:
+                    configMapKeyRef:
+                      key: {{ $key }}
+                      name: {{ $viteFullname }}
+              {{- end}}
+              {{- end }}
+              image: "{{ $imageRepo }}:{{ $imageTag }}"
+              imagePullPolicy: {{ $imagePullPolicy }}
+              name: cronjob-{{ .name }}
+              {{- with .resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with .volumeMounts }}
+              volumeMounts:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "2"
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          {{- with .podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ $viteSAName }}
+          {{- with .tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .volumes }}
+          volumes:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit | default 3 }}
+  {{- with .timeZone }}
+  timeZone: {{ . | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

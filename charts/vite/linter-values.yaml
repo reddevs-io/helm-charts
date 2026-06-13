@@ -199,6 +199,38 @@ workers:
       runAsNonRoot: true
       runAsUser: 1000
 
+cronJobs:
+  - name: check-listings
+    enabled: true
+    schedule: "0 */6 * * *"
+    concurrencyPolicy: Forbid
+    successfulJobsHistoryLimit: 3
+    failedJobsHistoryLimit: 1
+    backoffLimit: 2
+    activeDeadlineSeconds: 3600
+    command: ["node", "./dist-jobs/check-listings.mjs"]
+    resources:
+      limits:
+        memory: "256Mi"
+      requests:
+        memory: "128Mi"
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+    securityContext:
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+
 initJob:
   enabled: true
   command: "echo 'init'"
