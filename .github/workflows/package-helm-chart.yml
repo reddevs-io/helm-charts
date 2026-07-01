@@ -65,15 +65,40 @@ jobs:
             helm package "$dir" --destination .chart-packages
           done
 
+      - name: Fetch existing published index
+        run: |
+          # Pull the currently published index.yaml so we can merge new chart
+          # versions into it instead of dropping old version entries.
+          # On the very first run (gh-pages empty / no index yet) the download
+          # fails gracefully and we rebuild a fresh index below.
+          if curl -fsSL https://charts.reddevs.io/index.yaml -o old-index.yaml; then
+            echo "Existing index.yaml downloaded:"
+            test -s old-index.yaml && echo "  $(wc -l < old-index.yaml) lines, merging." \
+              || echo "  File is empty, will rebuild from scratch."
+          else
+            : > old-index.yaml
+            echo "No existing index, starting fresh."
+          fi
+
       - name: Rebuild index
         run: |
-          helm repo index .chart-packages \
-            --url https://charts.reddevs.io # Ensure this URL is correct
+          # Merge with the previously published index so old chart versions
+          # remain listed. --merge requires a non-empty index file, so only
+          # pass it when old-index.yaml has content.
+          if [ -s old-index.yaml ]; then
+            helm repo index .chart-packages \
+              --url https://charts.reddevs.io \
+              --merge old-index.yaml # Ensure this URL is correct
+          else
+            helm repo index .chart-packages \
+              --url https://charts.reddevs.io # Ensure this URL is correct
+          fi
 
       - name: Publish to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v3 # v3 is fine for this fix (keep_files supported)
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .chart-packages
           publish_branch: gh-pages
+          keep_files: true # Preserve previously published .tgz files on gh-pages
           cname: charts.reddevs.io
