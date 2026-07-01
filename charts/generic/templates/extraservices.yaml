@@ -11,12 +11,21 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{- with .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
   ports:
     {{- range .ports }}
     - name: {{ .name }}
       port: {{ .port }}
       protocol: {{ .protocol | default "TCP" }}
       targetPort: {{ .name }}
+      {{- with .nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
     {{- end }}
   selector:
     {{- include "generic.selectorLabels" $ | nindent 4 }}

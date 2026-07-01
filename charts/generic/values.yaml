@@ -72,10 +72,13 @@ extraServices: []
 # - name: p2p
 #   type: LoadBalancer
 #   annotations: {}
+#   externalTrafficPolicy: Local   # preserves real client source IP (no SNAT) — use for BT, gaming, etc.
+#   loadBalancerIP: ""             # spec.loadBalancerIP (deprecated in K8s 1.24+, prefer the metallb annotation)
 #   ports:
 #     - name: p2p
 #       port: 50300
 #       protocol: TCP
+#       nodePort: 30000            # explicit node port (type: NodePort only, 30000-32767)
 
 networkPolicy:
   enabled: true
