@@ -37,8 +37,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - {{- if or .Values.nodejs.env.normal .Values.nodejs.env.secret }}
+        -
+          {{- if .Values.nodejs.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.nodejs.env.existingSecret }}
+          {{- end }}
+          {{- if or .Values.nodejs.env.normal (and .Values.nodejs.env.secret (not .Values.nodejs.env.existingSecret)) }}
           env:
+          {{- if not .Values.nodejs.env.existingSecret }}
           {{- range $key, $val := .Values.nodejs.env.secret }}
             - name: {{ $key }}
               valueFrom:
@@ -46,6 +53,7 @@ spec:
                   key: {{ $key }}
                   name: {{ $nodejsFullname }}
           {{- end}}
+          {{- end }}
           {{- range $key, $val := .Values.nodejs.env.normal }}
             - name: {{ $key }}
               valueFrom:

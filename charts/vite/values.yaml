@@ -7,6 +7,12 @@ nameOverride: ""
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imageCredentials:
+  # When true (default) the chart renders the `container-registry-cred` Secret
+  # from the registry/username/password below. Set to false to let an external
+  # controller (e.g. External Secrets Operator) own that Secret instead — the
+  # chart then renders no registry credentials and only references them via
+  # `imagePullSecrets`.
+  create: true
   registry: ""
   username: ""
   password: ""
@@ -33,6 +39,11 @@ imagePullSecrets: []
 env:
   normal: {}
   secret: {}
+  # Name of a pre-existing Secret to load env vars from (via envFrom.secretRef).
+  # When set, the chart does NOT render its own env Secret and wires the
+  # container to this Secret instead — use with External Secrets Operator so
+  # secret values never live in Git. Leave empty for the default inline `secret`.
+  existingSecret: ""
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
@@ -302,6 +313,8 @@ nodejs:
   env:
     normal: {}
     secret: {}
+    # See env.existingSecret above — same behavior for the nodejs sidecar.
+    existingSecret: ""
 
   # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
   serviceAccount:
