@@ -24,6 +24,11 @@ imagePullSecrets: []
 env:
   normal: {}
   secret: {}
+  # When set, the container is wired via `envFrom.secretRef` against this
+  # pre-existing Secret (e.g. one produced by an ExternalSecret / ESO) and the
+  # chart's own inline `env.secret` Secret is NOT rendered — so secret values
+  # stay out of Git. Leave empty for the default inline-Secret behaviour.
+  existingSecret: ""
 
 externalSecrets:
   enabled: false

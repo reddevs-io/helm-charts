@@ -5,6 +5,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  annotations:
+    # Never let a `helm uninstall` (or an ArgoCD prune) delete a data volume the
+    # chart provisioned — the claim outlives the release. Detach it explicitly
+    # if you really intend to reclaim the storage.
+    "helm.sh/resource-policy": keep
   labels:
     {{- include "generic.labels" $ | nindent 4 }}
   name: {{ include "generic.fullname" $ }}-{{ .name }}

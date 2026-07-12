@@ -49,16 +49,12 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Common labels
+Common labels — full label set for resource metadata and pod templates.
+A superset of the selector labels: it additionally carries the version-bearing
+labels (helm.sh/chart, app.kubernetes.io/version) and managed-by, which must
+NOT appear in a selector.
 */}}
 {{- define "generic.labels" -}}
-{{ include "generic.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "generic.selectorLabels" -}}
 {{ include "generic.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -68,6 +64,20 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.component | quote }}
 helm.sh/chart: {{ include "generic.chart" . }}
+tier: {{ .Values.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels — MUST stay version-stable. The Deployment's spec.selector is
+immutable and the Service selector must keep matching running pods across a
+chart-version bump, so only stable identity labels belong here — never
+version-bearing ones (helm.sh/chart, app.kubernetes.io/version) or managed-by.
+*/}}
+{{- define "generic.selectorLabels" -}}
+{{ include "generic.common.selectorLabels" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "generic.name" . }}
+component: {{ .Values.component | quote }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
