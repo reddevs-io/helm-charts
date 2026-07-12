@@ -47,16 +47,12 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Common labels
+Common labels — full label set for resource metadata and pod templates.
+A superset of the selector labels: it additionally carries the version-bearing
+labels (helm.sh/chart, app.kubernetes.io/version) and managed-by, which must
+NOT appear in a selector.
 */}}
 {{- define "vite.labels" -}}
-{{ include "vite.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "vite.selectorLabels" -}}
 {{ include "vite.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -66,6 +62,20 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.component | quote }}
 helm.sh/chart: {{ include "vite.chart" . }}
+tier: {{ .Values.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels — MUST stay version-stable. The Deployment's spec.selector is
+immutable and the Service selector must keep matching running pods across a
+chart-version bump, so only stable identity labels belong here — never
+version-bearing ones (helm.sh/chart, app.kubernetes.io/version) or managed-by.
+*/}}
+{{- define "vite.selectorLabels" -}}
+{{ include "vite.common.selectorLabels" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "vite.name" . }}
+component: {{ .Values.component | quote }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
@@ -99,16 +109,10 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Create unified labels for nodejs components
+Create unified labels for nodejs components — full label set for resource
+metadata and pod templates (superset of the nodejs selector labels).
 */}}
 {{- define "vite.nodejs.labels" -}}
-{{ include "vite.nodejs.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels for nodejs
-*/}}
-{{- define "vite.nodejs.selectorLabels" -}}
 {{ include "vite.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -118,6 +122,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.nodejs.component | quote }}
 helm.sh/chart: {{ include "vite.chart" . }}
+tier: {{ .Values.nodejs.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels for nodejs — MUST stay version-stable (see vite.selectorLabels).
+*/}}
+{{- define "vite.nodejs.selectorLabels" -}}
+{{ include "vite.common.selectorLabels" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "vite.name" . }}
+component: {{ .Values.nodejs.component | quote }}
 tier: {{ .Values.nodejs.tier | quote }}
 {{- end }}
 

@@ -33,8 +33,9 @@ spec:
         - args:
             - {{ .Values.initJob.command | quote }}
           command: ["/bin/sh", "-c"]
-          {{- if or .Values.env.normal .Values.env.secret }}
+          {{- if or .Values.env.normal (and .Values.env.secret (not .Values.env.existingSecret)) }}
           env:
+          {{- if not .Values.env.existingSecret }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
@@ -42,6 +43,7 @@ spec:
                   key: {{ $key }}
                   name: {{ $frontendFullname }}
           {{- end}}
+          {{- end }}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
@@ -50,6 +52,11 @@ spec:
                   name: {{ $frontendFullname }}
           {{- end}}
           {{- end}}
+          {{- if .Values.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.env.existingSecret }}
+          {{- end }}
           image: "{{ .Values.initJob.image.repository | default .Values.image.repository }}:{{ .Values.initJob.image.tag | default .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.initJob.image.pullPolicy | default .Values.image.pullPolicy }}
           name: {{ .Chart.Name }}-init

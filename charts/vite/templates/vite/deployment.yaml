@@ -37,11 +37,6 @@ spec:
       {{- end }}
       containers:
         -
-          {{- if .Values.env.existingSecret }}
-          envFrom:
-            - secretRef:
-                name: {{ .Values.env.existingSecret }}
-          {{- end }}
           {{- if or .Values.env.normal (and .Values.env.secret (not .Values.env.existingSecret)) }}
           env:
           {{- if not .Values.env.existingSecret }}
@@ -61,6 +56,11 @@ spec:
                   name: {{ $viteFullname }}
           {{- end}}
           {{- end}}
+          {{- if .Values.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.env.existingSecret }}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.livenessProbe }}

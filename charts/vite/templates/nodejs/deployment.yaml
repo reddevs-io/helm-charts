@@ -38,11 +38,6 @@ spec:
       {{- end }}
       containers:
         -
-          {{- if .Values.nodejs.env.existingSecret }}
-          envFrom:
-            - secretRef:
-                name: {{ .Values.nodejs.env.existingSecret }}
-          {{- end }}
           {{- if or .Values.nodejs.env.normal (and .Values.nodejs.env.secret (not .Values.nodejs.env.existingSecret)) }}
           env:
           {{- if not .Values.nodejs.env.existingSecret }}
@@ -62,6 +57,11 @@ spec:
                   name: {{ $nodejsFullname }}
           {{- end}}
           {{- end}}
+          {{- if .Values.nodejs.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.nodejs.env.existingSecret }}
+          {{- end }}
           image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.nodejs.image.pullPolicy }}
           {{- with .Values.nodejs.livenessProbe }}

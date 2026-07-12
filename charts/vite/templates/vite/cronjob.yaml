@@ -77,8 +77,9 @@ spec:
               args:
                 {{- toYaml .args | nindent 16 }}
               {{- end }}
-              {{- if or $.Values.env.normal $.Values.env.secret }}
+              {{- if or $.Values.env.normal (and $.Values.env.secret (not $.Values.env.existingSecret)) }}
               env:
+              {{- if not $.Values.env.existingSecret }}
               {{- range $key, $val := $.Values.env.secret }}
                 - name: {{ $key }}
                   valueFrom:
@@ -86,6 +87,7 @@ spec:
                       key: {{ $key }}
                       name: {{ $viteFullname }}
               {{- end}}
+              {{- end }}
               {{- range $key, $val := $.Values.env.normal }}
                 - name: {{ $key }}
                   valueFrom:
@@ -93,6 +95,11 @@ spec:
                       key: {{ $key }}
                       name: {{ $viteFullname }}
               {{- end}}
+              {{- end }}
+              {{- if $.Values.env.existingSecret }}
+              envFrom:
+                - secretRef:
+                    name: {{ $.Values.env.existingSecret }}
               {{- end }}
               image: "{{ $imageRepo }}:{{ $imageTag }}"
               imagePullPolicy: {{ $imagePullPolicy }}

@@ -41,8 +41,10 @@ env:
   secret: {}
   # Name of a pre-existing Secret to load env vars from (via envFrom.secretRef).
   # When set, the chart does NOT render its own env Secret and wires the
-  # container to this Secret instead — use with External Secrets Operator so
+  # containers to this Secret instead — use with External Secrets Operator so
   # secret values never live in Git. Leave empty for the default inline `secret`.
+  # Since 1.6.0 this also covers workers, cronjobs and the initJob (they share
+  # the app's env), not just the main deployment.
   existingSecret: ""
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
