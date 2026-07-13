@@ -197,6 +197,18 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
 
+# Startup probe — disabled by default (empty map renders nothing, keeping every
+# existing consumer bit-identical). Set it for apps with a slow first request
+# (e.g. WASM/query-engine warm-up) so liveness/readiness only begin once the app
+# has started. Mirrors the liveness/readiness shape, e.g.:
+#   startupProbe:
+#     httpGet:
+#       path: /healthz
+#       port: http
+#     failureThreshold: 30
+#     periodSeconds: 2
+startupProbe: {}
+
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
   enabled: false

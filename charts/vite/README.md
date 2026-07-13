@@ -151,6 +151,21 @@ The chart supports Kubernetes Gateway API as an alternative to Ingress. This req
 | `readinessProbe.httpGet.port` | Readiness probe port | `http` |
 | `readinessProbe.initialDelaySeconds` | Initial delay | `5` |
 | `readinessProbe.periodSeconds` | Period | `5` |
+| `startupProbe` | Startup probe (whole block; empty `{}` renders nothing) | `{}` |
+
+The `startupProbe` (added in 1.7.0) is disabled by default — an empty map
+renders no probe, so existing releases are unaffected. Set the full block for
+apps with a slow first request (e.g. WASM/query-engine warm-up) so the liveness
+and readiness probes only start once the app has finished booting:
+
+```yaml
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  failureThreshold: 30
+  periodSeconds: 2
+```
 
 ### Autoscaling Configuration
 
