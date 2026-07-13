@@ -3,9 +3,9 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-07-12T09:14:04.659733849Z"
+    created: "2026-07-13T22:05:25.531858919Z"
     description: A helm chart for deploying a generic application
-    digest: 3d75237fd2f7797e7383568e21847a8324cda6e2dc9147f4ed6f4f3f0e1d1fe9
+    digest: 865980769efabec7926567e07e2c3eb93d979683913dbd47afa697110115ef7b
     keywords:
     - generic
     - backend
@@ -46,9 +46,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-12T09:14:04.660862492Z"
+    created: "2026-07-13T22:05:25.533016811Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 00e76fb130c7b00a838cdd0a5f1725d03b186a6f1d39f2721579cb569e8fbeaa
+    digest: 4e72970c7ac040bd4a8f4215afbf22f359fc30cadce26c27c464b1ce3a6f2661
     keywords:
     - ghost
     - blog
@@ -68,9 +68,9 @@ entries:
   immich:
   - apiVersion: v2
     appVersion: release
-    created: "2026-07-12T09:14:04.662272229Z"
+    created: "2026-07-13T22:05:25.53515768Z"
     description: A Helm chart for deploying the Immich photo management platform
-    digest: fade71d68803e237c1089a35df7f393a7a8b7c6e6c90debc9139dddeacb44a75
+    digest: ed15a8970fb9e41df836644aa1122d42b9df8e605db4c84887201aa4d5748b81
     keywords:
     - immich
     - photos
@@ -90,9 +90,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-12T09:14:04.664024281Z"
+    created: "2026-07-13T22:05:25.536339077Z"
     description: A helm chart for deploying a Next.js application
-    digest: a7765d386d0059537c52e9ba7073e4c3a8ceb233ae046440a8cba1506509f992
+    digest: 286d45c17011daca7827347106b8f7fb18661161458d74abbd5da84870dff843
     keywords:
     - nextjs
     - frontend
@@ -112,9 +112,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-07-12T09:14:04.665839526Z"
+    created: "2026-07-13T22:05:25.537769309Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 1295a412499aa64cdd7ce9c89f8350c13e4817c51f143a8119947b003b6617a3
+    digest: bb08de9e8009e7f50afcb4651869c8f766e6aa1d801e0a53b0dbd20a2500a3ac
     keywords:
     - outline
     - wiki
@@ -135,9 +135,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-12T09:14:04.666704802Z"
+    created: "2026-07-13T22:05:25.538588178Z"
     description: A helm chart for deploying a Symfony application
-    digest: 8bfede18ff61f1b5df64c0e623188ee89777fb6d7f70d8a787f8e7aa9331a411
+    digest: dcdcba411dad3d4fdd4cdef8731adec5adccfc449ba4e58de4b01406a3f82206
     keywords:
     - symfony
     - backend
@@ -155,6 +155,27 @@ entries:
     - https://charts.reddevs.io/symfony-1.3.4.tgz
     version: 1.3.4
   vite:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-07-13T22:05:25.539925155Z"
+    description: A Helm chart for Vite applications
+    digest: da553d94f902ea20a9060655ddf050681b905a7083666160bde2ef6da311e197
+    keywords:
+    - vite
+    - frontend
+    - javascript
+    - static
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
+    name: vite
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
+    type: application
+    urls:
+    - https://charts.reddevs.io/vite-1.7.0.tgz
+    version: 1.7.0
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2026-07-12T09:14:04.668018768Z"
@@ -221,12 +242,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-12T09:14:04.668774922Z"
+    created: "2026-07-13T22:05:25.541512679Z"
     description: A helm chart for deploying a Wordpress application
-    digest: dd537fd58af242a57a3cfbae439a3b2c172bfeb1afa153f87737d21f8c29791f
+    digest: 151caa2584157c663b0911f89bc104ccbad235eb555454ac9ccd2335fbb84735
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-07-12T09:14:04.658753414Z"
+generated: "2026-07-13T22:05:25.530946915Z"
