@@ -7,6 +7,11 @@ nameOverride: ""
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imageCredentials:
+  # When true (default) the chart renders the `container-registry-cred` Secret
+  # from the values below. Set to false to let something else own it (e.g. an
+  # External Secrets Operator ExternalSecret) — the chart then renders no
+  # registry Secret and you reference it via imagePullSecrets.
+  create: true
   registry: ""
   username: ""
   password: ""
@@ -33,6 +38,13 @@ imagePullSecrets: []
 env:
   normal: {}
   secret: {}
+  # When set, the app container, cronjob and initJob load ALL their secret env
+  # via `envFrom.secretRef` against this pre-existing Secret (typically produced
+  # by the External Secrets Operator) instead of per-key `env.secret` refs, and
+  # the chart's inline `env.secret` Secret is NOT rendered — so no secret values
+  # need to live in the Helm values. `env.normal` (non-secret config) still
+  # renders as individual configMapKeyRef entries.
+  existingSecret: ""
 
 externalSecrets:
   enabled: false

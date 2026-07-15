@@ -57,6 +57,7 @@ spec:
                       name: {{ $nextjsFullname }}-eso
                 {{- end }}
                 {{- end }}
+                {{- if not .Values.env.existingSecret }}
                 {{- range $key, $val := .Values.env.secret }}
                 - name: {{ $key }}
                   valueFrom:
@@ -64,6 +65,7 @@ spec:
                       key: {{ $key }}
                       name: {{ $nextjsFullname }}
                 {{- end}}
+                {{- end }}
                 {{- range $key, $val := .Values.env.normal }}
                 - name: {{ $key }}
                   valueFrom:
@@ -71,6 +73,11 @@ spec:
                       key: {{ $key }}
                       name: {{ $nextjsFullname }}
                 {{- end}}
+              {{- with .Values.env.existingSecret }}
+              envFrom:
+                - secretRef:
+                    name: {{ . }}
+              {{- end }}
               image: "{{ .Values.cronjob.image.repository }}:{{ .Values.cronjob.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: {{ .Values.cronjob.image.pullPolicy }}
               name: {{ .Chart.Name }}-cronjob

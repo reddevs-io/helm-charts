@@ -47,16 +47,11 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Create unified labels for nextjs components
+Create unified labels for nextjs components.
+Full label set (metadata + pod template). Keys kept alphabetically sorted for
+kube-linter's sorted-keys check.
 */}}
 {{- define "nextjs.labels" -}}
-{{ include "nextjs.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "nextjs.selectorLabels" -}}
 app: {{ template "nextjs.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -66,6 +61,20 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.component | quote }}
 helm.sh/chart: {{ include "nextjs.chart" . }}
+tier: {{ .Values.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels — STABLE identity only. Must NOT include version-bearing labels
+(helm.sh/chart, app.kubernetes.io/version): a Deployment's spec.selector is
+immutable and Service selectors must keep matching running pods, so a chart
+version bump must never change these. See the vite/generic charts for the same fix.
+*/}}
+{{- define "nextjs.selectorLabels" -}}
+app: {{ template "nextjs.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "nextjs.name" . }}
+component: {{ .Values.component | quote }}
 tier: {{ .Values.tier | quote }}
 {{- end }}
 
@@ -99,16 +108,9 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Create unified labels for redis components
+Create unified labels for redis components (full set, alphabetically sorted).
 */}}
 {{- define "nextjs.redis.labels" -}}
-{{ include "nextjs.redis.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "nextjs.redis.selectorLabels" -}}
 app: {{ template "nextjs.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -118,6 +120,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.redis.component | quote }}
 helm.sh/chart: {{ include "nextjs.chart" . }}
+tier: {{ .Values.redis.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels — STABLE identity only (no version-bearing labels).
+*/}}
+{{- define "nextjs.redis.selectorLabels" -}}
+app: {{ template "nextjs.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "nextjs.name" . }}
+component: {{ .Values.redis.component | quote }}
 tier: {{ .Values.redis.tier | quote }}
 {{- end }}
 
