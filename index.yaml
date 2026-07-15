@@ -3,9 +3,9 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-07-13T22:05:25.531858919Z"
+    created: "2026-07-15T17:55:22.833623169Z"
     description: A helm chart for deploying a generic application
-    digest: 865980769efabec7926567e07e2c3eb93d979683913dbd47afa697110115ef7b
+    digest: 0d552715b7c9b86cc528115186829363394218f5200c2c188d2e9a10482b43aa
     keywords:
     - generic
     - backend
@@ -46,9 +46,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-13T22:05:25.533016811Z"
+    created: "2026-07-15T17:55:22.834726879Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 4e72970c7ac040bd4a8f4215afbf22f359fc30cadce26c27c464b1ce3a6f2661
+    digest: 806d4116c155748bf5099b6fd61d214b377fa00219007714e8e52bc02ecad182
     keywords:
     - ghost
     - blog
@@ -68,9 +68,9 @@ entries:
   immich:
   - apiVersion: v2
     appVersion: release
-    created: "2026-07-13T22:05:25.53515768Z"
+    created: "2026-07-15T17:55:22.836169741Z"
     description: A Helm chart for deploying the Immich photo management platform
-    digest: ed15a8970fb9e41df836644aa1122d42b9df8e605db4c84887201aa4d5748b81
+    digest: eee27a9883ad1b84603516127a5c04cbc152e31b4c8afde067b408b5aa9b253f
     keywords:
     - immich
     - photos
@@ -88,6 +88,27 @@ entries:
     - https://charts.reddevs.io/immich-0.1.0.tgz
     version: 0.1.0
   nextjs:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-07-15T17:55:22.838238383Z"
+    description: A helm chart for deploying a Next.js application
+    digest: e7a941e8d3da9dbb53117ab37aa13bb7f4657c9a63c5461685669a3fe968cbb9
+    keywords:
+    - nextjs
+    - frontend
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
+    name: nextjs
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/nextjs
+    type: application
+    urls:
+    - https://charts.reddevs.io/nextjs-1.6.0.tgz
+    version: 1.6.0
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2026-07-13T22:05:25.536339077Z"
@@ -112,9 +133,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-07-13T22:05:25.537769309Z"
+    created: "2026-07-15T17:55:22.839718906Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: bb08de9e8009e7f50afcb4651869c8f766e6aa1d801e0a53b0dbd20a2500a3ac
+    digest: 8214634e5c5fe0c01c5d4e6d77369cd02d56f38a32671ac0c579eb31a7b6a78f
     keywords:
     - outline
     - wiki
@@ -135,9 +156,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-13T22:05:25.538588178Z"
+    created: "2026-07-15T17:55:22.84056765Z"
     description: A helm chart for deploying a Symfony application
-    digest: dcdcba411dad3d4fdd4cdef8731adec5adccfc449ba4e58de4b01406a3f82206
+    digest: b2cc6ebe411c63ff66d9c1dbe27e7febd54a0aa7330dba46bc8588196d1862fa
     keywords:
     - symfony
     - backend
@@ -157,9 +178,9 @@ entries:
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-13T22:05:25.539925155Z"
+    created: "2026-07-15T17:55:22.841868487Z"
     description: A Helm chart for Vite applications
-    digest: da553d94f902ea20a9060655ddf050681b905a7083666160bde2ef6da311e197
+    digest: ba23d9ddc215a66c1aa237eb8b491c9832470cc8fe5670ff9653923bd77f2a87
     keywords:
     - vite
     - frontend
@@ -242,12 +263,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-13T22:05:25.541512679Z"
+    created: "2026-07-15T17:55:22.842868483Z"
     description: A helm chart for deploying a Wordpress application
-    digest: 151caa2584157c663b0911f89bc104ccbad235eb555454ac9ccd2335fbb84735
+    digest: b1ed434cb0d4c233974107e2abaee3550838a2820f7bb4122df30d3aaaec8ff3
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-07-13T22:05:25.530946915Z"
+generated: "2026-07-15T17:55:22.832688896Z"
