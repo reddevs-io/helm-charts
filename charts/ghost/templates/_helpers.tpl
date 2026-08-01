@@ -126,7 +126,7 @@ Create the name of the service account to use
 */}}
 {{- define "ghost.redis.serviceAccountName" -}}
 {{- if .Values.redis.serviceAccount.create }}
-{{- default (include "ghost.redis.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "ghost.redis.fullname" .) .Values.redis.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.redis.serviceAccount.name }}
 {{- end }}

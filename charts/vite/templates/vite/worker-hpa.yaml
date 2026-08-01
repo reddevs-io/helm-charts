@@ -2,7 +2,10 @@
 {{- $viteName := include "vite.name" . -}}
 {{- $viteChart := include "vite.chart" . -}}
 {{- range .Values.workers }}
-{{- if and .enabled .autoscaling.enabled }}
+{{- /* `autoscaling` is optional per worker — default to an empty dict so an
+       omitted block reads as disabled instead of nil-dereferencing. */}}
+{{- $workerAutoscaling := .autoscaling | default dict -}}
+{{- if and .enabled $workerAutoscaling.enabled }}
 {{- $workerFullname := printf "%s-%s" $viteFullname .name -}}
 ---
 apiVersion: autoscaling/v2
@@ -21,25 +24,25 @@ metadata:
     tier: worker
   name: {{ $workerFullname }}
 spec:
-  maxReplicas: {{ .autoscaling.maxReplicas }}
+  maxReplicas: {{ $workerAutoscaling.maxReplicas }}
   metrics:
-    {{- if .autoscaling.targetCPUUtilizationPercentage }}
+    {{- if $workerAutoscaling.targetCPUUtilizationPercentage }}
     - resource:
         name: cpu
         target:
-          averageUtilization: {{ .autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ $workerAutoscaling.targetCPUUtilizationPercentage }}
           type: Utilization
       type: Resource
     {{- end }}
-    {{- if .autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if $workerAutoscaling.targetMemoryUtilizationPercentage }}
     - resource:
         name: memory
         target:
-          averageUtilization: {{ .autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ $workerAutoscaling.targetMemoryUtilizationPercentage }}
           type: Utilization
       type: Resource
     {{- end }}
-  minReplicas: {{ .autoscaling.minReplicas }}
+  minReplicas: {{ $workerAutoscaling.minReplicas }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment

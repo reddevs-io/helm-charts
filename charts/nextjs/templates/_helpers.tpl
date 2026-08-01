@@ -139,7 +139,7 @@ Create the name of the service account to use
 */}}
 {{- define "nextjs.redis.serviceAccountName" -}}
 {{- if .Values.redis.serviceAccount.create }}
-{{- default (include "nextjs.redis.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "nextjs.redis.fullname" .) .Values.redis.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.redis.serviceAccount.name }}
 {{- end }}

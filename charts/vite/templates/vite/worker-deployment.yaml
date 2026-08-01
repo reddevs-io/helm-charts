@@ -11,6 +11,9 @@
 {{- $workerImagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy -}}
 {{- $workerStrategy := .strategy | default dict -}}
 {{- $workerStrategyType := $workerStrategy.type | default "RollingUpdate" -}}
+{{- /* `autoscaling` is optional per worker — default to an empty dict so an
+       omitted block reads as disabled instead of nil-dereferencing. */}}
+{{- $workerAutoscaling := .autoscaling | default dict -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -33,7 +36,7 @@ metadata:
     tier: worker
   name: {{ $workerFullname }}
 spec:
-  {{- if not .autoscaling.enabled }}
+  {{- if not $workerAutoscaling.enabled }}
   replicas: {{ .replicaCount | default 1 }}
   {{- end }}
   selector:

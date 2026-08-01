@@ -106,15 +106,17 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "outline.postgres.serviceAccountName" . }}
-      {{- if .Values.database.ssl.enabled }}
+      {{- if or .Values.database.ssl.enabled .Values.postgres.volumes }}
       volumes:
+        {{- if .Values.database.ssl.enabled }}
         - name: database-ca-cert
           secret:
             defaultMode: 0444
             secretName: {{ include "outline.fullname" . }}-database-ca
-      {{- end }}
-      {{- with .Values.postgres.volumes }}
+        {{- end }}
+        {{- with .Values.postgres.volumes }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .Values.postgres.tolerations }}
       tolerations:
