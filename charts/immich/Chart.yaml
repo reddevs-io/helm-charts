@@ -4,7 +4,7 @@ description: "A Helm chart for deploying the Immich photo management platform"
 
 type: application
 
-version: 0.1.0
+version: 0.2.0
 
 appVersion: "release"
 

@@ -9,11 +9,16 @@
 {{- $workerImageRepo := $img.repository | default $.Values.image.repository -}}
 {{- $workerImageTag := $img.tag | default $.Values.image.tag | default $.Chart.AppVersion -}}
 {{- $workerImagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy -}}
+{{- $workerStrategy := .strategy | default dict -}}
+{{- $workerStrategyType := $workerStrategy.type | default "RollingUpdate" -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    {{- if ne $workerStrategyType "RollingUpdate" }}
+    ignore-check.kube-linter.io/no-rolling-update-strategy: "Recreate is required for ReadWriteOnce PVCs: a RollingUpdate surge pod deadlocks on volume attach"
+    {{- end }}
     reloader.stakater.com/auto: "true"
   labels:
     app: {{ $viteName }}
@@ -41,10 +46,13 @@ spec:
       component: "worker-{{ .name }}"
       tier: worker
   strategy:
+    {{- if eq $workerStrategyType "RollingUpdate" }}
+    # rollingUpdate parameters are only valid (and only rendered) for the
+    # RollingUpdate type — the API server rejects them alongside Recreate.
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+      {{- toYaml ($workerStrategy.rollingUpdate | default (dict "maxSurge" 1 "maxUnavailable" 0)) | nindent 6 }}
+    {{- end }}
+    type: {{ $workerStrategyType }}
   template:
     metadata:
       {{- with .podAnnotations }}

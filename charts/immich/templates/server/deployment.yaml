@@ -5,6 +5,9 @@ metadata:
   annotations:
     ignore-check.kube-linter.io/env-value-from: "ESO generates this secret at runtime"
     ignore-check.kube-linter.io/no-read-only-root-fs: "Immich server needs write access to /data for uploads"
+    {{- if ne .Values.server.strategy.type "RollingUpdate" }}
+    ignore-check.kube-linter.io/no-rolling-update-strategy: "Recreate is required for ReadWriteOnce PVCs: a RollingUpdate surge pod deadlocks on volume attach"
+    {{- end }}
     ignore-check.kube-linter.io/run-as-non-root: "Immich server requires root permissions"
     reloader.stakater.com/auto: "true"
   labels:
@@ -18,10 +21,13 @@ spec:
     matchLabels:
       {{- include "immich.server.selectorLabels" . | nindent 6 }}
   strategy:
+    {{- if eq .Values.server.strategy.type "RollingUpdate" }}
+    # rollingUpdate parameters are only valid (and only rendered) for the
+    # RollingUpdate type — the API server rejects them alongside Recreate.
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+      {{- toYaml .Values.server.strategy.rollingUpdate | nindent 6 }}
+    {{- end }}
+    type: {{ .Values.server.strategy.type }}
   template:
     metadata:
       {{- with .Values.server.podAnnotations }}

@@ -15,6 +15,14 @@ server:
 
   replicaCount: 1
 
+  # Update strategy for this component. Set `type: Recreate` if it mounts a
+  # ReadWriteOnce PVC — the default RollingUpdate deadlocks on RWO volume attach.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   image:
     repository: "ghcr.io/immich-app/immich-server"
     pullPolicy: IfNotPresent
@@ -155,6 +163,14 @@ machineLearning:
 
   replicaCount: 1
 
+  # Update strategy for this component. Set `type: Recreate` if it mounts a
+  # ReadWriteOnce PVC — the default RollingUpdate deadlocks on RWO volume attach.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   image:
     repository: "ghcr.io/immich-app/immich-machine-learning"
     pullPolicy: IfNotPresent
@@ -278,6 +294,14 @@ redis:
 
   replicaCount: 1
 
+  # Update strategy for this component. Set `type: Recreate` if it mounts a
+  # ReadWriteOnce PVC — the default RollingUpdate deadlocks on RWO volume attach.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   image:
     repository: "valkey/valkey"
     pullPolicy: IfNotPresent
@@ -379,6 +403,14 @@ database:
   fullnameOverride: ""
 
   replicaCount: 1
+
+  # Update strategy for this component. Set `type: Recreate` if it mounts a
+  # ReadWriteOnce PVC — the default RollingUpdate deadlocks on RWO volume attach.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
 
   image:
     repository: "ghcr.io/immich-app/postgres"

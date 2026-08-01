@@ -5,6 +5,9 @@ metadata:
   annotations:
     ignore-check.kube-linter.io/env-value-from: "Secret is created by ExternalSecret operator at runtime"
     ignore-check.kube-linter.io/no-read-only-root-fs: "Because wordpress... 🙄"
+    {{- if ne .Values.strategy.type "RollingUpdate" }}
+    ignore-check.kube-linter.io/no-rolling-update-strategy: "Recreate is required for ReadWriteOnce PVCs: a RollingUpdate surge pod deadlocks on volume attach"
+    {{- end }}
     ignore-check.kube-linter.io/privileged-ports: "Official wordpress docker image uses port 80 by default, without an easy way to change it"
     ignore-check.kube-linter.io/run-as-non-root: "Because wordpress... 🙄"
     reloader.stakater.com/auto: "true"
@@ -19,10 +22,13 @@ spec:
     matchLabels:
       {{- include "wordpress.selectorLabels" . | nindent 6 }}
   strategy:
+    {{- if eq .Values.strategy.type "RollingUpdate" }}
+    # rollingUpdate parameters are only valid (and only rendered) for the
+    # RollingUpdate type — the API server rejects them alongside Recreate.
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+      {{- toYaml .Values.strategy.rollingUpdate | nindent 6 }}
+    {{- end }}
+    type: {{ .Values.strategy.type }}
   template:
     metadata:
       annotations:

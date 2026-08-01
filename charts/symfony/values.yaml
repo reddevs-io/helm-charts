@@ -19,6 +19,17 @@ tier: "backend"
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
+# Deployment update strategy. The default RollingUpdate (surge 1, unavailable 0)
+# gives zero-downtime rollouts, but DEADLOCKS with ReadWriteOnce persistence:
+# the surge pod can't attach the volume while the old pod holds it
+# (Multi-Attach error, stuck in ContainerCreating). For apps mounting RWO PVCs
+# set `strategy.type: Recreate` so the old pod releases the volume first.
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: ""

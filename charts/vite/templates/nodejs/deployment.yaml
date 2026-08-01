@@ -4,6 +4,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    {{- if ne .Values.nodejs.strategy.type "RollingUpdate" }}
+    ignore-check.kube-linter.io/no-rolling-update-strategy: "Recreate is required for ReadWriteOnce PVCs: a RollingUpdate surge pod deadlocks on volume attach"
+    {{- end }}
     reloader.stakater.com/auto: "true"
   labels:
     {{- include "vite.nodejs.labels" . | nindent 4 }}
@@ -16,10 +19,13 @@ spec:
     matchLabels:
       {{- include "vite.nodejs.selectorLabels" . | nindent 6 }}
   strategy:
+    {{- if eq .Values.nodejs.strategy.type "RollingUpdate" }}
+    # rollingUpdate parameters are only valid (and only rendered) for the
+    # RollingUpdate type — the API server rejects them alongside Recreate.
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-    type: RollingUpdate
+      {{- toYaml .Values.nodejs.strategy.rollingUpdate | nindent 6 }}
+    {{- end }}
+    type: {{ .Values.nodejs.strategy.type }}
   template:
     metadata:
       {{- with .Values.nodejs.podAnnotations }}
