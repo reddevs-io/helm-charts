@@ -1,14 +1,16 @@
-{{- /* Only render when a registry is actually configured. Without this guard the
-       chart emits a dockerconfigjson Secret holding empty credentials on every
-       install, which collides with any real one in the same namespace. */}}
-{{- if .Values.imageCredentials.registry }}
+{{- /* Only render when the chart owns the credentials AND a registry is actually
+       configured. Without the registry guard the chart emits a dockerconfigjson
+       Secret holding empty credentials on every install, which collides with any
+       real one in the same namespace; `create: false` hands ownership of the
+       Secret to an external controller (e.g. External Secrets Operator).
+       No helm.sh/hook here: ghost renders no init Job, so hooking this Secret
+       would only hide it from `helm template`/GitOps diffing for no benefit. */}}
+{{- if and .Values.imageCredentials.create .Values.imageCredentials.registry }}
 apiVersion: v1
 data:
   .dockerconfigjson: {{ template "imagePullSecret" . }}
 kind: Secret
 metadata:
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     {{- include "ghost.labels" . | nindent 4 }}
   name: container-registry-cred

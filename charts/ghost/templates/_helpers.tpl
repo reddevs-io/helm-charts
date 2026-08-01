@@ -16,8 +16,10 @@ Create chart name and version as used by the chart label.
 Create a docker registry secret
 */}}
 {{- define "imagePullSecret" }}
+{{- if .Values.imageCredentials.create }}
 {{- with .Values.imageCredentials }}
 {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -47,16 +49,12 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Create unified labels for ghost components
+Common labels — full label set for resource metadata and pod templates.
+A superset of the selector labels: it additionally carries the version-bearing
+labels (helm.sh/chart, app.kubernetes.io/version) and managed-by, which must
+NOT appear in a selector.
 */}}
 {{- define "ghost.labels" -}}
-{{ include "ghost.selectorLabels" . }}
-{{- end -}}
-
-{{/*
-Selector labels
-*/}}
-{{- define "ghost.selectorLabels" -}}
 {{ include "ghost.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -66,6 +64,20 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.component | quote }}
 helm.sh/chart: {{ include "ghost.chart" . }}
+tier: {{ .Values.tier | quote }}
+{{- end -}}
+
+{{/*
+Selector labels — MUST stay version-stable. The Deployment's spec.selector is
+immutable and the Service selector must keep matching running pods across a
+chart-version bump, so only stable identity labels belong here — never
+version-bearing ones (helm.sh/chart, app.kubernetes.io/version) or managed-by.
+*/}}
+{{- define "ghost.selectorLabels" -}}
+{{ include "ghost.common.selectorLabels" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "ghost.name" . }}
+component: {{ .Values.component | quote }}
 tier: {{ .Values.tier | quote }}
 {{- end -}}
 
@@ -99,16 +111,10 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
-Create unified labels for redis components
+Create unified labels for redis components — full label set for resource
+metadata and pod templates (superset of the redis selector labels).
 */}}
 {{- define "ghost.redis.labels" -}}
-{{ include "ghost.redis.selectorLabels" . }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "ghost.redis.selectorLabels" -}}
 {{ include "ghost.common.selectorLabels" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -118,6 +124,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 component: {{ .Values.redis.component | quote }}
 helm.sh/chart: {{ include "ghost.chart" . }}
+tier: {{ .Values.redis.tier | quote }}
+{{- end }}
+
+{{/*
+Selector labels for redis — MUST stay version-stable (see ghost.selectorLabels).
+*/}}
+{{- define "ghost.redis.selectorLabels" -}}
+{{ include "ghost.common.selectorLabels" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "ghost.name" . }}
+component: {{ .Values.redis.component | quote }}
 tier: {{ .Values.redis.tier | quote }}
 {{- end }}
 
