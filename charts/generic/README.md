@@ -47,6 +47,7 @@ The following categories of parameters are available. See `values.yaml` for comp
 * **Name overrides**: `nameOverride`, `fullnameOverride`
 * **Labels**: `component`, `tier`
 * **Replica settings**: `replicaCount`
+* **Update strategy**: `strategy.type`, `strategy.rollingUpdate` (use `strategy.type: Recreate` for apps mounting ReadWriteOnce PVCs — the default RollingUpdate deadlocks on RWO volume attach)
 * **Container image**: `image.repository`, `image.tag`, `image.pullPolicy`
 * **Credentials & pull secrets**: `imageCredentials`, `imagePullSecrets`
 * **Environment variables**: `env.normal`, `env.secret`
