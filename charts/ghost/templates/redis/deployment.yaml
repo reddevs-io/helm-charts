@@ -43,8 +43,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - {{- if or .Values.redis.env.normal .Values.redis.env.secret }}
+        - {{- if or .Values.redis.env.normal (and .Values.redis.env.secret (not .Values.redis.env.existingSecret)) }}
           env:
+          {{- if not .Values.redis.env.existingSecret }}
           {{- range $key, $val := .Values.redis.env.secret }}
             - name: {{ $key }}
               valueFrom:
@@ -52,6 +53,7 @@ spec:
                   key: {{ $key }}
                   name: {{ $redisFullname }}
           {{- end}}
+          {{- end }}
           {{- range $key, $val := .Values.redis.env.normal }}
             - name: {{ $key }}
               valueFrom:
@@ -59,6 +61,11 @@ spec:
                   key: {{ $key }}
                   name: {{ $redisFullname }}
           {{- end}}
+          {{- end }}
+          {{- if .Values.redis.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.redis.env.existingSecret }}
           {{- end }}
           image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.redis.image.pullPolicy }}

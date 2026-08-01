@@ -45,7 +45,7 @@ spec:
       {{- end }}
       containers:
         -
-          {{- if or .Values.env.normal .Values.env.secret (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
+          {{- if or .Values.env.normal (and .Values.env.secret (not .Values.env.existingSecret)) (and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data) }}
           env:
           {{- if and .Values.externalSecrets.enabled .Values.externalSecrets.awsProvider.enabled .Values.externalSecrets.data }}
           {{- range .Values.externalSecrets.data }}
@@ -56,6 +56,7 @@ spec:
                   name: {{ $ghostFullname }}-eso
           {{- end }}
           {{- end }}
+          {{- if not .Values.env.existingSecret }}
           {{- range $key, $val := .Values.env.secret }}
             - name: {{ $key }}
               valueFrom:
@@ -63,6 +64,7 @@ spec:
                   key: {{ $key }}
                   name: {{ $ghostFullname }}
           {{- end}}
+          {{- end }}
           {{- range $key, $val := .Values.env.normal }}
             - name: {{ $key }}
               valueFrom:
@@ -70,6 +72,11 @@ spec:
                   key: {{ $key }}
                   name: {{ $ghostFullname }}
           {{- end}}
+          {{- end }}
+          {{- if .Values.env.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.env.existingSecret }}
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}

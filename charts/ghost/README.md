@@ -39,6 +39,28 @@ helm upgrade my-ghost reddevs/ghost
 
 Review the [Helm upgrade guide](https://helm.sh/docs/helm/helm_upgrade/) for details on upgrading in-place.
 
+#### Upgrading to 1.5.0 — breaking selector change
+
+Before 1.5.0 the Deployment and Service selectors included the version-bearing
+labels `helm.sh/chart` and `app.kubernetes.io/version` plus
+`app.kubernetes.io/managed-by`. Every chart-version bump therefore rewrote the
+Deployment's `spec.selector`, which Kubernetes treats as **immutable** — the
+upgrade fails with `field is immutable`. 1.5.0 narrows the selector to the stable
+identity labels (`app`, `app.kubernetes.io/instance`, `app.kubernetes.io/name`,
+`component`, `tier`) and keeps the full label set on resource metadata and pod
+templates.
+
+Existing releases must have their Deployments replaced once on the way to 1.5.0:
+
+```bash
+kubectl delete deployment my-ghost --cascade=orphan   # and my-ghost-redis if enabled
+helm upgrade my-ghost reddevs/ghost
+```
+
+(`--cascade=orphan` keeps the running pods alive until the new Deployment adopts
+them.) Under ArgoCD, either delete the Deployment the same way before the first
+sync or let Argo replace it (`Replace=true` sync option) for that one sync.
+
 ### Uninstalling the Chart
 
 ```bash
@@ -64,12 +86,17 @@ The following table lists the configurable parameters of the Ghost chart and the
 | `image.tag`                                     | Ghost image tag                                             | `5-alpine`                                          |
 | `image.pullPolicy`                              | Image pull policy                                           | `IfNotPresent`                                      |
 | `imagePullSecrets`                              | Image pull secrets                                          | `[]`                                                |
-| `imageCredentials.registry`                     | Private registry URL                                        | `""`                                                |
+| `imageCredentials.create`                       | Render the `container-registry-cred` Secret from the values below. Set `false` to let an external controller (e.g. ESO) own it | `true`            |
+| `imageCredentials.registry`                     | Private registry URL (also gates the Secret: empty ⇒ not rendered) | `""`                                         |
 | `imageCredentials.username`                     | Private registry username                                   | `""`                                                |
 | `imageCredentials.password`                     | Private registry password                                   | `""`                                                |
 | `imageCredentials.email`                        | Private registry email                                      | `""`                                                |
-| `env.normal`                                    | Array of normal environment variables                       | `[]`                                                |
-| `env.secret`                                    | Array of secret environment variables                       | `[]`                                                |
+| `strategy.type`                                 | Deployment update strategy (`RollingUpdate` or `Recreate`) — use `Recreate` with ReadWriteOnce PVCs | `RollingUpdate`             |
+| `strategy.rollingUpdate.maxSurge`               | Max surge (only rendered for `RollingUpdate`)               | `1`                                                 |
+| `strategy.rollingUpdate.maxUnavailable`         | Max unavailable (only rendered for `RollingUpdate`)         | `0`                                                 |
+| `env.normal`                                    | Map of plain environment variables (rendered into a ConfigMap) | `{}`                                             |
+| `env.secret`                                    | Map of secret environment variables (rendered into a Secret) | `{}`                                               |
+| `env.existingSecret`                            | Name of a pre-existing Secret to load env vars from via `envFrom.secretRef`. When set, the chart renders no env Secret | `""`      |
 | `serviceAccount.create`                         | Create ServiceAccount                                       | `true`                                              |
 | `serviceAccount.name`                           | Name of the ServiceAccount                                  | generated                                           |
 | `serviceAccount.automount`                      | Automount SA token                                          | `false`                                             |
@@ -164,8 +191,10 @@ The following table lists the configurable parameters of the Ghost chart and the
 | `redis.image.tag`                               | Redis image tag                                             | `8-alpine`                                          |
 | `redis.image.pullPolicy`                        | Redis image pull policy                                     | `IfNotPresent`                                      |
 | `redis.imagePullSecrets`                        | Redis image pull secrets                                    | `[]`                                                |
-| `redis.env.normal`                              | Redis normal environment variables                          | `[]`                                                |
-| `redis.env.secret`                              | Redis secret environment variables                          | `[]`                                                |
+| `redis.strategy.type`                           | Redis update strategy (`RollingUpdate` or `Recreate`)       | `RollingUpdate`                                     |
+| `redis.env.normal`                              | Redis plain environment variables                           | `{}`                                                |
+| `redis.env.secret`                              | Redis secret environment variables                          | `{}`                                                |
+| `redis.env.existingSecret`                      | Pre-existing Secret for Redis env vars (see `env.existingSecret`) | `""`                                          |
 | `redis.serviceAccount.create`                   | Create Redis ServiceAccount                                 | `true`                                              |
 | `redis.serviceAccount.automount`                | Automount Redis SA token                                    | `false`                                             |
 | `redis.serviceAccount.annotations`              | Redis ServiceAccount annotations                            | `{}`                                                |
@@ -208,22 +237,35 @@ A dedicated ServiceAccount (`{{ .Release.Name }}-ghost`) is created with `automo
 
 ### Environment Variables
 
-Define environment variables using arrays in values:
+Environment variables are declared as plain key/value maps. `env.normal` entries
+are rendered into a ConfigMap, `env.secret` entries into a Secret, and both are
+wired into the container via `configMapKeyRef` / `secretKeyRef`:
 
 ```yaml
 env:
   normal:
-    - name: NODE_ENV
-      value: "production"
-    - name: url
-      value: "https://blog.example.com"
+    NODE_ENV: "production"
+    url: "https://blog.example.com"
   secret:
-    - name: database__connection__password
-      valueFrom:
-        secretKeyRef:
-          name: ghost-secrets
-          key: db-password
+    database__connection__password: "s3cr3t"
 ```
+
+#### Using an existing Secret (GitOps / External Secrets)
+
+Set `env.existingSecret` to the name of a Secret that already exists in the
+namespace — typically one produced by the External Secrets Operator or Vault, so
+no secret material ever lands in Git. The chart then renders **no** env Secret of
+its own and instead loads every key of that Secret via `envFrom.secretRef`:
+
+```yaml
+env:
+  normal:
+    NODE_ENV: "production"
+  existingSecret: reddevs-blog-ghost
+```
+
+`env.secret` is ignored while `existingSecret` is set. The same switch exists for
+the Redis component as `redis.env.existingSecret`.
 
 ### External Secrets Operator
 
@@ -265,6 +307,8 @@ The External Secrets Operator will:
 
 If `persistence.enabled=true`, a PVC is created to store Ghost content under `/var/lib/ghost/content`. This ensures your blog posts, images, and themes persist across pod restarts.
 
+The generated PVC carries `helm.sh/resource-policy: keep`, so neither a `helm uninstall` nor an ArgoCD prune deletes the data volume — detach it explicitly if you really intend to reclaim the storage. Because the default access mode is `ReadWriteOnce`, set `strategy.type: Recreate` as well: a `RollingUpdate` surge pod deadlocks trying to attach a volume the old pod still holds.
+
 Example with existing claim:
 
 ```yaml
@@ -288,7 +332,7 @@ persistence:
 * Uses `ghost:5-alpine` by default to serve Ghost content; adjust `image.repository` and `image.tag` as needed.
 * Security context drops all capabilities, runs as non-root user `1000`.
 * Probes configured using `wget` commands with `X-Forwarded-Proto` header for liveness/readiness checks.
-* Rolling update strategy: `maxSurge=1`, `maxUnavailable=0`.
+* Update strategy is configurable via `strategy`; it defaults to `RollingUpdate` with `maxSurge=1`, `maxUnavailable=0`. The `rollingUpdate` block is only emitted for the `RollingUpdate` type — `strategy.type: Recreate` renders `strategy: {type: Recreate}` alone.
 * Default volumes include a node-cache emptyDir mounted at `/home/node/.cache` for npm caching.
 
 ### Horizontal Pod Autoscaler
@@ -342,10 +386,8 @@ redis:
       memory: "512Mi"
   env:
     normal:
-      - name: REDIS_MAXMEMORY
-        value: "256mb"
-      - name: REDIS_MAXMEMORY_POLICY
-        value: "allkeys-lru"
+      REDIS_MAXMEMORY: "256mb"
+      REDIS_MAXMEMORY_POLICY: "allkeys-lru"
 ```
 
 To connect Ghost to Redis, configure Ghost's environment variables:
@@ -353,17 +395,14 @@ To connect Ghost to Redis, configure Ghost's environment variables:
 ```yaml
 env:
   normal:
-    - name: adapters__cache__Redis
-      value: "true"
-    - name: adapters__cache__Redis__host
-      value: "{{ .Release.Name }}-redis"
-    - name: adapters__cache__Redis__port
-      value: "6379"
+    adapters__cache__Redis: "true"
+    adapters__cache__Redis__host: "my-ghost-redis"
+    adapters__cache__Redis__port: "6379"
 ```
 
 ### Container Registry Credentials
 
-A pre-install hook creates a `dockerconfigjson` secret (`container-registry-cred`) for pulling private images. Provide `imageCredentials` or manually create `imagePullSecrets`.
+The chart renders a `dockerconfigjson` Secret named `container-registry-cred` for pulling private images. It is only emitted when **both** `imageCredentials.create` is `true` (the default) and `imageCredentials.registry` is non-empty — so a chart install with no registry configured never creates an empty-credential Secret that would collide with a real one in the namespace.
 
 ```yaml
 imageCredentials:
@@ -375,6 +414,16 @@ imageCredentials:
 # Or reference existing secret:
 imagePullSecrets:
   - name: my-existing-registry-secret
+```
+
+Set `imageCredentials.create: false` when the Secret is owned by something else (External Secrets Operator, a sealed secret, or a manually-created one). The chart then renders no credentials at all and simply references the Secret through `imagePullSecrets`:
+
+```yaml
+imageCredentials:
+  create: false
+
+imagePullSecrets:
+  - name: container-registry-cred
 ```
 
 ## Customizing the Chart
