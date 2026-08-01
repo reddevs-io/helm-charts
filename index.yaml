@@ -3,6 +3,27 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.2.0
+    created: "2026-08-01T09:26:56.336483305Z"
+    description: A helm chart for deploying a generic application
+    digest: c0ad0cf87a3bc49a19c0d50a3179f0dcb8b971dd77b978ef35f9e50d643e61a1
+    keywords:
+    - generic
+    - backend
+    - kubernetes
+    - helm
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://reddevs.io
+    name: generic
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/generic
+    type: application
+    urls:
+    - https://charts.reddevs.io/generic-1.4.0.tgz
+    version: 1.4.0
+  - apiVersion: v2
+    appVersion: 1.2.0
     created: "2026-07-15T17:55:22.833623169Z"
     description: A helm chart for deploying a generic application
     digest: 0d552715b7c9b86cc528115186829363394218f5200c2c188d2e9a10482b43aa
@@ -46,9 +67,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-15T17:55:22.834726879Z"
+    created: "2026-08-01T09:26:56.337608258Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 806d4116c155748bf5099b6fd61d214b377fa00219007714e8e52bc02ecad182
+    digest: 50b84769ab88bf27b050b0258fcb00a00f64a7c42d11befba131a465b79cb8ec
     keywords:
     - ghost
     - blog
@@ -68,9 +89,9 @@ entries:
   immich:
   - apiVersion: v2
     appVersion: release
-    created: "2026-07-15T17:55:22.836169741Z"
+    created: "2026-08-01T09:26:56.339030837Z"
     description: A Helm chart for deploying the Immich photo management platform
-    digest: eee27a9883ad1b84603516127a5c04cbc152e31b4c8afde067b408b5aa9b253f
+    digest: 2485ba9e50d46a97e3bcc542b6161c2e2d6b753a9e25c2337aa1f4c4fd1001f1
     keywords:
     - immich
     - photos
@@ -90,9 +111,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-15T17:55:22.838238383Z"
+    created: "2026-08-01T09:26:56.340221812Z"
     description: A helm chart for deploying a Next.js application
-    digest: e7a941e8d3da9dbb53117ab37aa13bb7f4657c9a63c5461685669a3fe968cbb9
+    digest: 5eeb4eb863ac89c0fdb875e460fefb80d31601227b38009bb881e2b1be6e04b1
     keywords:
     - nextjs
     - frontend
@@ -133,9 +154,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-07-15T17:55:22.839718906Z"
+    created: "2026-08-01T09:26:56.341906661Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 8214634e5c5fe0c01c5d4e6d77369cd02d56f38a32671ac0c579eb31a7b6a78f
+    digest: 51acc578b607a5af0d7bdbaf1e7c0e85d34854aded62e7f246cf75aa69430954
     keywords:
     - outline
     - wiki
@@ -156,9 +177,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-15T17:55:22.84056765Z"
+    created: "2026-08-01T09:26:56.343254102Z"
     description: A helm chart for deploying a Symfony application
-    digest: b2cc6ebe411c63ff66d9c1dbe27e7febd54a0aa7330dba46bc8588196d1862fa
+    digest: d36ab814003fde308ff66a015dbe441e42d70609a22108d9d0cddd6736a19b6e
     keywords:
     - symfony
     - backend
@@ -178,9 +199,9 @@ entries:
   vite:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-15T17:55:22.841868487Z"
+    created: "2026-08-01T09:26:56.344564602Z"
     description: A Helm chart for Vite applications
-    digest: ba23d9ddc215a66c1aa237eb8b491c9832470cc8fe5670ff9653923bd77f2a87
+    digest: 984d01d5bb17ddf20c51edd1ee04fac5f0b3441e37e3ce9c3fae864579fbe78c
     keywords:
     - vite
     - frontend
@@ -263,12 +284,12 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-07-15T17:55:22.842868483Z"
+    created: "2026-08-01T09:26:56.345311588Z"
     description: A helm chart for deploying a Wordpress application
-    digest: b1ed434cb0d4c233974107e2abaee3550838a2820f7bb4122df30d3aaaec8ff3
+    digest: befcd1015ae6ba6cdc3e1c80383811cf58b09d4490d1da13665ae880ead25aac
     name: wordpress
     type: application
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-07-15T17:55:22.832688896Z"
+generated: "2026-08-01T09:26:56.335493054Z"
