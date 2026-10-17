@@ -6,7 +6,7 @@
        omitted block reads as disabled instead of nil-dereferencing. */}}
 {{- $workerAutoscaling := .autoscaling | default dict -}}
 {{- if and .enabled $workerAutoscaling.enabled }}
-{{- $workerFullname := printf "%s-%s" $viteFullname .name -}}
+{{- $workerFullname := printf "%s-%s" $viteFullname .name }}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

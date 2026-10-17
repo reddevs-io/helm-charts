@@ -13,7 +13,7 @@
 {{- $workerStrategyType := $workerStrategy.type | default "RollingUpdate" -}}
 {{- /* `autoscaling` is optional per worker — default to an empty dict so an
        omitted block reads as disabled instead of nil-dereferencing. */}}
-{{- $workerAutoscaling := .autoscaling | default dict -}}
+{{- $workerAutoscaling := .autoscaling | default dict }}
 ---
 apiVersion: apps/v1
 kind: Deployment
