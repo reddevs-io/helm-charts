@@ -3,9 +3,9 @@ entries:
   generic:
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-08-01T16:03:12.061924897Z"
+    created: "2026-10-17T08:27:50.059710928Z"
     description: A helm chart for deploying a generic application
-    digest: 63115f4400d5473b06101702b6a8e7c06ac43c5cee3b96373d52099933045ddd
+    digest: 7c62ae792d69609dc3cdd344bfc47eb8d846fdb8e6f700b9f8203c8988dfb973
     keywords:
     - generic
     - backend
@@ -67,9 +67,9 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-08-01T16:03:12.062933654Z"
+    created: "2026-10-17T08:27:50.060463287Z"
     description: A Helm chart for deploying the Ghost blogging platform
-    digest: 4e2fd3f3e92877bfd7ecac6b6285f8e4e53af17b68c640d07526f2a4676e98e5
+    digest: a59b8506657504a6e600ae2f693add70bfdd527290c37a498c84d66c1820c5fa
     keywords:
     - ghost
     - blog
@@ -152,9 +152,9 @@ entries:
   immich:
   - apiVersion: v2
     appVersion: release
-    created: "2026-08-01T16:03:12.064082153Z"
+    created: "2026-10-17T08:27:50.061349688Z"
     description: A Helm chart for deploying the Immich photo management platform
-    digest: e59d36d779703c92190e66cdfc2c24d92a74757b4d6da9a93ec59aeb55d94573
+    digest: 9a288fbac57e51ee5e444a2674d761f75e3385dbf69b2ee92915528144b725a4
     keywords:
     - immich
     - photos
@@ -216,9 +216,9 @@ entries:
   nextjs:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-08-01T16:03:12.065288679Z"
+    created: "2026-10-17T08:27:50.062108046Z"
     description: A helm chart for deploying a Next.js application
-    digest: 72088959f2bfd87b99a742652a29fb44d1a2d4ee0515e84840196f2a49f4cb0a
+    digest: c8fc9fbb151790bfc52ceb3443a62b40c75d66aa49e5888d28509e3a9b936787
     keywords:
     - nextjs
     - frontend
@@ -301,9 +301,9 @@ entries:
   outline:
   - apiVersion: v2
     appVersion: 0.87.4
-    created: "2026-08-01T16:03:12.066797589Z"
+    created: "2026-10-17T08:27:50.063034736Z"
     description: A Helm chart for deploying Outline wiki platform
-    digest: 99ec4eaadd791c999e9e089d335de11b1f7ab4b6c011f5df35ddf18576ba92db
+    digest: 797cedace0077b03b9d5f2e3196c909343d887edc7dfa3c636bf3ae858000107
     keywords:
     - outline
     - wiki
@@ -368,9 +368,9 @@ entries:
   symfony:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-08-01T16:03:12.067551971Z"
+    created: "2026-10-17T08:27:50.063561327Z"
     description: A helm chart for deploying a Symfony application
-    digest: dc70e605e02a590cbc03db89560f39ee4c11b422b95cac2caf5adcfbaec934a8
+    digest: 272d0d62f9dd484a2a7d32494ee02ff822d6660987329b0b5d49abf207203958
     keywords:
     - symfony
     - backend
@@ -430,6 +430,27 @@ entries:
     - https://charts.reddevs.io/symfony-1.3.4.tgz
     version: 1.3.4
   vite:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-10-17T08:27:50.065111583Z"
+    description: A Helm chart for Vite applications
+    digest: 0987e90603e0bb1abeba2139707f39f1ac04c4123796d28be313a789f024f2ce
+    keywords:
+    - vite
+    - frontend
+    - javascript
+    - static
+    maintainers:
+    - email: francis@reddevs.io
+      name: Francis Makokha
+      url: https://blog.reddevs.io
+    name: vite
+    sources:
+    - https://github.com/reddevs-io/helm-charts/tree/main/charts/vite
+    type: application
+    urls:
+    - https://charts.reddevs.io/vite-1.8.2.tgz
+    version: 1.8.2
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2026-08-01T16:03:12.068629081Z"
@@ -559,9 +580,9 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-08-01T16:03:12.069259776Z"
+    created: "2026-10-17T08:27:50.065632224Z"
     description: A helm chart for deploying a Wordpress application
-    digest: b84308a8e706e02de9f40a1119e631d01f04e5058bef01d1c691bcbd98daad2e
+    digest: 595faa857eef0923ad264a64744d0819c0aa6f70d45442751bb913b1287ed658
     name: wordpress
     type: application
     urls:
@@ -587,4 +608,4 @@ entries:
     urls:
     - https://charts.reddevs.io/wordpress-1.3.2.tgz
     version: 1.3.2
-generated: "2026-08-01T16:03:12.061148982Z"
+generated: "2026-10-17T08:27:50.058993121Z"
