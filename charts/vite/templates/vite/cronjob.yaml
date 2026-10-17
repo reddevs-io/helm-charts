@@ -8,7 +8,7 @@
 {{- $img := .image | default dict -}}
 {{- $imageRepo := $img.repository | default $.Values.image.repository -}}
 {{- $imageTag := $img.tag | default $.Values.image.tag | default $.Chart.AppVersion -}}
-{{- $imagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy -}}
+{{- $imagePullPolicy := $img.pullPolicy | default $.Values.image.pullPolicy }}
 ---
 apiVersion: batch/v1
 kind: CronJob
