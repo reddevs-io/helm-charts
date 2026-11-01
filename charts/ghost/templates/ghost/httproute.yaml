@@ -1,0 +1,71 @@
+{{- if .Values.gatewayApi.enabled -}}
+{{- if not .Values.gatewayApi.httpRoute.parentRefs }}
+{{- fail "gatewayApi.httpRoute.parentRefs must contain at least one reference" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  {{- with .Values.gatewayApi.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "ghost.labels" . | nindent 4 }}
+  name: {{ include "ghost.fullname" . }}
+spec:
+  {{- if .Values.gatewayApi.httpRoute.hostnames }}
+  hostnames:
+    {{- range .Values.gatewayApi.httpRoute.hostnames }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  parentRefs:
+    {{- range .Values.gatewayApi.httpRoute.parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .port }}
+      port: {{ .port }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+    {{- end }}
+  rules:
+    {{- range .Values.gatewayApi.httpRoute.rules }}
+    {{- /*
+    A rule may set any HTTPRouteRule field (matches, filters, timeouts,
+    name, ...); non-empty fields are passed through as written. backendRefs
+    defaults to the chart's Service unless the rule sets its own, or has a
+    RequestRedirect filter, which the Gateway API forbids combining with
+    backendRefs.
+    */}}
+    {{- $rule := dict }}
+    {{- range $key, $value := omit . "backendRefs" }}
+    {{- if not (empty $value) }}
+    {{- $_ := set $rule $key $value }}
+    {{- end }}
+    {{- end }}
+    {{- $redirect := false }}
+    {{- range .filters }}
+    {{- if eq (toString .type) "RequestRedirect" }}
+    {{- $redirect = true }}
+    {{- end }}
+    {{- end }}
+    {{- if .backendRefs }}
+    {{- $_ := set $rule "backendRefs" .backendRefs }}
+    {{- else if not $redirect }}
+    {{- $_ := set $rule "backendRefs" (list (dict "name" (include "ghost.fullname" $) "port" ($.Values.gatewayApi.httpRoute.backendPort | default $.Values.service.port))) }}
+    {{- end }}
+    - {{ toYaml $rule | indent 6 | trim }}
+    {{- else }}
+    - backendRefs:
+        - name: {{ include "ghost.fullname" $ }}
+          port: {{ $.Values.gatewayApi.httpRoute.backendPort | default $.Values.service.port }}
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+    {{- end }}
+{{- end }}

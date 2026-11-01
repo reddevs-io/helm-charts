@@ -143,6 +143,39 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# Gateway API configuration for the Ghost application
+# Requires Gateway API CRDs to be installed in the cluster
+gatewayApi:
+  enabled: false
+  # HTTPRoute configuration
+  httpRoute:
+    # Annotations to add to the HTTPRoute
+    annotations: {}
+    # Hostnames for the route
+    hostnames: []
+    # - "example.com"
+    # - "www.example.com"
+    # Parent Gateway references
+    parentRefs: []
+    # - name: my-gateway
+    #   namespace: ""  # Optional: defaults to release namespace
+    #   sectionName: "http"  # Optional: specific listener name
+    #   port: 80  # Optional: port number
+    # Backend service port (defaults to service.port if not specified)
+    backendPort: null
+    # Route rules: each rule is an HTTPRouteRule (matches, filters, timeouts, name, ...)
+    # and is rendered as written. A rule without backendRefs is sent to this chart's
+    # Service, except a rule with a RequestRedirect filter, which gets no backend.
+    # If rules is empty, a default rule is created matching all requests
+    rules: []
+    # - matches:
+    #     - path:
+    #         type: PathPrefix
+    #         value: /
+    #   filters: []
+    #   backendRefs: []  # Optional: overrides default backend
+    #   timeouts: {}
+
 resources:
   limits:
     memory: "300Mi"

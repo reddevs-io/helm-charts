@@ -146,6 +146,17 @@ The following table lists the configurable parameters of the Ghost chart and the
 | `ingress.hosts`                                 | List of hosts and paths                                     | chart-example.local                                 |
 | `ingress.tls`                                   | TLS configuration for Ingress                               | `[]`                                                |
 
+### Gateway API (HTTPRoute)
+
+| Parameter                                       | Description                                                 | Default                                             |
+| ----------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
+| `gatewayApi.enabled`                            | Render a Gateway API HTTPRoute for the Ghost Service        | `false`                                             |
+| `gatewayApi.httpRoute.annotations`              | Annotations for the HTTPRoute                               | `{}`                                                |
+| `gatewayApi.httpRoute.hostnames`                | Hostnames for the route                                     | `[]`                                                |
+| `gatewayApi.httpRoute.parentRefs`               | Parent Gateway references (required when enabled)           | `[]`                                                |
+| `gatewayApi.httpRoute.backendPort`              | Backend Service port (defaults to `service.port`)           | `null`                                              |
+| `gatewayApi.httpRoute.rules`                    | HTTPRoute rules; empty renders one `PathPrefix /` rule      | `[]`                                                |
+
 ### Autoscaling
 
 | Parameter                                       | Description                                                 | Default                                             |
@@ -369,6 +380,51 @@ ingress:
     - hosts:
         - blog.example.com
       secretName: blog-example-tls
+```
+
+### Gateway API (HTTPRoute)
+
+When `gatewayApi.enabled=true`, an HTTPRoute (`gateway.networking.k8s.io/v1`) is created for the Ghost Service as an alternative to the Ingress. It requires the Gateway API CRDs and an existing Gateway; the chart does not create one. The values match the `vite` chart's `gatewayApi.httpRoute` block. Only the Ghost Service gets a route; Redis does not.
+
+The HTTPRoute has the same name as the Service: the release fullname (`<release>-ghost`, or the release name when it already contains `ghost`, or `fullnameOverride`). Policies such as Envoy Gateway's `BackendTrafficPolicy` or `SecurityPolicy` can use that name in their `targetRefs`.
+
+Each entry in `rules` is a Gateway API `HTTPRouteRule` and is rendered as written, so it can carry `matches`, `filters`, `timeouts`, `name` or any other rule field. A rule without `backendRefs` is sent to the Ghost Service on `backendPort` (default `service.port`, `2368`), except a rule with a `RequestRedirect` filter: the Gateway API does not allow `backendRefs` next to a redirect, so that rule gets none. An empty `rules` list renders one rule for `PathPrefix /`. TLS belongs on the Gateway listener, so the route has no TLS settings.
+
+Example, attached to a shared Gateway in another namespace:
+
+```yaml
+gatewayApi:
+  enabled: true
+  httpRoute:
+    hostnames:
+      - example.com
+      - www.example.com
+    parentRefs:
+      - name: https-gateway
+        namespace: envoy-gateway-system
+        sectionName: https
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /api
+        timeouts:
+          request: 300s
+      - matches:
+          - path:
+              type: Exact
+              value: /old
+        filters:
+          - type: RequestRedirect
+            requestRedirect:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /new
+              statusCode: 301
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
 ```
 
 ### Redis Cache Component
