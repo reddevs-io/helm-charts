@@ -130,6 +130,10 @@ The chart supports Kubernetes Gateway API as an alternative to Ingress. This req
 | `gatewayApi.gateway.infrastructure` | Gateway infrastructure configuration | `{}` |
 | `gatewayApi.gateway.listeners` | Gateway listeners configuration | `[]` |
 
+The HTTPRoute has the same name as the Service: the release fullname (`<release>-vite`, or the release name when it already contains `vite`, or `fullnameOverride`). The backend HTTPRoute is `<fullname>-nodejs`. Policies such as Envoy Gateway's `BackendTrafficPolicy` or `SecurityPolicy` can use that name in their `targetRefs`.
+
+Each entry in `rules` is a Gateway API `HTTPRouteRule` and is rendered as written, so it can carry `matches`, `filters`, `timeouts`, `name` or any other rule field. A rule without `backendRefs` is sent to the chart's Service on `backendPort`, except a rule with a `RequestRedirect` filter: the Gateway API does not allow `backendRefs` next to a redirect, so that rule gets none. An empty `rules` list renders one rule for `PathPrefix /`.
+
 ### Resources Configuration
 
 | Parameter | Description | Default |

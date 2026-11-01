@@ -144,7 +144,9 @@ gatewayApi:
     #   port: 80  # Optional: port number
     # Backend service port (defaults to service.port if not specified)
     backendPort: null
-    # Route rules with matches, filters, and backendRefs
+    # Route rules: each rule is an HTTPRouteRule (matches, filters, timeouts, name, ...)
+    # and is rendered as written. A rule without backendRefs is sent to this chart's
+    # Service, except a rule with a RequestRedirect filter, which gets no backend.
     # If rules is empty, a default rule is created matching all requests
     rules: []
     # - matches:
@@ -434,7 +436,9 @@ nodejs:
       #   port: 80  # Optional: port number
       # Backend service port (defaults to nodejs.service.port if not specified)
       backendPort: null
-      # Route rules with matches, filters, and backendRefs
+      # Route rules: each rule is an HTTPRouteRule (matches, filters, timeouts, name, ...)
+      # and is rendered as written. A rule without backendRefs is sent to the nodejs
+      # Service, except a rule with a RequestRedirect filter, which gets no backend.
       # If rules is empty, a default rule is created matching all requests
       rules: []
       # - matches:
