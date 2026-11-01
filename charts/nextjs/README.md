@@ -89,6 +89,12 @@ The following table lists the configurable parameters of the chart and their def
 | `ingress.annotations`                        | Annotations for Ingress                                                    | `{}`                                                             |
 | `ingress.hosts`                              | List of host rules (host, paths)                                           | `chart-example.local`                                            |
 | `ingress.tls`                                | TLS configuration for Ingress                                              | `[]`                                                             |
+| `gatewayApi.enabled`                         | Render a Gateway API HTTPRoute for the Next.js Service                     | `false`                                                          |
+| `gatewayApi.httpRoute.annotations`           | Annotations for the HTTPRoute                                              | `{}`                                                             |
+| `gatewayApi.httpRoute.hostnames`             | Hostnames for the route                                                    | `[]`                                                             |
+| `gatewayApi.httpRoute.parentRefs`            | Parent Gateway references (required when enabled)                          | `[]`                                                             |
+| `gatewayApi.httpRoute.backendPort`           | Backend Service port (defaults to `service.port`)                          | `null`                                                           |
+| `gatewayApi.httpRoute.rules`                 | HTTPRoute rules; empty renders one `PathPrefix /` rule                     | `[]`                                                             |
 | `resources.limits.memory`                    | Pod memory limit                                                           | `300Mi`                                                          |
 | `livenessProbe`                              | Liveness probe configuration                                               | HTTP GET `/`, port http                                          |
 | `readinessProbe`                             | Readiness probe configuration                                              | HTTP GET `/`, port http                                          |
@@ -174,6 +180,7 @@ This chart creates the following Kubernetes resources:
 | Next.js Deployment        | apps/v1 Deployment                     | Running Next.js application pods        | `templates/nextjs/deployment.yaml`         |
 | Next.js Service           | v1 Service                             | Exposes Next.js pods internally         | `templates/nextjs/service.yaml`            |
 | Next.js Ingress           | networking.k8s.io/v1 Ingress           | External HTTP/S routing to Next.js      | `templates/nextjs/ingress.yaml`            |
+| Next.js HTTPRoute         | gateway.networking.k8s.io/v1 HTTPRoute | Gateway API routing to Next.js          | `templates/nextjs/httproute.yaml`          |
 | Next.js HPA               | autoscaling/v2 HorizontalPodAutoscaler | Auto-scale Next.js pods by CPU/memory   | `templates/nextjs/hpa.yaml`                |
 | Next.js PVC               | v1 PersistentVolumeClaim               | Persist Next.js data volume             | `templates/nextjs/pvc.yaml`                |
 | Next.js NetworkPolicy     | networking.k8s.io/v1 NetworkPolicy     | Control ingress to Next.js pods         | `templates/nextjs/networkpolicy.yaml`      |
@@ -262,6 +269,51 @@ ingress:
     - hosts:
         - example.com
       secretName: nextjs-example-tls
+```
+
+### Gateway API (HTTPRoute)
+
+When `gatewayApi.enabled=true`, an HTTPRoute (`gateway.networking.k8s.io/v1`) is created for the Next.js Service as an alternative to the Ingress. It requires the Gateway API CRDs and an existing Gateway; the chart does not create one. The values match the `vite` chart's `gatewayApi.httpRoute` block. Only the Next.js Service gets a route; Redis does not.
+
+The HTTPRoute has the same name as the Service: the release fullname (`<release>-nextjs`, or the release name when it already contains `nextjs`, or `fullnameOverride`). Policies such as Envoy Gateway's `BackendTrafficPolicy` or `SecurityPolicy` can use that name in their `targetRefs`.
+
+Each entry in `rules` is a Gateway API `HTTPRouteRule` and is rendered as written, so it can carry `matches`, `filters`, `timeouts`, `name` or any other rule field. A rule without `backendRefs` is sent to the Next.js Service on `backendPort` (default `service.port`, `3000`), except a rule with a `RequestRedirect` filter: the Gateway API does not allow `backendRefs` next to a redirect, so that rule gets none. An empty `rules` list renders one rule for `PathPrefix /`. TLS belongs on the Gateway listener, so the route has no TLS settings.
+
+Example, attached to a shared Gateway in another namespace:
+
+```yaml
+gatewayApi:
+  enabled: true
+  httpRoute:
+    hostnames:
+      - example.com
+      - www.example.com
+    parentRefs:
+      - name: https-gateway
+        namespace: envoy-gateway-system
+        sectionName: https
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /api
+        timeouts:
+          request: 300s
+      - matches:
+          - path:
+              type: Exact
+              value: /old
+        filters:
+          - type: RequestRedirect
+            requestRedirect:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /new
+              statusCode: 301
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
 ```
 
 ### Init Job
