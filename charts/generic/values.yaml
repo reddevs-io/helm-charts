@@ -133,6 +133,10 @@ httpRoute:
     # namespace: default
   hostnames:
   - chart-example.local
+  # Each rule is an HTTPRouteRule (matches, filters, timeouts, backendRefs, name, ...)
+  # and is rendered as written; every field is optional. A rule without backendRefs is
+  # sent to this chart's Service, except a rule with a RequestRedirect filter, which
+  # gets no backend. An empty list renders one rule matching PathPrefix /.
   rules:
   - matches:
     - path:

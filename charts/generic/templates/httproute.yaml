@@ -4,35 +4,57 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: {{ $fullName }}
-  labels:
-    {{- include "generic.labels" . | nindent 4 }}
   {{- with .Values.httpRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+  name: {{ $fullName }}
 spec:
-  parentRefs:
-    {{- with .Values.httpRoute.parentRefs }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
   {{- with .Values.httpRoute.hostnames }}
   hostnames:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  parentRefs:
+    {{- with .Values.httpRoute.parentRefs }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   rules:
     {{- range .Values.httpRoute.rules }}
-    {{- with .matches }}
-    - matches:
-      {{- toYaml . | nindent 8 }}
+    {{- /*
+    A rule may set any HTTPRouteRule field (matches, filters, timeouts,
+    name, ...); non-empty fields are passed through as written. backendRefs
+    defaults to the chart's Service unless the rule sets its own, or has a
+    RequestRedirect filter, which the Gateway API forbids combining with
+    backendRefs.
+    */}}
+    {{- $rule := dict }}
+    {{- range $key, $value := omit . "backendRefs" }}
+    {{- if not (empty $value) }}
+    {{- $_ := set $rule $key $value }}
     {{- end }}
-    {{- with .filters }}
-      filters:
-      {{- toYaml . | nindent 8 }}
     {{- end }}
-      backendRefs:
+    {{- $redirect := false }}
+    {{- range .filters }}
+    {{- if eq (toString .type) "RequestRedirect" }}
+    {{- $redirect = true }}
+    {{- end }}
+    {{- end }}
+    {{- if .backendRefs }}
+    {{- $_ := set $rule "backendRefs" .backendRefs }}
+    {{- else if not $redirect }}
+    {{- $_ := set $rule "backendRefs" (list (dict "name" $fullName "port" $svcPort "weight" 1)) }}
+    {{- end }}
+    - {{ toYaml $rule | indent 6 | trim }}
+    {{- else }}
+    - backendRefs:
         - name: {{ $fullName }}
           port: {{ $svcPort }}
           weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
     {{- end }}
 {{- end }}
