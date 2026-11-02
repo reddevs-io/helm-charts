@@ -47,6 +47,41 @@ ingress:
       hosts:
         - example.com
 
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - example.com
+    - www.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      timeouts:
+        request: 300s
+    - matches:
+        - path:
+            type: Exact
+            value: /old
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /new
+            statusCode: 301
+    - filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Proto
+                value: https
+
 autoscaling:
   enabled: true
   minReplicas: 1

@@ -53,7 +53,7 @@ The following categories of parameters are available. See `values.yaml` for comp
 * **Environment variables**: `env.normal`, `env.secret`
 * **External Secrets**: `externalSecrets.enabled`, `externalSecrets.refreshInterval`, provider and data mappings
 * **Ingress**: `ingress.enabled`, `ingress.className`, `ingress.annotations`, `ingress.hosts`, `ingress.tls`
-* **HTTPRoute (Gateway API)**: `httpRoute.enabled`, `httpRoute.parentRefs`, `httpRoute.hostnames`, `httpRoute.rules`
+* **HTTPRoute (Gateway API)**: `httpRoute.enabled`, `httpRoute.annotations`, `httpRoute.parentRefs`, `httpRoute.hostnames`, `httpRoute.rules` (see [HTTPRoute](#httproute-gateway-api))
 * **Autoscaling**: `autoscaling.enabled`, `minReplicas`, `maxReplicas`, `targetCPUUtilizationPercentage`, `targetMemoryUtilizationPercentage`
 * **Service account**: `serviceAccount.create`, `serviceAccount.name`, `serviceAccount.automount`
 * **Pod metadata & security**: `podAnnotations`, `podLabels`, `podSecurityContext`, `securityContext`
@@ -93,6 +93,50 @@ persistence:
     - name: data
       existingClaim: my-preexisting-pvc
       mountPath: /data
+```
+
+## HTTPRoute (Gateway API)
+
+With `httpRoute.enabled=true` the chart renders an HTTPRoute (`gateway.networking.k8s.io/v1`) for its Service. It needs the Gateway API CRDs and an existing Gateway. `httpRoute.parentRefs` and `httpRoute.hostnames` are rendered as written.
+
+The HTTPRoute has the same name as the Service: the release fullname (`<release>-generic`, or the release name when it already contains `generic`, or `fullnameOverride`). Policies such as Envoy Gateway's `BackendTrafficPolicy` or `SecurityPolicy` can use that name in their `targetRefs`.
+
+Each entry in `httpRoute.rules` is a Gateway API `HTTPRouteRule` and is rendered as written, so a rule can have any of `matches`, `filters`, `timeouts`, `backendRefs`, `name` or other rule fields, and none of them is required. A rule without `backendRefs` is sent to the chart's Service on `service.port` (weight 1), except a rule with a `RequestRedirect` filter: the Gateway API does not allow `backendRefs` next to a redirect, so that rule gets none. Setting `rules: []` renders one rule for `PathPrefix /`. Note that the default `values.yaml` ships an example rule for `PathPrefix /headers`; set `rules` explicitly when you enable the route.
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: https-gateway
+      namespace: envoy-gateway-system
+      sectionName: https
+  hostnames:
+    - app.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      timeouts:
+        request: 300s
+    - matches:
+        - path:
+            type: Exact
+            value: /metrics
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /
+            statusCode: 302
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /admin
+      backendRefs:
+        - name: my-app-generic-admin
+          port: 9000
 ```
 
 ## External Secrets

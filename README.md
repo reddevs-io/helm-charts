@@ -27,8 +27,8 @@ helm install my-nextjs reddevs/nextjs
 
 | Chart | Version | App Version | Description |
 |-------|---------|-------------|-------------|
-| [ghost](charts/ghost) | 1.3.1 | 5-alpine | Open-source publishing platform for professional bloggers |
-| [nextjs](charts/nextjs) | 1.4.1 | 1.16.0 | Production-ready Next.js application deployment |
+| [ghost](charts/ghost) | 1.6.0 | 5-alpine | Open-source publishing platform for professional bloggers |
+| [nextjs](charts/nextjs) | 1.8.0 | 1.16.0 | Production-ready Next.js application deployment |
 | [outline](charts/outline) | 1.2.1 | 0.87.4 | Modern team wiki and documentation platform |
 | [symfony](charts/symfony) | - | - | PHP Symfony framework application deployment |
 | [vite](charts/vite) | - | - | Modern frontend build tool and development server |
